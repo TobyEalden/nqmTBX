@@ -1,0 +1,48 @@
+<template name="timeSeries">
+    <div id="nqm-vis-{{_id}}" class="grid-stack-item" data-vis-id="{{_id}}" data-gs-x="{{position.x}}" data-gs-y="{{position.y}}" data-gs-width="{{position.w}}" data-gs-height="{{position.h}}">
+        <div id="nqm-vis-card-{{_id}}" class="grid-stack-item-content card {{theme.visualisationBackground}}">
+            <div id="nqm-vis-title-{{_id}}" class="nqm-visualisationTitle">
+                <span class="{{theme.visualisationTitle}}">{{name}}<a class="dropdown-button right {{theme.visualisationTitle}}" data-activates="nqm-vis-dropdown-{{_id}}" href="#"><i class="mdi-editor-mode-edit"></i></a></span>
+            </div>
+            <div id="nqm-vis-content-{{_id}}" class="card-content">
+              {{> visualisationLoading }}
+              {{> visualisationNoData }}
+              {{> Template.dynamic template=this.type }}
+            </div>
+        </div>
+        <ul id='nqm-vis-dropdown-{{_id}}' class='dropdown-content'>
+            <li><a class="black-text text-lighten-3" href="#!">settings<i class="mdi-action-settings left"></i></a></li>
+            <li class="divider"></li>
+            <li><a class="nqm-close">close <i class="left mdi-action-delete"></i></a></li>
+        </ul>
+    </div>
+</template>
+
+<template name="visualisationLoading">
+    <div id="nqm-vis-loading-{{_id}}" class="nqm-visualisationProgress">
+        <div class="row">
+            <div class="col s12 center">
+                <div class="preloader-wrapper small active">
+                    <div class="spinner-layer spinner-blue-only">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="gap-patch">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="visualisationNoData">
+    <div id="nqm-vis-no-data-{{_id}}" class="center nqm-not-visible">
+        <p><br />Sorry, no data was found for data source {{feedName}}</p>
+    </div>
+</template>
+

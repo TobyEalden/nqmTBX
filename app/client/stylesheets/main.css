@@ -1,0 +1,103 @@
+/*****************************************************************************/
+/* main: Style */
+/*****************************************************************************/
+html {
+
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+/*
+    Hide vertical scroll on visualisation cards.
+*/
+.grid-stack>.grid-stack-item>.grid-stack-item-content.card.card-content {
+    overflow-y: hidden;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #aaa;
+    shape-rendering: crispEdges;
+}
+
+.x.axis text, .y.axis text {
+    fill: #aaa;
+}
+
+.line {
+    fill: none;
+    stroke: orange;
+    stroke-width: 2;
+}
+
+.nqm-blank {
+    background-color: black;
+}
+
+.nqm-svg {
+    display: block;
+}
+
+.nqm-not-visible {
+    display: none;
+}
+
+.nqm-container {
+    width: 99%;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.nqm-visualisationProgress {
+    margin-top: 2%;
+}
+
+.nqm-visualisationTitle {
+    border-bottom: 1px solid rgba(160, 160, 160, 0.2);
+    padding: 0px 10px 0px 10px;
+}
+
+.nqm-clearFloat {
+    clear: both;
+}
+
+.nqm-widget-selector-button {
+    margin: 5px;
+    width: 250px;
+    height: 50px;
+    padding: 5px;
+}
+
+.nqm-widget-selector-button a {
+    width: 100%;
+}
+
+/*
+    Reduce gap between main action button and actions.
+*/
+.fixed-action-btn ul {
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+
+.grid-stack-item .dropdown-content li > a {
+    padding: .4rem;
+    font-size: 1rem;
+}
+
+.grid-stack>.grid-stack-item>.grid-stack-item-content.card {
+    overflow-y: hidden;
+}
+
+.grid-stack-item-content.card .card-content {
+    padding: 0;
+}

@@ -1,0 +1,56 @@
+<template name="widgetDetail">
+  <div class="section right">
+      WIDGET
+  </div>
+  <div class="divider nqm-clearFloat"></div>
+  <div class="container">
+    <div class="section">
+        <a id="chooseWidget"><h5>choose a widget</h5></a>
+        {{#each widgetType}}
+          {{> widgetTypeButton }}
+        {{/each}}
+    </div>
+    <div class="nqm-clearFloat"></div>
+    <div class="section {{showDataSources}}">
+        <a id="chooseDataSource"><h5>choose a data source</h5></a>
+        {{#each feedName}}
+          {{> dataSourceButton }}
+        {{/each}}
+    </div>
+    <div class="nqm-clearFloat"></div>
+    <div class="section {{showDataSourceConfigure}}">
+        <a id="configureDataSource"><h5>configure data source</h5></a>
+        {{> dataFieldSelect}}
+    </div>
+    <div class="nqm-clearFloat"></div>
+    <div class="section {{showFinish}}">
+        <a id="finishBtn" class="btn right" type="submit">finish</a>
+    </div>
+    <div style="height:200px">
+        <!--spacer-->
+    </div>
+  </div>
+</template>
+
+<template name="widgetTypeButton">
+    <div class="left nqm-widget-selector-button valign-wrapper center {{widgetTypeSelected}}">
+        <a id="nqm-widget-type-{{name}}" class="valign waves-effect waves-green btn nqm-widget-type-selection"><i class="{{icon}} left"></i>{{caption}}</a>
+    </div>
+</template>
+
+<template name="dataSourceButton">
+    <div class="left nqm-widget-selector-button valign-wrapper center {{dataSourceSelected}}">
+        <a id="nqm-data-source-{{key.id}}" class="valign waves-effect waves-green btn nqm-data-source-selection"><i class="{{params.icon}} left"></i>{{params.name}}</a>
+    </div>
+</template>
+
+<template name="dataFieldSelect">
+    <div class="input-field col s12">
+        <select id="dataSelect">
+            <option value="" disabled selected>[choose data field]</option>
+            {{#each schemaFields}}
+              <option value="{{name}}">{{name}}</option>
+            {{/each}}
+        </select>
+    </div>
+</template>

@@ -1,0 +1,37 @@
+<template name="mainLayout">
+    <header>
+        <nav class="{{theme.mainColour}}" role="navigation">
+            <div class="nav-wrapper">
+                <a id="logo-container" class="brand-logo right {{theme.mainTextColour}}" href="/"><span style="font-weight: bold;">nquiring</span><span style="font-weight: lighter;">toolbox</span></a>
+                <ul class="left hide-on-med-and-down">
+                  {{> menuOptions}}
+                </ul>
+                <ul class="{{theme.mainColour}} side-nav" id="nav-mobile" >
+                  {{> menuOptions}}
+                </ul>
+                <a href="#" data-activates="nav-mobile" class="button-collapse {{theme.menuTextColour}}"><i class="mdi-navigation-menu"></i></a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="nqm-container">
+          {{> yield}}
+        </div>
+    </main>
+
+    <!--<footer class="page-footer">-->
+    <!--<div class="nqm-container">-->
+    <!--<div class="row">-->
+    <!--<a class="red-text text-darken-4" href="http://nqminds.com">nqminds.com</a>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--</footer>-->
+</template>
+
+<template name="menuOptions">
+    <li class=""><a class="{{theme.menuTextColour}}" href="/visualise"><i class="left tiny mdi-action-view-quilt"></i>visualise</a></li>
+    <li class=""><a class="{{theme.menuTextColour}}" href="/feeds"><i class="left tiny mdi-content-archive"></i>data</a></li>
+    <li class=""><a class="{{theme.menuTextColour}}" href="/devices"><i class="left tiny mdi-communication-stay-current-portrait"></i>devices</a></li>
+    <li class=""><a class="{{theme.menuTextColour}}" href="/about"><i class="left tiny mdi-action-info-outline"></i>about</a></li>
+</template>
