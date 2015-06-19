@@ -62,6 +62,16 @@ var initialiseGridStack = function() {
       });
     }
   });
+
+  var layout = _.debounce(onWindowResized.bind(this), 1000);
+  $(window).resize(layout);
+};
+
+var onWindowResized = function() {
+  console.log("layout");
+  _.each(this._gridItems, function(v) {
+    Session.set("nqm-vis-grid-update-" + v._id, true);
+  });
 };
 
 var subscriptionReady =  function() {

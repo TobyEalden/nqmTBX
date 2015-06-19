@@ -5,6 +5,7 @@
                 <a id="logo-container" class="brand-logo right {{theme.mainTextColour}}" href="/"><span style="font-weight: bold;">nquiring</span><span style="font-weight: lighter;">toolbox</span></a>
                 <ul class="left hide-on-med-and-down">
                   {{> menuOptions}}
+                  <li class=""><a class="{{theme.menuTextColour}} dropdown-button nqm-user-menu-dropdown" data-activates="userMenu"><i class="left tiny mdi-social-person-outline"></i>{{currentUser.profile.name}}</a></li>
                 </ul>
                 <ul class="{{theme.mainColour}} side-nav" id="nav-mobile" >
                   {{> menuOptions}}
@@ -27,11 +28,20 @@
     <!--</div>-->
     <!--</div>-->
     <!--</footer>-->
+
+    <ul id='userMenu' class='dropdown-content nqm-dropdown'>
+        <li><a><!--<i class="left tiny mdi-action-settings"></i>-->profile</a></li>
+        <li class="divider"></li>
+        <li><a href="/logout"><!--<i class="left tiny mdi-action-exit-to-app"></i>-->logout</a></li>
+    </ul>
+
 </template>
 
 <template name="menuOptions">
-    <li class=""><a class="{{theme.menuTextColour}}" href="/visualise"><i class="left tiny mdi-action-view-quilt"></i>visualise</a></li>
-    <li class=""><a class="{{theme.menuTextColour}}" href="/feeds"><i class="left tiny mdi-content-archive"></i>data</a></li>
-    <li class=""><a class="{{theme.menuTextColour}}" href="/devices"><i class="left tiny mdi-communication-stay-current-portrait"></i>devices</a></li>
-    <li class=""><a class="{{theme.menuTextColour}}" href="/about"><i class="left tiny mdi-action-info-outline"></i>about</a></li>
+    {{#if currentUser}}
+      <li class=""><a class="{{theme.menuTextColour}}" href="/visualise"><i class="left tiny mdi-action-view-quilt"></i>visualise</a></li>
+      <li class=""><a class="{{theme.menuTextColour}}" href="/feeds"><i class="left tiny mdi-content-archive"></i>data</a></li>
+      <li class=""><a class="{{theme.menuTextColour}}" href="/devices"><i class="left tiny mdi-communication-stay-current-portrait"></i>devices</a></li>
+      <!--<li class=""><a class="{{theme.menuTextColour}}" href="/about"><i class="left tiny mdi-action-info-outline"></i>about</a></li>-->
+    {{/if}}
 </template>

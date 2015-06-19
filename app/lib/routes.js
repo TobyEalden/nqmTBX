@@ -1,11 +1,19 @@
 Router.configure({
-  loadingTemplate: 'Loading',
-  notFoundTemplate: 'NotFound'
+  layoutTemplate: "mainLayout",
+  loadingTemplate: 'loading',
+  notFoundTemplate: 'notFound'
+});
+
+Router.onBeforeAction(function() {
+  if (!Meteor.userId()) {
+    this.render("login");
+  } else {
+    this.next();
+  }
 });
 
 var visualiseRoute =  {
   template: "visualise",
-  layoutTemplate: "mainLayout",
   where: "client"
 };
 
@@ -14,13 +22,11 @@ Router.route("/visualise", visualiseRoute);
 
 Router.route("/feeds", {
   template: "feeds",
-  layoutTemplate: "mainLayout",
   where: "client"
 });
 
 Router.route("/widgetDetail", {
   template: "widgetDetail",
-  layoutTemplate: "mainLayout",
   where: "client",
   waitOn: function() {
     return [Meteor.subscribe("widgetTypes"), Meteor.subscribe("feedName")];
@@ -32,3 +38,5 @@ Router.route("/widgetDetail", {
     }
   }
 });
+
+Router.route("/logout");

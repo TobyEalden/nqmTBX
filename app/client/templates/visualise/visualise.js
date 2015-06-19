@@ -24,7 +24,7 @@ Template.visualise.helpers({
 /*****************************************************************************/
 /* Lifecycle Hooks */
 /*****************************************************************************/
-Template.visualise.rendered = function() {
+Template.visualise.onRendered(function() {
   // Initialise tooltips.
-  $('.tooltipped').tooltip({ delay: 50 });
-};
+  $(".tooltipped").tooltip({ delay: 50 });
+});
