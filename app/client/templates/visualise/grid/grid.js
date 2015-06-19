@@ -20,7 +20,7 @@ Template.grid.onCreated(function() {
 });
 
 Template.grid.onRendered(function() {
-  initialiseGridStack();
+  initialiseGridStack.call(this);
   this.subscribe("widgets", subscriptionReady.bind(this));
 });
 
@@ -37,6 +37,8 @@ Template.grid.onDestroyed(function() {
 var gridSessionKey = "gridStackItems";
 
 var initialiseGridStack = function() {
+  var self = this;
+
   // Initialise grid-stack.
   var options = {
     auto: true,
@@ -50,8 +52,14 @@ var initialiseGridStack = function() {
   };
   $(".grid-stack").gridstack(options);
   $(".grid-stack").on("change", function(e,items) {
-    if (items.length > 0) {
-      saveWidgetPositions(0, items);
+    if (!self._ignoreUpdates && items.length > 0) {
+      self._savingTimer = setTimeout(function() {
+        $('#nqm-feedback-modal').openModal();
+      },250);
+      saveWidgetPositions(0, items, function() {
+        clearTimeout(self._savingTimer);
+        $('#nqm-feedback-modal').closeModal();
+      });
     }
   });
 };
@@ -77,12 +85,14 @@ var subscriptionReady =  function() {
         self._gridItems[vnew._id] = vnew;
         Session.set(gridSessionKey,self._gridItems);
 
-        console.log("liveQuery - widget position changed: " + vnew._id + " " + JSON.stringify(vnew.position));
-
         // Update the grid-stack component.
         var grid = $(".grid-stack").data("gridstack");
         var nodeElement = $("#nqm-vis-" + vnew._id);
+        console.log("liveQuery - widget position changed: " + vnew._id + " " + JSON.stringify(vnew.position));
+        self._ignoreUpdates = true;
         grid.update(nodeElement, vnew.position.x, vnew.position.y, vnew.position.w, vnew.position.h);
+        self._ignoreUpdates = false;
+        console.log("liveQuery - update complete");
 
         Session.set("nqm-vis-grid-update-" + vnew._id, true);
       } else {
@@ -125,6 +135,7 @@ var saveWidgetPositions = function(i, items, cb) {
   if (!current.position || current.position.x != item.x || current.position.y != item.y || current.position.w != item.width || current.position.h != item.height) {
     saveWidgetPosition(widgetId,{ x: item.x, y: item.y, w: item.width, h: item.height }, iterate);
   } else {
+    console.log("not saving " + widgetId + " position unchanged");
     iterate();
   }
 };

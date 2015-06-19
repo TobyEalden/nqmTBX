@@ -47,10 +47,6 @@ main {
     display: block;
 }
 
-.nqm-not-visible {
-    display: none;
-}
-
 .nqm-container {
     width: 99%;
     margin-left:auto;
@@ -68,6 +64,14 @@ main {
 
 .nqm-clearFloat {
     clear: both;
+}
+
+.modal.nqm-feedback-modal {
+    width: 200px;
+}
+
+.modal.nqm-feedback-modal > .modal-content {
+    padding: 4px;
 }
 
 .nqm-widget-selector-button {

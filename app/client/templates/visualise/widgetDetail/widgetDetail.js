@@ -14,13 +14,13 @@ Template.widgetDetail.onCreated(function() {
 
 Template.widgetDetail.helpers({
   showDataSources: function() {
-    return Session.get("widgetType") === undefined ? "nqm-not-visible" : "";
+    return Session.get("widgetType") === undefined ? "hide" : "";
   },
   showDataSourceConfigure: function() {
-    return Session.get("dataSource") === undefined ? "nqm-not-visible" : "";
+    return Session.get("dataSource") === undefined ? "hide" : "";
   },
   showFinish: function() {
-    return Session.get("seriesField") && Session.get("dataField") ? "" : "nqm-not-visible";
+    return Session.get("seriesField") && Session.get("dataField") ? "" : "hide";
   }
 });
 

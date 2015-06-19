@@ -14,7 +14,7 @@ var doVisualisationRender = function() {
     $("#" + this.data.type + "-" + this.data._id).attr("class","nqm-svg");
   } else {
     // Display 'no data' if there's none.
-    $("#nqm-vis-no-data-" + this.data._id).removeClass("nqm-not-visible");
+    $("#nqm-vis-no-data-" + this.data._id).removeClass("hide");
   }
   this._visualisation.render();
 };
