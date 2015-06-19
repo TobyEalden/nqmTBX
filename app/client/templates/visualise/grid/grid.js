@@ -2,29 +2,39 @@
  * Created by toby on 10/06/15.
  */
 
-var gridSessionKey = "gridStackItems";
-
-Template.grid.onCreated(function() {
-  this._gridItems = {};
-  Session.set(gridSessionKey,this._gridItems);
-});
-
+/*****************************************************************************/
+/* Helpers */
+/*****************************************************************************/
 Template.grid.helpers({
   gridItem: function() {
     return _.values(Session.get(gridSessionKey));
   }
 });
 
-Template.grid.rendered = function() {
+/*****************************************************************************/
+/* Lifecycle Hooks */
+/*****************************************************************************/
+Template.grid.onCreated(function() {
+  this._gridItems = {};
+  Session.set(gridSessionKey,this._gridItems);
+});
+
+Template.grid.onRendered(function() {
   initialiseGridStack();
-  this._subscription = Meteor.subscribe("widgets", subscriptionReady.bind(this));
-};
+  this.subscribe("widgets", subscriptionReady.bind(this));
+});
 
 Template.grid.onDestroyed(function() {
-  if (this._subscription) {
-    this._subscription.stop();
+  if (this._liveQuery) {
+    this._liveQuery.stop();
+    delete this._liveQuery;
   }
 });
+
+/*****************************************************************************/
+/* Private implementation */
+/*****************************************************************************/
+var gridSessionKey = "gridStackItems";
 
 var initialiseGridStack = function() {
   // Initialise grid-stack.
@@ -40,18 +50,17 @@ var initialiseGridStack = function() {
   };
   $(".grid-stack").gridstack(options);
   $(".grid-stack").on("change", function(e,items) {
-    visualisationCache.update(items);
+    if (items.length > 0) {
+      saveWidgetPositions(0, items);
+    }
   });
 };
 
 var subscriptionReady =  function() {
   var self = this;
 
-  // Get cursor for visualisations.
-  self._cursor = widgets.find();
-
   // Observer for changes in collection.
-  self._cursor.observe({
+  self._liveQuery = widgets.find().observe({
     added: function(v) {
       if (!self._gridItems.hasOwnProperty(v._id)) {
         self._gridItems[v._id] = v;
@@ -63,20 +72,21 @@ var subscriptionReady =  function() {
     changed: function(vnew, vold) {
       // Avoid circular updates - has position actually changed?
       var existing = self._gridItems[vnew._id];
-      if (!existing.position || existing.position.x !== vnew.position.x || existing.position.y !== vnew.position.y || existing.position.w !== vnew.position.w || existing.position.h !== vnew.position.h) {
+      if (!existing.position || existing.position.x != vnew.position.x || existing.position.y != vnew.position.y || existing.position.w != vnew.position.w || existing.position.h != vnew.position.h) {
         // Assign updated item.
         self._gridItems[vnew._id] = vnew;
         Session.set(gridSessionKey,self._gridItems);
 
-        // Update the grid-stack component.
-        var visualInfo = visualisationCache.find(vnew._id);
-        var grid = $('.grid-stack').data('gridstack');
-        grid.update(visualInfo.nodeElement, vnew.position.x, vnew.position.y, vnew.position.w, vnew.position.h);
+        console.log("liveQuery - widget position changed: " + vnew._id + " " + JSON.stringify(vnew.position));
 
-        // Let the current event complte and then update the UI.
-        Meteor.setTimeout(function() {
-          visualInfo._visualisation.checkSize();
-        },0);
+        // Update the grid-stack component.
+        var grid = $(".grid-stack").data("gridstack");
+        var nodeElement = $("#nqm-vis-" + vnew._id);
+        grid.update(nodeElement, vnew.position.x, vnew.position.y, vnew.position.w, vnew.position.h);
+
+        Session.set("nqm-vis-grid-update-" + vnew._id, true);
+      } else {
+        console.log("ignoring data update - position not changed.")
       }
     },
     removed: function(v) {
@@ -84,4 +94,37 @@ var subscriptionReady =  function() {
       Session.set(gridSessionKey,self._gridItems);
     }
   });
+};
+
+var saveWidgetPosition = function(id, pos, cb) {
+  console.log("saving widget position: " + id);
+  Meteor.call("/app/widget/updatePosition",{ _id: id, position: pos}, function(err) {
+    if (err) {
+      console.log("failed to save widget position: " + err.message);
+      cb();
+    } else {
+      console.log("saved widget position: " + id);
+      cb();
+    }
+  });
+};
+
+var saveWidgetPositions = function(i, items, cb) {
+  var iterate = function() {
+    i++;
+    if (i < items.length) {
+      saveWidgetPositions(i, items, cb);
+    } else if (typeof cb === "function") {
+      cb();
+    }
+  };
+
+  var item = items[i];
+  var widgetId = item.el.data().widgetId;
+  var current = widgets.findOne({_id: widgetId});
+  if (!current.position || current.position.x != item.x || current.position.y != item.y || current.position.w != item.width || current.position.h != item.height) {
+    saveWidgetPosition(widgetId,{ x: item.x, y: item.y, w: item.width, h: item.height }, iterate);
+  } else {
+    iterate();
+  }
 };

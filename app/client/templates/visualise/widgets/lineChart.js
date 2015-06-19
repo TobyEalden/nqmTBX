@@ -5,15 +5,10 @@
 Template.lineChart.onCreated(function() {
   // Create the visualisation.
   this._visualisation = new NQMLineChart(this.data);
+  this._debugTiming = false;
 });
 
 Template.lineChart.onRendered(function() {
   // Delegate to helper.
   timeSeriesBase.startSubscriptions.call(this);
 });
-
-Template.lineChart.onDestroyed(function() {
-  // Delegate to helper.
-  timeSeriesBase.stopSubscriptions.call(this);
-});
-

@@ -5,6 +5,7 @@
 Template.scatterPlot.onCreated(function() {
   // Create the visualisation.
   this._visualisation = new NQMScatterPlot(this.data);
+  this._debugTiming = false;
 });
 
 Template.scatterPlot.onRendered(function() {
@@ -12,7 +13,3 @@ Template.scatterPlot.onRendered(function() {
   timeSeriesBase.startSubscriptions.call(this);
 });
 
-Template.scatterPlot.onDestroyed(function() {
-  // Delegate to helper.
-  timeSeriesBase.stopSubscriptions.call(this);
-});

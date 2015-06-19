@@ -12,8 +12,6 @@ window.NQMScatterPlot = (function() {
   ScatterPlot.prototype.constructor = ScatterPlot;
 
   ScatterPlot.prototype.onRender = function(renderGroup) {
-    console.log("scatterPlot rendering");
-
     var self = this;
     var updateSelection = renderGroup.selectAll("circle").data(this._config.collection, this._xValue);
 

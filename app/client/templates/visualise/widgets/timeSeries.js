@@ -2,6 +2,9 @@
  * Created by toby on 10/06/15.
  */
 
+/*****************************************************************************/
+/* Event Handlers */
+/*****************************************************************************/
 Template.timeSeries.events({
   "click .nqm-close": function(event, template) {
     Meteor.call("/app/widget/remove", template.data._id, function(err,result) {
@@ -14,24 +17,23 @@ Template.timeSeries.events({
   }
 });
 
+/*****************************************************************************/
+/* Lifecycle Hooks */
+/*****************************************************************************/
 Template.timeSeries.onRendered(function() {
   var grid = $('.grid-stack').data('gridstack');
-  if (grid) {
-    // Get the node representing the grid-stack item.
-    var gridNode = this.$("#nqm-vis-" + this.data._id);
 
-    // If there is a position use it when adding the widget, otherwise use auto-position.
-    if (this.data.position) {
-      grid.add_widget(gridNode,this.data.position.x,this.data.position.y,this.data.position.w,this.data.position.h);
-    } else {
-      grid.add_widget(gridNode,undefined,undefined,4,2,true);
-      // Now set the position to the default value given by grid-stack..
-      var nodeData = $(gridNode).data();
-      this.data.position = { x: nodeData.gsX, y: nodeData.gsY, w: nodeData.gsWidth, h: nodeData.gsHeight };
-    }
+  // Get the node representing the grid-stack item.
+  var gridNode = this.$("#nqm-vis-" + this.data._id);
+
+  // If there is a position use it when adding the widget, otherwise use auto-position.
+  if (this.data.position) {
+    grid.add_widget(gridNode,this.data.position.x,this.data.position.y,this.data.position.w,this.data.position.h);
   } else {
-    // TODO - review why this happens on DDP refresh (doesn't appear to cause any problems).
-    console.log("Template.timeSeries.onRendered => grid not initialised!!!");
+    grid.add_widget(gridNode,undefined,undefined,4,2,true);
+    // Now set the position to the default value given by grid-stack..
+    var nodeData = $(gridNode).data();
+    this.data.position = { x: nodeData.gsX, y: nodeData.gsY, w: nodeData.gsWidth, h: nodeData.gsHeight };
   }
 
   // Initialise the drop-down menu.
@@ -49,7 +51,7 @@ Template.timeSeries.onRendered(function() {
 Template.timeSeries.onDestroyed(function() {
   var gridNode = this.$("#nqm-vis-" + this.data._id);
   var grid = $('.grid-stack').data('gridstack');
-  if (grid && gridNode) {
+  if (grid && gridNode && gridNode.data('_gridstack_node')) {
     // Get the node representing the grid-stack item.
     grid.remove_widget(gridNode, false);
   }

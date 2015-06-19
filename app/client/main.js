@@ -1,7 +1,7 @@
 
 var themes = {
   "blue-grey": {
-    mainColour: "blue-grey z-depth-2",
+    mainColour: "blue-grey z-depth-1",
     menuTextColour: "grey-text text-lighten-3",
     mainTextColour: "white-text",
     visualisationBackground: "grey darken-3 grey-text text-lighten-1 z-depth-3",

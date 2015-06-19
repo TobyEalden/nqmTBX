@@ -1,5 +1,6 @@
+
 /*****************************************************************************/
-/* Home: Event Handlers */
+/* Event Handlers */
 /*****************************************************************************/
 Template.visualise.events({
   "click #nqm-theme-change-btn": function(event, template) {
@@ -15,15 +16,15 @@ Template.visualise.events({
 });
 
 /*****************************************************************************/
-/* Home: Helpers */
+/* Helpers */
 /*****************************************************************************/
 Template.visualise.helpers({
 });
 
 /*****************************************************************************/
-/* Home: Lifecycle Hooks */
+/* Lifecycle Hooks */
 /*****************************************************************************/
 Template.visualise.rendered = function() {
-  console.log("visualise template rendered " + this.view.renderCount + " times");
+  // Initialise tooltips.
   $('.tooltipped').tooltip({ delay: 50 });
 };

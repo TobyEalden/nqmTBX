@@ -96,7 +96,7 @@ SeriesBase = (function() {
   var scaleAndRender = function() {
     if (this._config.collection) {
       var timer = Date.now();
-      console.log(this._config.type + " starting render: " + (Date.now() - timer));
+//      console.log(this._config.type + " starting render: " + (Date.now() - timer));
 
       // Set the axis domain range.
       var xExtent = d3.extent(this._config.collection, this._xValue);
@@ -129,7 +129,7 @@ SeriesBase = (function() {
         .call(this._yAxis);
 
       this.onRender(this._renderGroup);
-      console.log(this._config.type + " finished render: " + (Date.now() - timer));
+//      console.log(this._config.type + " finished render: " + (Date.now() - timer));
     }
 
     this._timeout = 0;

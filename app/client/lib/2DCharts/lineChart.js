@@ -19,8 +19,6 @@ window.NQMLineChart = (function() {
   };
 
   LineChart.prototype.onRender = function(renderGroup) {
-    console.log("lineChart rendering");
-
     var sel = renderGroup.selectAll("path").data([0]);
 
     sel.enter()
