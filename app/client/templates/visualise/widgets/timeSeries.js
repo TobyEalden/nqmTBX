@@ -42,7 +42,7 @@ Template.timeSeries.onRendered(function() {
       outDuration: 225,
       constrain_width: false, // Does not change width of dropdown to that of the activator
       hover: true, // Activate on hover
-      gutter: -95, // Spacing from edge
+      gutter: -80, // Spacing from edge
       belowOrigin: true // Displays dropdown below the button
     }
   );

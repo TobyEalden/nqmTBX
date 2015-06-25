@@ -16,10 +16,10 @@ Template.logout.onRendered(function() {
   var interval = Meteor.setInterval(function() {
     var dots = Session.get("logoutTimer");
     Session.set("logoutTimer", dots + ".");
-  },1000);
+  },250);
   Meteor.setTimeout(function() {
     Meteor.clearInterval(interval);
     Meteor.logout();
     Router.go("/");
-  },4000);
+  },2000);
 });

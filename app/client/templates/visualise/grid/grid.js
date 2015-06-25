@@ -67,11 +67,13 @@ var initialiseGridStack = function() {
   $(window).resize(layout);
 };
 
-var onWindowResized = function() {
-  console.log("layout");
-  _.each(this._gridItems, function(v) {
-    Session.set("nqm-vis-grid-update-" + v._id, true);
-  });
+var onWindowResized = function(ev, ui) {
+  if (ev.target === window) {
+    console.log("layout");
+    _.each(this._gridItems, function(v) {
+      Session.set("nqm-vis-grid-update-" + v._id, true);
+    });
+  }
 };
 
 var subscriptionReady =  function() {
