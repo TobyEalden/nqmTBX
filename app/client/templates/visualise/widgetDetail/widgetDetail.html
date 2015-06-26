@@ -1,10 +1,8 @@
 <template name="widgetDetail">
-  <div class="row">
-      <div class="section right">
-          WIDGET
-      </div>
-      <div class="divider"></div>
+  <div class="section right">
+      WIDGET
   </div>
+  <div class="divider" style="clear: both;"></div>
   <div class="container">
     <div class="row">
         <div class="section">
@@ -17,7 +15,7 @@
     <div class="row">
         <div class="section {{showDataSources}}">
             <a id="chooseDataSource"><h5>choose a data source</h5></a>
-          {{#each feedName}}
+          {{#each feed}}
             {{> dataSourceButton }}
           {{/each}}
         </div>
@@ -47,7 +45,7 @@
 
 <template name="dataSourceButton">
     <div class="left nqm-widget-selector-button valign-wrapper center {{dataSourceSelected}}">
-        <a id="nqm-data-source-{{key.id}}" class="valign waves-effect waves-green btn nqm-data-source-selection"><i class="{{params.icon}} left"></i>{{params.name}}</a>
+        <a id="nqm-data-source-{{hubId}}-{{id}}" class="valign waves-effect waves-green btn nqm-data-source-selection"><i class="{{icon}} left"></i>{{name}}</a>
     </div>
 </template>
 

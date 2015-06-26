@@ -40,10 +40,10 @@ SeriesBase = (function() {
     // Create SVG container.
     this._svgElement = d3.select("#" + this._config.type + "-" + this._config._id);
 
-    this._xValue = function (d) { return d.params[self._config.series] };
+    this._xValue = function (d) { return d.datum[self._config.series] };
     this._xMap = function (d) { return self._xScale(self._xValue(d)); };
 
-    this._yValue = function (d) { return parseFloat(d.params[self._config.datum]); };
+    this._yValue = function (d) { return parseFloat(d.datum[self._config.datum]); };
     this._yMap = function (d) { return self._yScale(self._yValue(d)); };
 
     this._colour = d3.scale.category20b();

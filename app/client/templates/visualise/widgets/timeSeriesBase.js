@@ -25,7 +25,7 @@ var debugStart = function() {
 
 var debugOut = function(msg) {
   if (this._debugTiming) {
-    console.log(this.data.feedName + " - " + msg + " - elapsed: " + (Date.now() - this._debugTimer));
+    console.log(this.data.feedId + " - " + msg + " - elapsed: " + (Date.now() - this._debugTimer));
   }
 };
 
@@ -40,7 +40,7 @@ timeSeriesBase.startSubscriptions = function() {
 
   // Subscribe to data for last 24 hours.
   var sinceDate = new Date(Date.now() - 24*60*60*1000);
-  var feedSub = self.subscribe("feedData", { hubId: self.data.hubId, feed: self.data.feedName, from: sinceDate.getTime() });
+  var feedSub = self.subscribe("feedData", { hubId: self.data.hubId, id: self.data.feedId, from: sinceDate.getTime() });
 
   // Get notified when the subscription is ready.
   self.autorun(function() {
@@ -50,11 +50,11 @@ timeSeriesBase.startSubscriptions = function() {
       // Build the projection based on the visualisation configuration.
       var projection = {
         fields: {},
-        sort: { "params.timestamp": 1 }
+        sort: { "datum.timestamp": 1 }
       };
-      projection.fields["params." + self.data.series] = 1;
-      projection.fields["params." + self.data.datum] = 1;
-      var cursor = feeds.find({ evtName: "feedData", "key.id": self.data.feedName}, projection);
+      projection.fields["datum." + self.data.series] = 1;
+      projection.fields["datum." + self.data.datum] = 1;
+      var cursor = feedData.find({ "hubId": self.data.hubId, "id": self.data.feedId}, projection);
       debugOut.call(self,"finished find");
 
       // Listen for changes to the collection.

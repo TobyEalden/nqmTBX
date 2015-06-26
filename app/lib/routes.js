@@ -29,12 +29,12 @@ Router.route("/widgetDetail", {
   template: "widgetDetail",
   where: "client",
   waitOn: function() {
-    return [Meteor.subscribe("widgetTypes"), Meteor.subscribe("feedName")];
+    return [Meteor.subscribe("widgetTypes"), Meteor.subscribe("feeds")];
   },
   data: function() {
     return {
       widgetType: widgetTypes.find(),
-      feedName: feeds.find({ evtName: "created"})
+      feed: feeds.find()
     }
   }
 });

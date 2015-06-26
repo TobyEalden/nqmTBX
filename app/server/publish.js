@@ -2,21 +2,18 @@ Meteor.publish("widgets", function() {
   return widgets.find();
 });
 
-Meteor.publish("feedName", function(opts) {
-  return feeds.find({ evtName: "created" });
+Meteor.publish("feeds", function(opts) {
+  return feeds.find();
 });
 
 Meteor.publish("feedData", function(opts) {
-  var lookup = {
-    evtName: "feedData",
-    key: { hubId: opts.hubId, id: opts.feed }
-  };
+  var lookup = { hubId: opts.hubId, id: opts.id };
   if (opts.from) {
-    lookup["params.timestamp"] = { $gt: opts.from };
+    lookup["datum.timestamp"] = { $gt: opts.from };
   }
   opts.limit = opts.limit || 1000;
 
-  return feeds.find(lookup,{ sort: { "params.timestamp": -1 }, limit: opts.limit });
+  return feedData.find(lookup,{ sort: { "datum.timestamp": -1 }, limit: opts.limit });
 });
 
 Meteor.publish("widgetTypes", function() {
