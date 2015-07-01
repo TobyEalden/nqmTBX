@@ -36,7 +36,7 @@ var themes = {
     visualisationBackground: "grey darken-3 grey-text text-lighten-1 z-depth-2",
     background: "grey darken-2 grey-text text-lighten-5",
     actionButton: "red white-text",
-    sideNav: "amber black-text z-depth-0"
+    sideNav: "amber lighten-3 black-text z-depth-0"
   },
   "grey": {
     mainColour: "grey darken-1 z-depth-2",

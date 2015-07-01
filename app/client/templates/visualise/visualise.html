@@ -1,24 +1,25 @@
 <template name="visualise">
-  <div class="fixed-action-btn" style="bottom: 14px; right: 12px;">
-      <a class="btn-floating btn-large {{theme.actionButton}} tooltipped nqm-optionsButton" data-position="left" data-delay="50" data-tooltip="options">
-          <i class="large mdi-navigation-more-vert"></i>
-      </a>
-      <ul>
-          <li><a class="btn-floating z-depth-2 yellow darken-1"><i class="large mdi-editor-format-quote"></i></a></li>
-          <li><a class="btn-floating z-depth-2 green"><i class="large mdi-editor-publish"></i></a></li>
-          <li><a id="nqm-theme-change-btn" class="btn-floating z-depth-2 blue tooltipped" data-position="left" data-delay="50" data-tooltip="change theme"><i class="large mdi-image-color-lens"></i></a></li>
-          <li><a class="btn-floating z-depth-2 red tooltipped" data-position="left" data-delay="50" data-tooltip="add widget" href="/widgetDetail"><i class="large mdi-editor-insert-chart"></i></a></li>
-      </ul>
+  {{#contentFor "pageHeader"}}
+    <a class="brand-logo">&nbsp; visualise</a>
+  {{/contentFor}}
+
+  <div class="section">
+    <form class="">
+      <div class="row">
+        <div class="col s12">
+          <a href="/createVisualisation" class="right waves-effect waves-purple btn">new visualisation<i class="left material-icons">add</i></a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <i class="material-icons prefix">search</i>
+          <input id="nqm-visualisation-search" type="text" required>
+          <label for="nqm-visualisation-search">search</label>
+        </div>
+      </div>
+    </form>
   </div>
   <div class="section">
-      <h6 class="right">VISUALISATION</h6>
-  </div>
-  <div class="divider" style="clear: both;"></div>
-  <div class="section"></div>
-  {{> grid}}
-  <div id="nqm-feedback-modal" class="modal green darken-1 white-text nqm-feedback-modal">
-      <div class="modal-content center">
-          &nbsp;saving...
-      </div>
+    {{> visualise.searchResults}}
   </div>
 </template>

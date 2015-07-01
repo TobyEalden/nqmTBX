@@ -4,6 +4,7 @@
           <nav class="{{theme.mainColour}}" role="navigation">
               <div class="nav-wrapper">
                 <a href="#" data-activates="nqm-sideMenu" class="left button-collapse {{theme.menuTextColour}}"><i class="material-icons">menu</i></a>
+                {{> yield "pageHeader"}}
               </div>
           </nav>
         </div>
@@ -13,21 +14,8 @@
     <div class="nqm-container">
       <ul id="nqm-sideMenu" class="{{theme.sideNav}} side-nav fixed">
         <li id="nqm-logo-container" class="{{theme.mainColour}}"><a class="brand-logo" href="/"><span style="font-weight: bold;">nquiring</span><span style="font-weight: lighter;">toolbox</span></a></li>
-        <!--<li class="no-padding">-->
-          <!--<ul class="{{theme.sideNav}} collapsible collapsible-accordion">-->
-            <!--<li>-->
-              <!--<a class="collapsible-header waves-effect waves-purple">visualise<i class="left material-icons">view_quilt</i></a>-->
-              <!--<div class="{{theme.sideNav}} collapsible-body">-->
-                <!--<li><a href="#!">First</a></li>-->
-                <!--<li><a href="#!">Second</a></li>-->
-                <!--<li><a href="#!">Third</a></li>-->
-                <!--<li><a href="#!">Fourth</a></li>-->
-              <!--</div>-->
-            <!--</li>-->
-          <!--</ul>-->
-        <!--</li>-->
         <li><a href="/" class="waves-effect waves-purple">visualise<i class="left material-icons">view_quilt</i></a></li>
-        <li><a href="/feeds" class="waves-effect waves-purple">live data<i class="left material-icons">input</i></a></li>
+        <li><a href="/liveData" class="waves-effect waves-purple">live data<i class="left material-icons">input</i></a></li>
         <li><a href="/datasets" class="waves-effect waves-purple">static data<i class="left material-icons">data_usage</i></a></li>
         <li><a href="#!">Second Sidebar Link</a></li>
         <li class="no-padding">

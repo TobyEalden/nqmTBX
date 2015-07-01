@@ -20,6 +20,16 @@ var visualiseRoute =  {
 Router.route("/", visualiseRoute);
 Router.route("/visualise", visualiseRoute);
 
+Router.route("/visualisation", {
+  template: "visualisation",
+  where: "client"
+});
+
+Router.route("/liveData", {
+  template: "liveData",
+  where: "client"
+});
+
 Router.route("/feeds", {
   template: "feeds",
   where: "client"

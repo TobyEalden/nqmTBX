@@ -1,0 +1,22 @@
+<template name="liveData">
+  {{#contentFor "pageHeader"}}
+    <a class="brand-logo">&nbsp; live data feeds</a>
+  {{/contentFor}}
+
+  <div class="section">
+    <form class="">
+      <div class="row">
+        <div class="col s12">
+          <a href="/createFeed" class="right waves-effect waves-purple btn">new feed<i class="left material-icons">add</i></a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <i class="material-icons prefix">search</i>
+          <input id="nqm-search" type="text" required>
+          <label for="nqm-search">search</label>
+        </div>
+      </div>
+    </form>
+  </div>
+</template>
