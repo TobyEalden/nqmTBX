@@ -32,6 +32,7 @@ Meteor.publish("widgetTypes", function() {
 });
 
 var getIOTFeedPublisher = function(feedName) {
+  // Create a publish handler for the given feed.
   return function(opts) {
     if (feedDataCache.hasOwnProperty(feedName)) {
       var lookup = {};
@@ -49,13 +50,16 @@ var getIOTFeedPublisher = function(feedName) {
 };
 
 Meteor.startup(function() {
+  // Keep publications up-to-date as new feeds are added/removed.
   feeds.find().observe({
     added: function(feed) {
+      // A new feed has been added => create a publication for the feed data.
       console.log("publishing feed %s",feed.store);
       feedDataCache[feed.store] = new Mongo.Collection(feed.store);
       Meteor.publish(feed.store, getIOTFeedPublisher(feed.store));
     },
     removed: function(feed) {
+      // A feed has been removed => remove from cache.
       console.log("removing feed %s", feed.store);
       delete feedDataCache[feed.store];
     }
