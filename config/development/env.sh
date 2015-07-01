@@ -7,6 +7,6 @@
 # export ROOT_URL="http://localhost:3000"
 
 #export MONGO_URL=mongodb://apiRW:ub1ub1@dev.nqminds.com:27017/nqmHub
-export MONGO_URL=mongodb://localhost:27017/nqmHub
+export MONGO_URL=mongodb://localhost:27017/nqmRead
 export ROOT_URL="http://localhost:3000"
 

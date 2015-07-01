@@ -50,11 +50,12 @@ timeSeriesBase.startSubscriptions = function() {
       // Build the projection based on the visualisation configuration.
       var projection = {
         fields: {},
-        sort: { "datum.timestamp": 1 }
+        sort: { "timestamp": 1 }
       };
-      projection.fields["datum." + self.data.series] = 1;
-      projection.fields["datum." + self.data.datum] = 1;
-      var cursor = feedData.find({ "hubId": self.data.hubId, "id": self.data.feedId}, projection);
+      projection.fields[self.data.series] = 1;
+      projection.fields[self.data.datum] = 1;
+      var feed = feeds.findOne({hubId: self.data.hubId, id: self.data.feedId });
+      var cursor = feedDataCache[feed.store].find({}, projection);
       debugOut.call(self,"finished find");
 
       // Listen for changes to the collection.

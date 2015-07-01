@@ -58,4 +58,16 @@ Meteor.startup(function() {
   });
 
   Meteor.subscribe("widgetTypes");
+  Meteor.subscribe("feeds", function() {
+    feeds.find().observe({
+      added: function(feed) {
+        console.log("adding feed %s", feed.store);
+        feedDataCache[feed.store] = new Mongo.Collection(feed.store);
+      },
+      removed: function(feed) {
+        console.log("removing feed %s", feed.store);
+        delete feedDataCache[feed.store];
+      }
+    });
+  });
 });

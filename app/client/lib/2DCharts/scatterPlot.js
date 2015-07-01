@@ -19,7 +19,7 @@ window.NQMScatterPlot = (function() {
       .enter()
       .append("circle")
       .attr("r",1)
-      .attr("fill",function(d) { return self._colour(d.datum[self._config.datum]); });
+      .attr("fill",function(d) { return self._colour(d[self._config.datum]); });
 
     updateSelection
       .transition()

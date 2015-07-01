@@ -47,7 +47,7 @@ Template.dataSourceButton.helpers({
 
 Template.dataFieldSelect.helpers({
   schemaFields: function() {
-    return Session.get("dataSource") ? _.filter(Session.get("dataSource").schema.fields,function(i) { return i.name !== "timestamp"; }) : [];
+    return Session.get("dataSource") ? _.filter(Session.get("dataSource").scheme.fields,function(i) { return i.name !== "timestamp"; }) : [];
   }
 });
 
