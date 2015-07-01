@@ -2,7 +2,6 @@
 /* main: Style */
 /*****************************************************************************/
 html {
-
 }
 
 body {
@@ -15,32 +14,33 @@ main {
     flex: 1 0 auto;
 }
 
-/*
-    Hide vertical scroll on visualisation cards.
-*/
-.grid-stack>.grid-stack-item>.grid-stack-item-content.card.card-content {
-    overflow-y: hidden;
+header, main {
+    /* leave space for the side nav */
+    padding-left: 240px;
 }
 
-.axis path,
-.axis line {
-    fill: none;
-    stroke: #aaa;
-    shape-rendering: crispEdges;
+/* remove space for side nav at 992px */
+@media only screen and (max-width : 992px) {
+    header, main {
+        padding-left: 0;
+    }
 }
 
-.x.axis text, .y.axis text {
-    fill: #aaa;
+i.material-icons {
+    line-height: inherit;
 }
 
-.line {
-    fill: none;
-    stroke: orange;
-    stroke-width: 2;
+ul.side-nav.fixed li#nqm-logo-container  {
+    padding: 10px 0px 10px 0px;
+    margin-bottom: 5px;
 }
 
-.nqm-blank {
-    background-color: black;
+#nqm-sideMenu.side-nav.fixed li#nqm-logo-container a {
+    font-size: 2em;
+}
+
+#nqm-sideMenu.side-nav {
+    background-color: inherit;
 }
 
 .nqm-svg {
@@ -81,17 +81,17 @@ main {
     width: 100%;
 }
 
-/*
-    Reduce gap between main action button and actions.
-*/
-.fixed-action-btn ul {
-    margin-bottom: 0px;
-    margin-top: 0px;
-}
-
 .dropdown-content.nqm-dropdown li > a, .dropdown-content.nqm-dropdown li > a > i {
     padding: .4rem;
     font-size: 1rem;
+}
+
+/*
+ * Grid-stack patches.
+ * Hide vertical scroll on visualisation cards.
+ */
+.grid-stack>.grid-stack-item>.grid-stack-item-content.card.card-content {
+    overflow-y: hidden;
 }
 
 .grid-stack>.grid-stack-item>.grid-stack-item-content.card {
@@ -101,3 +101,53 @@ main {
 .grid-stack-item-content.card .card-content {
     padding: 0;
 }
+
+/*
+ * d3 stuff
+ */
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #aaa;
+    shape-rendering: crispEdges;
+}
+
+.x.axis text, .y.axis text {
+    fill: #aaa;
+}
+
+.line {
+    fill: none;
+    stroke: orange;
+    stroke-width: 2;
+}
+
+/*
+ * MaterializeCSS patches
+ */
+
+/* Reduce gap between main action button and actions. */
+.fixed-action-btn ul {
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+
+/* START - Set uniform heights for LI items in side-nav */
+ul.side-nav.fixed {
+    overflow: hidden;
+}
+
+ul.side-nav.fixed li {
+    line-height: 44px;
+}
+
+ul.side-nav.fixed li a {
+    line-height: 44px;
+    height: 44px;
+    color: inherit;
+}
+
+ul.side-nav.fixed:hover {
+    overflow-y: auto;
+}
+/* END - Set uniform heights for LI items in side-nav */

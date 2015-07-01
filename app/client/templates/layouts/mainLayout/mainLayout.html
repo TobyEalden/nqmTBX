@@ -3,25 +3,65 @@
         <div class="navbar-fixed">
           <nav class="{{theme.mainColour}}" role="navigation">
               <div class="nav-wrapper">
-                  <a id="logo-container" class="brand-logo right {{theme.mainTextColour}}" href="/"><span style="font-weight: bold;">nquiring</span><span style="font-weight: lighter;">toolbox</span></a>
-                  <ul class="left hide-on-med-and-down">
-                    {{> menuOptions}}
-                    <li class=""><a class="{{theme.menuTextColour}} dropdown-button nqm-user-menu-dropdown" data-activates="userMenu"><i class="left tiny mdi-social-person-outline"></i>{{currentUser.profile.name}}</a></li>
-                  </ul>
-                  <ul class="{{theme.mainColour}} side-nav" id="nav-mobile" >
-                    {{> menuOptions}}
-                  </ul>
-                  <a href="#" data-activates="nav-mobile" class="button-collapse {{theme.menuTextColour}}"><i class="mdi-navigation-menu"></i></a>
+                <a href="#" data-activates="nqm-sideMenu" class="left button-collapse {{theme.menuTextColour}}"><i class="material-icons">menu</i></a>
               </div>
           </nav>
         </div>
     </header>
 
-    <main>
-        <div class="nqm-container">
-          {{> yield}}
-        </div>
-    </main>
+  <main class="">
+    <div class="nqm-container">
+      <ul id="nqm-sideMenu" class="{{theme.sideNav}} side-nav fixed">
+        <li id="nqm-logo-container" class="{{theme.mainColour}}"><a class="brand-logo" href="/"><span style="font-weight: bold;">nquiring</span><span style="font-weight: lighter;">toolbox</span></a></li>
+        <!--<li class="no-padding">-->
+          <!--<ul class="{{theme.sideNav}} collapsible collapsible-accordion">-->
+            <!--<li>-->
+              <!--<a class="collapsible-header waves-effect waves-purple">visualise<i class="left material-icons">view_quilt</i></a>-->
+              <!--<div class="{{theme.sideNav}} collapsible-body">-->
+                <!--<li><a href="#!">First</a></li>-->
+                <!--<li><a href="#!">Second</a></li>-->
+                <!--<li><a href="#!">Third</a></li>-->
+                <!--<li><a href="#!">Fourth</a></li>-->
+              <!--</div>-->
+            <!--</li>-->
+          <!--</ul>-->
+        <!--</li>-->
+        <li><a href="/" class="waves-effect waves-purple">visualise<i class="left material-icons">view_quilt</i></a></li>
+        <li><a href="/feeds" class="waves-effect waves-purple">live data<i class="left material-icons">input</i></a></li>
+        <li><a href="/datasets" class="waves-effect waves-purple">static data<i class="left material-icons">data_usage</i></a></li>
+        <li><a href="#!">Second Sidebar Link</a></li>
+        <li class="no-padding">
+          <ul class="{{theme.sideNav}} collapsible collapsible-accordion">
+            <li>
+              <a class="collapsible-header">Dropdown 1</a>
+              <div class="{{theme.sideNav}} collapsible-body">
+                <ul>
+                  <li><a href="#!">First</a></li>
+                  <li><a href="#!">Second</a></li>
+                  <li><a href="#!">Third</a></li>
+                  <li><a href="#!">Fourth</a></li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <a class="collapsible-header">Dropdown 2</a>
+              <div class="{{theme.sideNav}} collapsible-body">
+                <ul>
+                  <li><a href="#!">First</a></li>
+                  <li><a href="#!">Second</a></li>
+                  <li><a href="#!">Third</a></li>
+                  <li><a href="#!">Fourth</a></li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </li>
+        <li><a href="#!">Final Sidebar Link</a></li>
+      </ul>
+      {{> yield}}
+    </div>
+  </main>
+
 
     <!--<footer class="page-footer">-->
     <!--<div class="nqm-container">-->
