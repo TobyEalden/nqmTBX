@@ -2,6 +2,10 @@ Meteor.publish("widgets", function() {
   return widgets.find();
 });
 
+Meteor.publish("hubs", function(opts) {
+  return hubs.find();
+});
+
 Meteor.publish("feeds", function(opts) {
   return feeds.find();
 });

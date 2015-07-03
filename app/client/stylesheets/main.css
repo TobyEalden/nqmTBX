@@ -14,14 +14,14 @@ main {
     flex: 1 0 auto;
 }
 
-header, main {
+header.nqm-main-layout, main.nqm-main-layout {
     /* leave space for the side nav */
     padding-left: 240px;
 }
 
 /* remove space for side nav at 992px */
 @media only screen and (max-width : 992px) {
-    header, main {
+    header.nqm-main-layout, main.nqm-main-layout {
         padding-left: 0;
     }
 }

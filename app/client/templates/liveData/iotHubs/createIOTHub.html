@@ -1,0 +1,41 @@
+<template name="createIOTHub">
+  {{#contentFor "pageHeader"}}
+    <a class="brand-logo">&nbsp; create iot hub</a>
+  {{/contentFor}}
+
+  <div class="section">
+    <div class="row">
+      <form id="nqm-create-iot-hub-form" class="col s12">
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">perm_device_information</i>
+            <input name="name" id="nqm-hub-name" type="text" class="validate">
+            <label for="nqm-hub-name">name</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">description</i>
+            <input name="description" id="nqm-hub-description" type="text" class="validate">
+            <label for="nqm-hub-description">description</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">label</i>
+            <input name="tags" id="nqm-hub-tags" type="text" class="validate">
+            <label for="nqm-hub-tags">tags</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <button class="btn waves-effect waves-light" type="submit" name="action">create
+              <i class="material-icons right">send</i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</template>

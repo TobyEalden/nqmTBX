@@ -1,0 +1,20 @@
+<template name="modalLayout">
+  <header>
+    <div class="navbar-fixed">
+      <nav class="{{theme.mainColour}}" role="navigation">
+        <div class="nav-wrapper">
+          <ul class="left">
+            <li><a href="#" id="nqm-modal-back">back<i class="left material-icons">keyboard_backspace</i></a></li>
+          </ul>
+          {{> yield "pageHeader"}}
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="">
+    <div class="nqm-container">
+      {{> yield}}
+    </div>
+  </main>
+</template>

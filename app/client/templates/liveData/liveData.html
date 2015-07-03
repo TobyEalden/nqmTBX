@@ -3,69 +3,23 @@
     <a class="brand-logo">&nbsp; live data feeds</a>
   {{/contentFor}}
 
-  <div class="section">
-      <div id="nqm-feed-nav" class="row">
-        <div class="col s12">
-          <nav>
-            <div class="nav-wrapper {{theme.sideNav}}">
-              <!--<a href="#" data-activates="mobile-nav" class="right button-collapse hide-on-med-and-up"><i class="mdi-navigation-more-vert"></i></a>-->
-              <ul class="left">
-                <li><a id="nqm-feed-search-activate"><i class="material-icons">search</i></a></li>
-              </ul>
-              <ul class="right">
-                <li><a href="/hubs" class="waves-effect waves-purple">iot hubs<i class="left material-icons">device_hub</i></a></li>
-                <li><a href="/createFeed" class="waves-effect waves-purple">new feed<i class="left material-icons">add</i></a></li>
-              </ul>
-              <!--<div class="left">-->
-                <!--<form>-->
-                  <!--<div class="input-field">-->
-                    <!--<input type="search" id="search-field" class="field" required maxlength="">-->
-                    <!--<label for="search-field"><i class="mdi-action-search"></i></label>-->
-                    <!--<i class="mdi-navigation-close close"></i>-->
-                  <!--</div>-->
-                <!--</form>-->
-              <!--</div>-->
-            </div>
-          </nav>
-          <!--<ul id="mobile-nav" class="side-nav">-->
-            <!--<li><a href="/hubs" class="waves-effect waves-purple">iot hubs<i class="left material-icons">device_hub</i></a></li>-->
-            <!--<li><a href="/createFeed" class="waves-effect waves-purple">new feed<i class="left material-icons">add</i></a></li>-->
-            <!--&lt;!&ndash;<li><a id="nqm-feed-search-activate"><i class="material-icons">search</i></a></li>&ndash;&gt;-->
-          <!--</ul>-->
+  {{#contentFor "pageLinks"}}
+    <li><a href="/iotHubs" class="waves-effect waves-purple">iot hubs<i class="left material-icons">device_hub</i></a></li>
+    <li><a href="/createFeed" class="waves-effect waves-purple">new feed<i class="left material-icons">add</i></a></li>
+  {{/contentFor}}
+
+  {{#each searchResults}}
+    <div class="col s12 m6 l4">
+      <div class="card blue-grey darken-1 nqm-feed-card">
+        <div class="card-content white-text nqm-feed-card-content">
+          <span class="card-title">{{name}} [{{hubId}}]</span>
+          <p>{{description}}</p>
+        </div>
+        <div class="card-action">
+          <a href="#">more info</a>
+          <a class="right" href="http://localhost:3104/v1/timeseries/{{hubId}}/{{id}}">feed url</a>
         </div>
       </div>
-      <div id="nqm-feed-search-row" class="row hide">
-        <div class="col s12">
-          <nav>
-            <div class="nav-wrapper {{theme.sideNav}}">
-              <form>
-                <div class="input-field">
-                  <input type="search" id="nqm-feed-search" class="field" required maxlength="">
-                  <label for="nqm-feed-search"><i class="mdi-action-search"></i></label>
-                  <i class="mdi-navigation-close close"></i>
-                </div>
-              </form>
-            </div>
-          </nav>
-        </div>
-      </div>
-  </div>
-  <div class="section">
-    <div class="row">
-      {{#each searchResults}}
-        <div class="col s12 m6 l4">
-          <div class="card blue-grey darken-1 nqm-feed-card">
-            <div class="card-content white-text nqm-feed-card-content">
-              <span class="card-title">{{name}} [{{hubId}}]</span>
-              <p>{{description}}</p>
-            </div>
-            <div class="card-action">
-              <a href="#">more info</a>
-              <a class="right" href="http://localhost:3104/v1/timeseries/{{hubId}}/{{id}}">feed url</a>
-            </div>
-          </div>
-        </div>
-      {{/each}}
     </div>
-  </div>
+  {{/each}}
 </template>

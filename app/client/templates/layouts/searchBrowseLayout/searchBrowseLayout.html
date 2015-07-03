@@ -1,0 +1,93 @@
+<template name="searchBrowseLayout">
+  <header class="nqm-main-layout">
+    <div class="navbar-fixed">
+      <nav class="{{theme.mainColour}}" role="navigation">
+        <div class="nav-wrapper">
+          {{> yield "pageHeader"}}
+          <ul class="left hide-on-med-and-down">
+            <li><a href="#" data-activates="nqm-sideMenu" class="button-collapse {{theme.menuTextColour}}"><i class="material-icons">menu</i></a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="nqm-main-layout">
+    <div class="nqm-container">
+      <ul id="nqm-sideMenu" class="{{theme.sideNav}} side-nav fixed">
+        <li id="nqm-logo-container" class="{{theme.mainColour}}"><a class="brand-logo" href="/"><span style="font-weight: bold;">nquiring</span><span style="font-weight: lighter;">toolbox</span></a></li>
+        <li><a href="/" class="waves-effect waves-purple">visualise<i class="left material-icons">dashboard</i></a></li>
+        <li><a href="/liveData" class="waves-effect waves-purple">live data<i class="left material-icons">input</i></a></li>
+        <li><a href="/datasets" class="waves-effect waves-purple">static data<i class="left material-icons">data_usage</i></a></li>
+        <li><a href="#!">Second Sidebar Link</a></li>
+        <li class="no-padding">
+          <ul class="{{theme.sideNav}} collapsible collapsible-accordion">
+            <li>
+              <a class="collapsible-header">Dropdown 1</a>
+              <div class="{{theme.sideNav}} collapsible-body">
+                <ul>
+                  <li><a href="#!">First</a></li>
+                  <li><a href="#!">Second</a></li>
+                  <li><a href="#!">Third</a></li>
+                  <li><a href="#!">Fourth</a></li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <a class="collapsible-header">Dropdown 2</a>
+              <div class="{{theme.sideNav}} collapsible-body">
+                <ul>
+                  <li><a href="#!">First</a></li>
+                  <li><a href="#!">Second</a></li>
+                  <li><a href="#!">Third</a></li>
+                  <li><a href="#!">Fourth</a></li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </li>
+        <li><a href="#!">Final Sidebar Link</a></li>
+      </ul>
+      <div class="section">
+        <div id="nqm-sub-nav" class="row">
+          <div class="col s12">
+            <nav>
+              <div class="nav-wrapper {{theme.sideNav}}">
+                <ul class="left">
+                  <li><a href="#" id="nqm-search-activate">search<i class="left material-icons">search</i></a></li>
+                </ul>
+                <ul class="right">
+                  {{> yield "pageLinks"}}
+                </ul>
+              </div>
+            </nav>
+          </div>
+        </div>
+        <div id="nqm-search-row" class="row hide">
+          <div class="col s12">
+            <nav>
+              <div class="nav-wrapper {{theme.sideNav}}">
+                <form>
+                  <div class="input-field">
+                    <input type="search" id="nqm-search" class="field" required maxlength="">
+                    <label for="nqm-search"><i class="mdi-action-search"></i></label>
+                    <i class="mdi-navigation-close close"></i>
+                    <!--<input id="nqm-search" type="search" required>-->
+                    <!--<label for="nqm-search"><i class="material-icons">search</i></label>-->
+                    <!--<i class="material-icons">close</i>-->
+                  </div>
+                </form>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="row">
+          {{> yield}}
+        </div>
+      </div>
+    </div>
+  </main>
+
+</template>

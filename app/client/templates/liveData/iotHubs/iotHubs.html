@@ -1,10 +1,10 @@
-<template name="visualise">
+<template name="iotHubs">
   {{#contentFor "pageHeader"}}
-    <a class="brand-logo">visualise</a>
+    <a class="brand-logo">&nbsp; iot hubs</a>
   {{/contentFor}}
 
   {{#contentFor "pageLinks"}}
-    <li><a href="/createVisualisation" class="waves-effect waves-purple">new visualisation<i class="left material-icons">add</i></a></li>
+    <li><a href="/createIOTHub" class="waves-effect waves-purple">new hub<i class="left material-icons">add</i></a></li>
   {{/contentFor}}
 
   {{#each searchResults}}
@@ -16,8 +16,10 @@
         </div>
         <div class="card-action">
           <a href="#">more info</a>
+          <a class="right" href="http://localhost:3104/v1/iot/hubs/{{id}}">feed url</a>
         </div>
       </div>
     </div>
   {{/each}}
+
 </template>

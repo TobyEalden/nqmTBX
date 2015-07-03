@@ -18,5 +18,15 @@ Meteor.methods({
   },
   "/app/widget/remove": function(widgetId) {
     return widgets.remove({_id: widgetId});
+  },
+  "/app/iothub/create": function(opts) {
+    this.unblock();
+    try {
+      var result = HTTP.post("http://localhost:3102/command/iot/hub/create",
+          { data: { name: opts.name, description: opts.description, tags: opts.tags }});
+      return result;
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
   }
 });

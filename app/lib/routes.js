@@ -14,6 +14,7 @@ Router.onBeforeAction(function() {
 
 var visualiseRoute =  {
   template: "visualise",
+  layoutTemplate: "searchBrowseLayout",
   where: "client"
 };
 
@@ -27,6 +28,7 @@ Router.route("/visualisation", {
 
 Router.route("/liveData", {
   template: "liveData",
+  layoutTemplate: "searchBrowseLayout",
   where: "client"
 });
 
@@ -47,6 +49,18 @@ Router.route("/widgetDetail", {
       feed: feeds.find()
     }
   }
+});
+
+Router.route("/iotHubs", {
+  template: "iotHubs",
+  layoutTemplate: "searchBrowseLayout",
+  where: "client"
+});
+
+Router.route("/createIOTHub", {
+  template: "createIOTHub",
+  layoutTemplate: "modalLayout",
+  where: "client"
 });
 
 Router.route("/logout");

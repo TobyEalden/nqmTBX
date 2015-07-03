@@ -1,16 +1,16 @@
 <template name="mainLayout">
-    <header>
-        <div class="navbar-fixed">
-          <nav class="{{theme.mainColour}}" role="navigation">
-              <div class="nav-wrapper">
-                <a href="#" data-activates="nqm-sideMenu" class="left button-collapse {{theme.menuTextColour}}"><i class="material-icons">menu</i></a>
-                {{> yield "pageHeader"}}
-              </div>
-          </nav>
-        </div>
-    </header>
+  <header class="nqm-main-layout">
+      <div class="navbar-fixed">
+        <nav class="{{theme.mainColour}}" role="navigation">
+            <div class="nav-wrapper">
+              <a href="#" data-activates="nqm-sideMenu" class="left button-collapse {{theme.menuTextColour}}"><i class="material-icons">menu</i></a>
+              {{> yield "pageHeader"}}
+            </div>
+        </nav>
+      </div>
+  </header>
 
-  <main class="">
+  <main class="nqm-main-layout">
     <div class="nqm-container">
       <ul id="nqm-sideMenu" class="{{theme.sideNav}} side-nav fixed">
         <li id="nqm-logo-container" class="{{theme.mainColour}}"><a class="brand-logo" href="/"><span style="font-weight: bold;">nquiring</span><span style="font-weight: lighter;">toolbox</span></a></li>

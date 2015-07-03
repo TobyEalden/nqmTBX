@@ -63,6 +63,7 @@ Meteor.startup(function() {
   });
 
   Meteor.subscribe("widgetTypes");
+  Meteor.subscribe("hubs");
   Meteor.subscribe("feeds", function() {
     feeds.find().observe({
       added: function(feed) {
