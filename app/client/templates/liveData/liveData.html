@@ -4,20 +4,51 @@
   {{/contentFor}}
 
   <div class="section">
-    <form class="">
-      <div class="row">
+      <div id="nqm-feed-nav" class="row">
         <div class="col s12">
-          <a href="/createFeed" class="right waves-effect waves-purple btn">new feed<i class="left material-icons">add</i></a>
+          <nav>
+            <div class="nav-wrapper {{theme.sideNav}}">
+              <!--<a href="#" data-activates="mobile-nav" class="right button-collapse hide-on-med-and-up"><i class="mdi-navigation-more-vert"></i></a>-->
+              <ul class="left">
+                <li><a id="nqm-feed-search-activate"><i class="material-icons">search</i></a></li>
+              </ul>
+              <ul class="right">
+                <li><a href="/hubs" class="waves-effect waves-purple">iot hubs<i class="left material-icons">device_hub</i></a></li>
+                <li><a href="/createFeed" class="waves-effect waves-purple">new feed<i class="left material-icons">add</i></a></li>
+              </ul>
+              <!--<div class="left">-->
+                <!--<form>-->
+                  <!--<div class="input-field">-->
+                    <!--<input type="search" id="search-field" class="field" required maxlength="">-->
+                    <!--<label for="search-field"><i class="mdi-action-search"></i></label>-->
+                    <!--<i class="mdi-navigation-close close"></i>-->
+                  <!--</div>-->
+                <!--</form>-->
+              <!--</div>-->
+            </div>
+          </nav>
+          <!--<ul id="mobile-nav" class="side-nav">-->
+            <!--<li><a href="/hubs" class="waves-effect waves-purple">iot hubs<i class="left material-icons">device_hub</i></a></li>-->
+            <!--<li><a href="/createFeed" class="waves-effect waves-purple">new feed<i class="left material-icons">add</i></a></li>-->
+            <!--&lt;!&ndash;<li><a id="nqm-feed-search-activate"><i class="material-icons">search</i></a></li>&ndash;&gt;-->
+          <!--</ul>-->
         </div>
       </div>
-      <div class="row">
-        <div class="input-field col s12">
-          <i class="material-icons prefix">search</i>
-          <input id="nqm-feed-search" type="text" required>
-          <label for="nqm-feed-search">search</label>
+      <div id="nqm-feed-search-row" class="row hide">
+        <div class="col s12">
+          <nav>
+            <div class="nav-wrapper {{theme.sideNav}}">
+              <form>
+                <div class="input-field">
+                  <input type="search" id="nqm-feed-search" class="field" required maxlength="">
+                  <label for="nqm-feed-search"><i class="mdi-action-search"></i></label>
+                  <i class="mdi-navigation-close close"></i>
+                </div>
+              </form>
+            </div>
+          </nav>
         </div>
       </div>
-    </form>
   </div>
   <div class="section">
     <div class="row">
