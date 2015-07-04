@@ -1,5 +1,7 @@
 Template.searchBrowseLayout.helpers({
-  //add you helpers here
+  searchTerm: function() {
+    return Session.get("nqm-search");
+  }
 });
 
 Template.searchBrowseLayout.events({
@@ -23,14 +25,19 @@ Template.searchBrowseLayout.events({
 });
 
 Template.searchBrowseLayout.onCreated(function () {
-  //add your statement here
+  Session.set("nqm-search","");
 });
 
 Template.searchBrowseLayout.onRendered(function () {
-  //add your statement here
+  $(".button-collapse").sideNav({
+    closeOnClick: false
+  });
+
+  $('.collapsible').collapsible({
+    accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+  });
 });
 
 Template.searchBrowseLayout.onDestroyed(function () {
-  //add your statement here
 });
 

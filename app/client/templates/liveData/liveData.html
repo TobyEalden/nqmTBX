@@ -5,12 +5,12 @@
 
   {{#contentFor "pageLinks"}}
     <li><a href="/iotHubs" class="waves-effect waves-purple">iot hubs<i class="left material-icons">device_hub</i></a></li>
-    <li><a href="/createFeed" class="waves-effect waves-purple">new feed<i class="left material-icons">add</i></a></li>
+    <li><a href="/IOTFeed/create" class="waves-effect waves-purple">new feed<i class="left material-icons">add</i></a></li>
   {{/contentFor}}
 
   {{#each searchResults}}
     <div class="col s12 m6 l4">
-      <div class="card blue-grey darken-1 nqm-feed-card">
+      <div id="feed-{{hubId}}-{{id}}" class="card blue-grey darken-1 nqm-feed-card">
         <div class="card-content white-text nqm-feed-card-content">
           <span class="card-title">{{name}} [{{hubId}}]</span>
           <p>{{description}}</p>

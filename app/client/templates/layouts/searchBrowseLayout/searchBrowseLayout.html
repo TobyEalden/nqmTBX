@@ -4,7 +4,7 @@
       <nav class="{{theme.mainColour}}" role="navigation">
         <div class="nav-wrapper">
           {{> yield "pageHeader"}}
-          <ul class="left hide-on-med-and-down">
+          <ul class="left show-on-med-and-down">
             <li><a href="#" data-activates="nqm-sideMenu" class="button-collapse {{theme.menuTextColour}}"><i class="material-icons">menu</i></a></li>
           </ul>
         </div>
@@ -69,7 +69,7 @@
               <div class="nav-wrapper {{theme.sideNav}}">
                 <form>
                   <div class="input-field">
-                    <input type="search" id="nqm-search" class="field" required maxlength="">
+                    <input type="search" id="nqm-search" class="field" required maxlength="" value="{{searchTerm}}">
                     <label for="nqm-search"><i class="mdi-action-search"></i></label>
                     <i class="mdi-navigation-close close"></i>
                     <!--<input id="nqm-search" type="search" required>-->

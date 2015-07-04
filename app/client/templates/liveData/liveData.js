@@ -7,7 +7,8 @@
 /*****************************************************************************/
 Template.liveData.events({
   "click .nqm-feed-card": function(event, template) {
-    Router.go("liveData");
+    var components = event.currentTarget.id.split("-");
+    Router.go("/iotFeed/edit/" + components[1] + "/" + components[2]);
   }
 });
 

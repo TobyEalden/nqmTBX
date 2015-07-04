@@ -1,6 +1,39 @@
 /*****************************************************************************/
 /* Server Only Methods */
 /*****************************************************************************/
+
+var saveIOTHub = function(opts) {
+  try {
+    var result = HTTP.post(
+      "http://localhost:3102/command/iot/hub/" + (opts.id ? "update" : "create"),
+      { data:
+        { id: opts.id, name: opts.name, description: opts.description, tags: opts.tags }
+      }
+    );
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("failed: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
+var saveIOTFeed = function(opts) {
+  try {
+    var result = HTTP.post(
+      "http://localhost:3102/command/iot/feed/" + (opts.id ? "update" : "create"),
+      { data:
+        { id: opts.id, hubId: opts.hubId, name: opts.name, description: opts.description, tags: opts.tags }
+      }
+    );
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("failed: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
 Meteor.methods({
   "/app/widget/add": function(widget) {
     var widgetType = widgetTypes.findOne({ name: widget.type});
@@ -21,12 +54,18 @@ Meteor.methods({
   },
   "/app/iothub/create": function(opts) {
     this.unblock();
-    try {
-      var result = HTTP.post("http://localhost:3102/command/iot/hub/create",
-          { data: { name: opts.name, description: opts.description, tags: opts.tags }});
-      return result;
-    } catch (e) {
-      return { ok: false, error: e.message };
-    }
+    return saveIOTHub(opts);
+  },
+  "/app/iothub/update": function(opts) {
+    this.unblock();
+    return saveIOTHub(opts);
+  },
+  "/app/iotfeed/create": function(opts) {
+    this.unblock();
+    return saveIOTFeed(opts);
+  },
+  "/app/iotfeed/update": function(opts) {
+    this.unblock();
+    return saveIOTFeed(opts);
   }
 });

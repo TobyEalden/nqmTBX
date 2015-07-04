@@ -10,6 +10,9 @@ Template.iotHubs.helpers({
 });
 
 Template.iotHubs.events({
+  "click .nqm-feed-card": function(event, template) {
+    Router.go("/iotHub/edit/" + event.currentTarget.id.split("-")[1]);
+  }
 });
 
 Template.iotHubs.onRendered(function() {

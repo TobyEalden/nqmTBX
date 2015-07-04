@@ -2,10 +2,3 @@
 /* visualise: Style */
 /*****************************************************************************/
 
-.nqm-feed-card-content {
-    height: 200px;
-}
-
-.nqm-feed-card-content, .nqm-feed-card-content * {
-    cursor: pointer;
-}

@@ -1,0 +1,57 @@
+<template name="editIOTFeed">
+  {{#contentFor "pageHeader"}}
+    <a class="brand-logo">&nbsp; edit iot feed</a>
+  {{/contentFor}}
+
+  <div class="section">
+    <div class="row">
+      <form id="nqm-create-iot-feed-form" class="col s12">
+        <div class="row">
+          <div class="input-field col s12">
+            {{#if id}}
+              <i class="material-icons prefix">device_hub</i>
+              <input id="nqm-feed-hub" type="text" readonly value="{{hubId}}">
+              <label for="nqm-feed-hub" class="active">hub [read-only]</label>
+            {{else}}
+              <select name="hub" id="nqm-feed-hub">
+                <option value="" disabled selected>[choose hub]</option>
+                {{#each hubList}}
+                  <option value="{{id}}">{{name}}</option>
+                {{/each}}
+              </select>
+              <label for="nqm-feed-hub" class="">hub</label>
+            {{/if}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">perm_device_information</i>
+            <input name="name" id="nqm-feed-name" type="text" class="validate" value="{{name}}">
+            <label for="nqm-feed-name" class="{{active name}}">name</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">description</i>
+            <input name="description" id="nqm-feed-description" type="text" class="validate" value="{{description}}">
+            <label for="nqm-feed-description" class="{{active description}}">description</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">label</i>
+            <input name="tags" id="nqm-feed-tags" type="text" class="validate" value="{{tags}}">
+            <label for="nqm-feed-tags" class="{{active tags}}">tags</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <button class="btn waves-effect waves-light" type="submit" name="action">{{submitText}}<i class="material-icons left">save</i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</template>

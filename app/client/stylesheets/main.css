@@ -43,6 +43,14 @@ ul.side-nav.fixed li#nqm-logo-container  {
     background-color: inherit;
 }
 
+.nqm-feed-card-content {
+    height: 200px;
+}
+
+.nqm-feed-card-content, .nqm-feed-card-content * {
+    cursor: pointer;
+}
+
 .nqm-svg {
     display: block;
 }

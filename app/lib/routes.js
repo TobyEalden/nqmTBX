@@ -54,13 +54,34 @@ Router.route("/widgetDetail", {
 Router.route("/iotHubs", {
   template: "iotHubs",
   layoutTemplate: "searchBrowseLayout",
+  where: "client",
+  data: function() { return { searchTerm: "" }; }
+});
+
+Router.route("/IOTHub/create", {
+  template: "editIOTHub",
+  layoutTemplate: "modalLayout",
   where: "client"
 });
 
-Router.route("/createIOTHub", {
-  template: "createIOTHub",
+Router.route("/IOTHub/edit/:id", {
+  template: "editIOTHub",
+  layoutTemplate: "modalLayout",
+  where: "client",
+  data: function() { return hubs.findOne({id: this.params.id }); }
+});
+
+Router.route("/IOTFeed/create", {
+  template: "editIOTFeed",
   layoutTemplate: "modalLayout",
   where: "client"
+});
+
+Router.route("/IOTFeed/edit/:hubId/:id", {
+  template: "editIOTFeed",
+  layoutTemplate: "modalLayout",
+  where: "client",
+  data: function() { return feeds.findOne({hubId: this.params.hubId, id: this.params.id }); }
 });
 
 Router.route("/logout");
