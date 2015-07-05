@@ -23,7 +23,7 @@ Template.editIOTHub.events({
         Materialize.toast("save failed: " + err.message, 2000);
       }
       if (result && result.ok) {
-        Materialize.toast("saved",2000);
+        Materialize.toast("command sent",2000);
         Router.go("/iotHubs");
       }
     };

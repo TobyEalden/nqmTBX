@@ -7,16 +7,12 @@ var flattenIndex = function(uniqueIndex) {
   return flat.join(", ");
 };
 
-Template.editIOTFeed.helpers({
+Template.editDataset.helpers({
   active: function(field) {
     return field ? "active" : "";
   },
   submitText: function() {
     return Template.instance().data ? "save": "create";
-  },
-  hubList: function() {
-    var h = hubs.find({}).fetch();
-    return h;
   },
   schemaJSON: function() {
     return Template.instance().data ? JSON.stringify(Template.instance().data.scheme,null,2) : "";
@@ -27,47 +23,42 @@ Template.editIOTFeed.helpers({
 });
 
 // ToDo - use a meteor package to do this (simpleSchema?)
-var validateIOTFeed = function(form) {
+var validateDataset = function(form) {
   var errors = [];
-  var feed = {};
+  var dataset = {};
 
-  feed.hubId = form.hub.value;
-  if (feed.hubId.length === 0) {
-    errors.push("no hub specified");
-  }
-
-  feed.name = form.name.value;
-  if (feed.name.length === 0) {
+  dataset.name = form.name.value;
+  if (dataset.name.length === 0) {
     errors.push("name is required");
   }
 
-  feed.description = form.description.value;
-  feed.tags = form.tags.value.split(",");
+  dataset.description = form.description.value;
+  dataset.tags = form.tags.value.split(",");
 
   var idx = form.uniqueIndex.value.split(",");
   if (idx.length === 0) {
     errors.push("specify at least one unique key field");
   } else {
-    feed.uniqueIndex = [];
+    dataset.uniqueIndex = [];
     // ToDo - support ascending/descending specificaton.
     _.forEach(idx, function(i) {
-      feed.uniqueIndex.push({ "asc": i });
+      dataset.uniqueIndex.push({ "asc": i });
     });
   }
   var schema;
   try {
     schema = JSON.parse(form.scheme.value || "{}");
-    feed.schema = schema;
+    dataset.schema = schema;
   } catch (e) {
     errors.push("invalid schema: " + e.message);
   }
 
-  return { errors: errors, feed: feed };
+  return { errors: errors, dataset: dataset };
 };
 
-Template.editIOTFeed.events({
-  "submit #nqm-create-iot-feed-form": function(event) {
-    var valid = validateIOTFeed(event.target);
+Template.editDataset.events({
+  "submit #nqm-create-dataset-form": function(event) {
+    var valid = validateDataset(event.target);
     if (valid.errors.length > 0) {
       _.forEach(valid.errors, function(e) {
         Materialize.toast(e, 2000);
@@ -82,15 +73,15 @@ Template.editIOTFeed.events({
         }
         if (result && result.ok) {
           Materialize.toast("command sent",2000);
-          Router.go("/liveData");
+          Router.go("/datasets");
         }
       };
 
       if (Template.instance().data) {
-        valid.feed.id = Template.instance().data.id;
-        Meteor.call("/app/iotfeed/update", valid.feed, cb);
+        valid.dataset.id = Template.instance().data.id;
+        Meteor.call("/app/dataset/update", valid.dataset, cb);
       } else {
-        Meteor.call("/app/iotfeed/create", valid.feed, cb);
+        Meteor.call("/app/dataset/create", valid.dataset, cb);
       }
     }
 
@@ -98,22 +89,18 @@ Template.editIOTFeed.events({
   }
 });
 
-Template.editIOTFeed.onCreated(function () {
+Template.editDataset.onCreated(function () {
   //add your statement here
 });
 
-Template.editIOTFeed.onRendered(function () {
+Template.editDataset.onRendered(function () {
   // Force text area to auto-size on focus.
-  $("#nqm-feed-schema").focus(function() {
+  $("#nqm-dataset-schema").focus(function() {
     $(this).keyup();
   });
-  // ToDo - fix this.
-  Meteor.setTimeout(function() {
-    $('select').material_select();
-  }, 250);
 });
 
-Template.editIOTFeed.onDestroyed(function () {
+Template.editDataset.onDestroyed(function () {
   //add your statement here
 });
 

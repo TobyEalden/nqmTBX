@@ -5,23 +5,23 @@
 /*****************************************************************************/
 /* Event Handlers */
 /*****************************************************************************/
-Template.liveData.events({
+Template.datasets.events({
   "click .nqm-dataset-card": function(event, template) {
     var components = event.currentTarget.id.split(":");
-    Router.go("/iotFeed/edit/" + components[1] + "/" + components[2]);
+    Router.go("/dataset/edit/" + components[1]);
   }
 });
 
 /*****************************************************************************/
 /* Helpers */
 /*****************************************************************************/
-Template.liveData.helpers({
+Template.datasets.helpers({
   searchResults: function() {
     var searchTerm = new RegExp(Session.get("nqm-search"),"gi");
-    return feeds.find({ $or: [ {name: searchTerm}, {description: searchTerm }, {tags: searchTerm }]}).fetch();
+    return datasets.find({ $or: [ {name: searchTerm}, {description: searchTerm }, {tags: searchTerm }]}).fetch();
   }
 });
 
-Template.liveData.onRendered(function() {
-  Session.set("modalBackLocation","/liveData");
+Template.datasets.onRendered(function() {
+  Session.set("modalBackLocation","/datasets");
 });

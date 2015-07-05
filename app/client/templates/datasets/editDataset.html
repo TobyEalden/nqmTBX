@@ -1,0 +1,54 @@
+<template name="editDataset">
+  {{#contentFor "pageHeader"}}
+    <a class="brand-logo">&nbsp; edit dataset</a>
+  {{/contentFor}}
+
+  <div class="section">
+    <div class="row">
+      <form id="nqm-create-dataset-form" class="col s12">
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">perm_device_information</i>
+            <input name="name" id="nqm-dataset-name" type="text" class="validate" value="{{name}}">
+            <label for="nqm-dataset-name" class="{{active name}}">name</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">description</i>
+            <input name="description" id="nqm-dataset-description" type="text" class="validate" value="{{description}}">
+            <label for="nqm-dataset-description" class="{{active description}}">description</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">label</i>
+            <input name="tags" id="nqm-dataset-tags" type="text" class="validate" value="{{tags}}">
+            <label for="nqm-dataset-tags" class="{{active tags}}">tags</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">list</i>
+            <textarea name="scheme" id="nqm-dataset-schema" class="materialize-textarea" spellcheck="false">{{schemaJSON}}</textarea>
+            <label for="nqm-dataset-schema" class="{{active scheme}}" >schema</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">format_line_spacing</i>
+            <input name="uniqueIndex" id="nqm-dataset-uniqueIndex" type="text" class="validate" value="{{uniqueIndexJSON}}">
+            <label for="nqm-dataset-uniqueIndex" class="{{active uniqueIndex}}">keys</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <button class="btn waves-effect waves-light" type="submit" name="action">{{submitText}}<i class="material-icons left">save</i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</template>

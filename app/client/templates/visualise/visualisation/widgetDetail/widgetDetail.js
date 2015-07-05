@@ -47,7 +47,18 @@ Template.dataSourceButton.helpers({
 
 Template.dataFieldSelect.helpers({
   schemaFields: function() {
-    return Session.get("dataSource") ? _.filter(Session.get("dataSource").scheme,function(v,k) { return v.name !== "timestamp"; }) : [];
+    if (Session.get("dataSource")) {
+      var schema = Session.get("dataSource").scheme;
+      var mapped = _.map(schema, function(v, k) {
+        return { name: k };
+      });
+      var filtered = _.filter(mapped, function(f) {
+        return f.name !== "timestamp";
+      });
+      return filtered;
+    } else {
+      return [];
+    }
   }
 });
 
@@ -58,7 +69,7 @@ Template.dataSourceButton.events({
   "click .nqm-data-source-selection": function(event, template) {
     Session.set("dataSource", template.data);
     Meteor.setTimeout(function() {
-      $('select').material_select();
+      $('#dataSelect').material_select();
       var aTag = $("#configureDataSource");
       $('html,body').animate({scrollTop: aTag.offset().top},'slow');
     },0);

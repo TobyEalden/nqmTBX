@@ -10,6 +10,14 @@ Meteor.publish("feeds", function(opts) {
   return feeds.find();
 });
 
+Meteor.publish("datasets", function(opts) {
+  return datasets.find();
+});
+
+Meteor.publish("widgetTypes", function() {
+  return widgetTypes.find();
+});
+
 Meteor.publish("feedData", function(opts) {
   var lookup = { hubId: opts.hubId, id: opts.id };
 
@@ -31,10 +39,6 @@ Meteor.publish("feedData", function(opts) {
   }
 });
 
-Meteor.publish("widgetTypes", function() {
-  return widgetTypes.find();
-});
-
 var getIOTFeedPublisher = function(feedName) {
   // Create a publish handler for the given feed.
   return function(opts) {
@@ -48,6 +52,43 @@ var getIOTFeedPublisher = function(feedName) {
       return feedDataCache[feedName].find(lookup,{ sort: { "timestamp": -1 }, limit: opts.limit });
     } else {
       console.log("feed not found: %s",feedName);
+      this.stop();
+    }
+  };
+};
+
+Meteor.publish("datasetData", function(opts) {
+  var lookup = { id: opts.id };
+
+  // Find corresponding dataset.
+  var dataset = datasets.findOne(lookup);
+  if (dataset) {
+    if (!datasetDataCache.hasOwnProperty(dataset.store)) {
+      datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
+    }
+    var coll = datasetDataCache[dataset.store];
+
+    // Todo - implement where and sort clauses.
+    lookup = {};
+    opts.limit = opts.limit || 1000;
+
+    var sort = {};
+    sort[dataset.uniqueIndex[0].asc ? dataset.uniqueIndex[0].asc : dataset.uniqueIndex[0].desc] = 1;
+
+    return coll.find(lookup,{ sort: sort, limit: opts.limit });
+  }
+});
+
+var getDatasetPublisher = function(datasetName) {
+  // Create a publish handler for the given dataset.
+  return function(opts) {
+    if (datasetDataCache.hasOwnProperty(datasetName)) {
+      var lookup = {};
+      opts.limit = opts.limit || 1000;
+
+      return datasetDataCache[datasetName].find(lookup,{ sort: { "timestamp": -1 }, limit: opts.limit });
+    } else {
+      console.log("feed not found: %s",datasetName);
       this.stop();
     }
   };

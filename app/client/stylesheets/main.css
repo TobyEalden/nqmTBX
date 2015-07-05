@@ -43,11 +43,11 @@ ul.side-nav.fixed li#nqm-logo-container  {
     background-color: inherit;
 }
 
-.nqm-feed-card-content {
+.nqm-dataset-card-content {
     height: 200px;
 }
 
-.nqm-feed-card-content, .nqm-feed-card-content * {
+.nqm-dataset-card-content, .nqm-dataset-card-content * {
     cursor: pointer;
 }
 

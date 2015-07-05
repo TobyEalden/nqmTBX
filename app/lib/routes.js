@@ -21,7 +21,7 @@ var visualiseRoute =  {
 Router.route("/", visualiseRoute);
 Router.route("/visualise", visualiseRoute);
 
-Router.route("/visualisation", {
+Router.route("/visualise/create", {
   template: "visualisation",
   where: "client"
 });
@@ -32,8 +32,9 @@ Router.route("/liveData", {
   where: "client"
 });
 
-Router.route("/feeds", {
-  template: "feeds",
+Router.route("/datasets", {
+  template: "datasets",
+  layoutTemplate: "searchBrowseLayout",
   where: "client"
 });
 
@@ -82,6 +83,19 @@ Router.route("/IOTFeed/edit/:hubId/:id", {
   layoutTemplate: "modalLayout",
   where: "client",
   data: function() { return feeds.findOne({hubId: this.params.hubId, id: this.params.id }); }
+});
+
+Router.route("/dataset/create", {
+  template: "editDataset",
+  layoutTemplate: "modalLayout",
+  where: "client"
+});
+
+Router.route("/dataset/edit/:id", {
+  template: "editDataset",
+  layoutTemplate: "modalLayout",
+  where: "client",
+  data: function() { return datasets.findOne({id: this.params.id }); }
 });
 
 Router.route("/logout");

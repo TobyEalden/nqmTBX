@@ -11,7 +11,7 @@ Template.visualise.events({
     var matches = feeds.find({ $or: [ {name: searchTerm}, {description: searchTerm }, {tags: searchTerm }]}).fetch();
     Session.set("visualisation-search", matches);
   },
-  "click .nqm-feed-card": function(event, template) {
+  "click .nqm-dataset-card": function(event, template) {
     Router.go("visualisation");
   }
 });

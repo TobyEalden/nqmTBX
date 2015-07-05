@@ -30,6 +30,20 @@ var saveIOTFeed = function(opts) {
   }
 };
 
+var saveDataset = function(opts) {
+  try {
+    var result = HTTP.post(
+      "http://localhost:3102/command/dataset/" + (opts.id ? "update" : "create"),
+      { data: opts }
+    );
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("failed: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
 Meteor.methods({
   "/app/widget/add": function(widget) {
     var widgetType = widgetTypes.findOne({ name: widget.type});
@@ -63,5 +77,13 @@ Meteor.methods({
   "/app/iotfeed/update": function(opts) {
     this.unblock();
     return saveIOTFeed(opts);
+  },
+  "/app/dataset/create": function(opts) {
+    this.unblock();
+    return saveDataset(opts);
+  },
+  "/app/dataset/update": function(opts) {
+    this.unblock();
+    return saveDataset(opts);
   }
 });

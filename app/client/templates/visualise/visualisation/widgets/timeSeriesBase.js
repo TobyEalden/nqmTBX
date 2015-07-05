@@ -38,9 +38,11 @@ timeSeriesBase.startSubscriptions = function() {
 
   self.data.collection = [];
 
+  var feed = feeds.findOne({hubId: self.data.hubId, id: self.data.feedId });
+
   // Subscribe to data for last 24 hours.
   var sinceDate = new Date(Date.now() - 24*60*60*1000);
-  var feedSub = self.subscribe("feedData", { hubId: self.data.hubId, id: self.data.feedId, from: sinceDate.getTime() });
+  var feedSub = self.subscribe(feed.store, { from: sinceDate.getTime() });
 
   // Get notified when the subscription is ready.
   self.autorun(function() {
@@ -54,7 +56,6 @@ timeSeriesBase.startSubscriptions = function() {
       };
       projection.fields[self.data.series] = 1;
       projection.fields[self.data.datum] = 1;
-      var feed = feeds.findOne({hubId: self.data.hubId, id: self.data.feedId });
       var cursor = feedDataCache[feed.store].find({}, projection);
       debugOut.call(self,"finished find");
 

@@ -63,16 +63,55 @@ Meteor.startup(function() {
   });
 
   Meteor.subscribe("widgetTypes");
-  Meteor.subscribe("hubs");
+  Meteor.subscribe("hubs", function() {
+    hubs.find().observe({
+      added: function(hub) {
+        console.log("adding hub %s", hub.id);
+        Materialize.toast("new hub - " + hub.name, 2000);
+      },
+      changed: function(hub) {
+        console.log("updated hub %s", hub.id);
+        Materialize.toast("hub update - " + hub.name, 2000);
+      },
+      removed: function(hub) {
+        console.log("removing hub %s", feed.id);
+        Materialize.toast("removed hub - " + hub.name, 2000);
+      }
+    });
+  });
   Meteor.subscribe("feeds", function() {
     feeds.find().observe({
       added: function(feed) {
         console.log("adding feed %s", feed.store);
+        Materialize.toast("new feed - " + feed.name, 2000);
         feedDataCache[feed.store] = new Mongo.Collection(feed.store);
+      },
+      changed: function(feed) {
+        console.log("updated feed %s", feed.store);
+        Materialize.toast("feed update - " + feed.name, 2000);
       },
       removed: function(feed) {
         console.log("removing feed %s", feed.store);
+        Materialize.toast("removed feed - " + feed.name, 2000);
         delete feedDataCache[feed.store];
+      }
+    });
+  });
+  Meteor.subscribe("datasets", function() {
+    datasets.find().observe({
+      added: function(dataset) {
+        console.log("adding dataset %s", dataset.store);
+        Materialize.toast("new dataset - " + dataset.name, 2000);
+        datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
+      },
+      changed: function(dataset) {
+        console.log("updated dataset %s", dataset.store);
+        Materialize.toast("dataset update - " + dataset.name, 2000);
+      },
+      removed: function(dataset) {
+        console.log("removing dataset %s", dataset.store);
+        Materialize.toast("removed dataset - " + dataset.name, 2000);
+        delete datasetDataCache[dataset.store];
       }
     });
   });

@@ -10,7 +10,7 @@ Template.iotHubs.helpers({
 });
 
 Template.iotHubs.events({
-  "click .nqm-feed-card": function(event, template) {
+  "click .nqm-dataset-card": function(event, template) {
     Router.go("/iotHub/edit/" + event.currentTarget.id.split(":")[1]);
   }
 });
