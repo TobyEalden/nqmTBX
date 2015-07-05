@@ -6,9 +6,7 @@ var saveIOTHub = function(opts) {
   try {
     var result = HTTP.post(
       "http://localhost:3102/command/iot/hub/" + (opts.id ? "update" : "create"),
-      { data:
-        { id: opts.id, name: opts.name, description: opts.description, tags: opts.tags }
-      }
+      { data: opts }
     );
     console.log("result is %j",result.data);
     return result.data;
@@ -22,9 +20,7 @@ var saveIOTFeed = function(opts) {
   try {
     var result = HTTP.post(
       "http://localhost:3102/command/iot/feed/" + (opts.id ? "update" : "create"),
-      { data:
-        { id: opts.id, hubId: opts.hubId, name: opts.name, description: opts.description, tags: opts.tags }
-      }
+      { data: opts }
     );
     console.log("result is %j",result.data);
     return result.data;

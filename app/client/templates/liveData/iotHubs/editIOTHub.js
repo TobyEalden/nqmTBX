@@ -16,6 +16,9 @@ Template.editIOTHub.events({
     };
 
     var cb = function(err, result) {
+      if (result.error) {
+        err = new Error(result.error);
+      }
       if (err) {
         Materialize.toast("save failed: " + err.message, 2000);
       }

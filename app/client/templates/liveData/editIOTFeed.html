@@ -10,7 +10,7 @@
           <div class="input-field col s12">
             {{#if id}}
               <i class="material-icons prefix">device_hub</i>
-              <input id="nqm-feed-hub" type="text" readonly value="{{hubId}}">
+              <input id="nqm-feed-hub" name="hub" type="text" readonly value="{{hubId}}">
               <label for="nqm-feed-hub" class="active">hub [read-only]</label>
             {{else}}
               <select name="hub" id="nqm-feed-hub">
@@ -47,8 +47,15 @@
         <div class="row">
           <div class="input-field col s12">
             <i class="material-icons prefix">list</i>
-            <textarea id="nqm-feed-schema" class="materialize-textarea"></textarea>
-            <label for="nqm-feed-schema">schema</label>
+            <textarea name="scheme" id="nqm-feed-schema" class="materialize-textarea" spellcheck="false">{{schemaJSON}}</textarea>
+            <label for="nqm-feed-schema" class="{{active scheme}}" >schema</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">label</i>
+            <input name="uniqueIndex" id="nqm-feed-uniqueIndex" type="text" class="validate" value="{{uniqueIndexJSON}}">
+            <label for="nqm-feed-uniqueIndex" class="{{active uniqueIndex}}">index</label>
           </div>
         </div>
         <div class="row">

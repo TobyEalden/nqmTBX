@@ -1,6 +1,15 @@
+
+var flattenIndex = function(uniqueIndex) {
+  var flat = [];
+  _.forEach(uniqueIndex, function(i) {
+    flat.push(i.asc ? i.asc : i.desc);
+  });
+  return flat.join(", ");
+};
+
 Template.editIOTFeed.helpers({
   active: function(field) {
-    return field && field.length > 0 ? "active" : "";
+    return field ? "active" : "";
   },
   submitText: function() {
     return Template.instance().data ? "save": "create";
@@ -8,33 +17,83 @@ Template.editIOTFeed.helpers({
   hubList: function() {
     var h = hubs.find({}).fetch();
     return h;
+  },
+  schemaJSON: function() {
+    return Template.instance().data ? JSON.stringify(Template.instance().data.scheme,null,2) : "";
+  },
+  uniqueIndexJSON: function() {
+    return Template.instance().data ? flattenIndex(Template.instance().data.uniqueIndex) : "";
   }
 });
 
+// ToDo - use a meteor package to do this (simpleSchema?)
+var validateIOTFeed = function(form) {
+  var errors = [];
+  var feed = {};
+
+  feed.hubId = form.hub.value;
+  if (feed.hubId.length === 0) {
+    errors.push("no hub specified");
+  }
+
+  feed.name = form.name.value;
+  if (feed.name.length === 0) {
+    errors.push("name is required");
+  }
+
+  feed.description = form.description.value;
+  feed.tags = form.tags.value.split(",");
+
+  var idx = form.uniqueIndex.value.split(",");
+  if (idx.length === 0) {
+    errors.push("specify at least one unique key field");
+  } else {
+    feed.uniqueIndex = [];
+    // ToDo - support ascending/descending specificaton.
+    _.forEach(idx, function(i) {
+      feed.uniqueIndex.push({ "asc": i });
+    });
+  }
+  var schema;
+  try {
+    schema = JSON.parse(form.scheme.value || "{}");
+    feed.schema = schema;
+  } catch (e) {
+    errors.push("invalid schema: " + e.message);
+  }
+
+  return { errors: errors, feed: feed };
+};
+
 Template.editIOTFeed.events({
   "submit #nqm-create-iot-feed-form": function(event) {
-    var opts = {
-      name: event.target.name.value,
-      description: event.target.description.value,
-      tags: event.target.tags.value.split(/[\s,]+/)
-    };
-
-    var cb = function(err, result) {
-      if (err) {
-        Materialize.toast("save failed: " + err.message, 2000);
-      }
-      if (result && result.ok) {
-        Materialize.toast("saved",2000);
-        Router.go("/liveData");
-      }
-    };
-
-    if (Template.instance().data) {
-      opts.id = Template.instance().data.id;
-      Meteor.call("/app/iotfeed/update", opts, cb);
+    var valid = validateIOTFeed(event.target);
+    if (valid.errors.length > 0) {
+      _.forEach(valid.errors, function(e) {
+        Materialize.toast(e, 2000);
+      });
     } else {
-      Meteor.call("/app/iotfeed/create", opts, cb);
+      var cb = function(err, result) {
+        if (result.error) {
+          err = new Error(result.error);
+        }
+        if (err) {
+          Materialize.toast("save failed: " + err.message, 2000);
+        }
+        if (result && result.ok) {
+          Materialize.toast("saved",2000);
+          Router.go("/liveData");
+        }
+      };
+
+      if (Template.instance().data) {
+        valid.feed.id = Template.instance().data.id;
+        Meteor.call("/app/iotfeed/update", valid.feed, cb);
+      } else {
+        Meteor.call("/app/iotfeed/create", valid.feed, cb);
+      }
     }
+
     return false;
   }
 });
