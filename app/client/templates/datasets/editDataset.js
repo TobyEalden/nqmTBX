@@ -8,6 +8,9 @@ var flattenIndex = function(uniqueIndex) {
 };
 
 Template.editDataset.helpers({
+  isEdit: function() {
+    return Template.instance().data ? true : false;
+  },
   active: function(field) {
     return field ? "active" : "";
   },
@@ -33,14 +36,14 @@ var validateDataset = function(form) {
   }
 
   dataset.description = form.description.value;
-  dataset.tags = form.tags.value.split(",");
+  dataset.tags = form.tags.value.split(/[\s,]+/);
 
-  var idx = form.uniqueIndex.value.split(",");
+  var idx = form.uniqueIndex.value.split(/[\s,]+/);
   if (idx.length === 0) {
     errors.push("specify at least one unique key field");
   } else {
     dataset.uniqueIndex = [];
-    // ToDo - support ascending/descending specificaton.
+    // ToDo - support ascending/descending specification.
     _.forEach(idx, function(i) {
       dataset.uniqueIndex.push({ "asc": i });
     });
@@ -57,11 +60,11 @@ var validateDataset = function(form) {
 };
 
 Template.editDataset.events({
-  "submit #nqm-create-dataset-form": function(event) {
+  "submit #nqm-create-dataset-form": function(event, template) {
     var valid = validateDataset(event.target);
     if (valid.errors.length > 0) {
       _.forEach(valid.errors, function(e) {
-        Materialize.toast(e, 2000);
+        nqmTBX.ui.notification(e, 2000);
       });
     } else {
       var cb = function(err, result) {
@@ -69,16 +72,16 @@ Template.editDataset.events({
           err = new Error(result.error);
         }
         if (err) {
-          Materialize.toast("save failed: " + err.message, 2000);
+          nqmTBX.ui.notification("save failed: " + err.message, 2000);
         }
         if (result && result.ok) {
-          Materialize.toast("command sent",2000);
+          nqmTBX.ui.notification("command sent",2000);
           Router.go("/datasets");
         }
       };
 
-      if (Template.instance().data) {
-        valid.dataset.id = Template.instance().data.id;
+      if (template.data) {
+        valid.dataset.id = template.data.id;
         Meteor.call("/app/dataset/update", valid.dataset, cb);
       } else {
         Meteor.call("/app/dataset/create", valid.dataset, cb);
@@ -86,6 +89,20 @@ Template.editDataset.events({
     }
 
     return false;
+  },
+  "click #nqm-dataset-delete": function(event, template) {
+    Meteor.call("/app/dataset/delete", template.data.id, function(err, result) {
+      if (result.error) {
+        err = new Error(result.error);
+      }
+      if (err) {
+        nqmTBX.ui.notification("delete failed: " + err.message, 2000);
+      }
+      if (result && result.ok) {
+        nqmTBX.ui.notification("command sent",2000);
+        Router.go("/datasets");
+      }
+    });
   }
 });
 

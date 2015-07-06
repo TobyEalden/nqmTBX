@@ -1,6 +1,7 @@
 {
   "public": {
+    "queryURL": "http://localhost:3104/v1"
   },
 
-  "sample": "value"
+  "commandURL": "http://localhost:3102"
 }

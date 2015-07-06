@@ -1,4 +1,6 @@
-
+/******************************************************************************
+ * theme definitions.
+ *****************************************************************************/
 var themes = {
   "blue-grey": {
     mainColour: "blue-grey lighten-1 white-text z-depth-1",
@@ -50,10 +52,20 @@ var themes = {
   }
 };
 
+/******************************************************************************
+ * global template helpers.
+ *****************************************************************************/
 Template.registerHelper("theme", function() {
   return themes[Session.get("theme") || "blue-grey"];
 });
 
+Template.registerHelper("queryURL", function() {
+  return Meteor.settings.public.queryURL;
+});
+
+/******************************************************************************
+ * app-wide subscriptions.
+ *****************************************************************************/
 Meteor.startup(function() {
   Session.set("themes",themes);
 
@@ -62,57 +74,78 @@ Meteor.startup(function() {
     $("body").addClass(themes[Session.get("theme") || "blue-grey"].background);
   });
 
+  var notifyData = function(startingUp, msg) {
+    if (!startingUp) {
+      nqmTBX.ui.notification(msg,2000);
+    }
+  };
+
   Meteor.subscribe("widgetTypes");
+
   Meteor.subscribe("hubs", function() {
+    var startingUp = true;
+
     hubs.find().observe({
       added: function(hub) {
         console.log("adding hub %s", hub.id);
-        Materialize.toast("new hub - " + hub.name, 2000);
+        notifyData(startingUp, "new hub - " + hub.name);
       },
       changed: function(hub) {
         console.log("updated hub %s", hub.id);
-        Materialize.toast("hub update - " + hub.name, 2000);
+        notifyData(startingUp, "hub update - " + hub.name);
       },
       removed: function(hub) {
         console.log("removing hub %s", feed.id);
-        Materialize.toast("removed hub - " + hub.name, 2000);
+        notifyData(startingUp, "removed hub - " + hub.name);
       }
     });
+    
+    startingUp = false;
   });
+
   Meteor.subscribe("feeds", function() {
+    var startingUp = true;
+
     feeds.find().observe({
       added: function(feed) {
         console.log("adding feed %s", feed.store);
-        Materialize.toast("new feed - " + feed.name, 2000);
+        notifyData(startingUp, "new feed - " + feed.name);
         feedDataCache[feed.store] = new Mongo.Collection(feed.store);
       },
       changed: function(feed) {
         console.log("updated feed %s", feed.store);
-        Materialize.toast("feed update - " + feed.name, 2000);
+        notifyData(startingUp, "feed update - " + feed.name);
       },
       removed: function(feed) {
         console.log("removing feed %s", feed.store);
-        Materialize.toast("removed feed - " + feed.name, 2000);
+        notifyData(startingUp, "removed feed - " + feed.name);
         delete feedDataCache[feed.store];
       }
     });
+  
+    startingUp = false;
   });
+
   Meteor.subscribe("datasets", function() {
+    var startingUp = true;
+
     datasets.find().observe({
       added: function(dataset) {
         console.log("adding dataset %s", dataset.store);
-        Materialize.toast("new dataset - " + dataset.name, 2000);
+        notifyData(startingUp, "new dataset - " + dataset.name);
         datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
       },
       changed: function(dataset) {
         console.log("updated dataset %s", dataset.store);
-        Materialize.toast("dataset update - " + dataset.name, 2000);
+        notifyData(startingUp, "dataset update - " + dataset.name);
       },
       removed: function(dataset) {
         console.log("removing dataset %s", dataset.store);
-        Materialize.toast("removed dataset - " + dataset.name, 2000);
+        notifyData(startingUp, "removed dataset - " + dataset.name);
         delete datasetDataCache[dataset.store];
       }
     });
+    
+    startingUp = false;
   });
 });

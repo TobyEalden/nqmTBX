@@ -43,8 +43,10 @@
         </div>
         <div class="row">
           <div class="input-field col s12">
-            <button class="btn waves-effect waves-light" type="submit" name="action">{{submitText}}<i class="material-icons left">save</i>
-            </button>
+            <button class="btn waves-effect waves-light" type="submit" name="action">{{submitText}}<i class="material-icons left">save</i></button>
+            {{# if isEdit}}
+            <button id="nqm-dataset-delete" class="right btn waves-effect waves-light" type="button">delete<i class="material-icons left">delete</i></button>
+            {{/if}}
           </div>
         </div>
       </form>

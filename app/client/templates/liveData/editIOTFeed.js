@@ -42,9 +42,9 @@ var validateIOTFeed = function(form) {
   }
 
   feed.description = form.description.value;
-  feed.tags = form.tags.value.split(",");
+  feed.tags = form.tags.value.split(/[\s,]+/);
 
-  var idx = form.uniqueIndex.value.split(",");
+  var idx = form.uniqueIndex.value.split(/[\s,]+/);
   if (idx.length === 0) {
     errors.push("specify at least one unique key field");
   } else {

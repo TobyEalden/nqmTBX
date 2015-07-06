@@ -5,7 +5,7 @@
 var saveIOTHub = function(opts) {
   try {
     var result = HTTP.post(
-      "http://localhost:3102/command/iot/hub/" + (opts.id ? "update" : "create"),
+      Meteor.settings.commandURL + "/command/iot/hub/" + (opts.id ? "update" : "create"),
       { data: opts }
     );
     console.log("result is %j",result.data);
@@ -19,7 +19,7 @@ var saveIOTHub = function(opts) {
 var saveIOTFeed = function(opts) {
   try {
     var result = HTTP.post(
-      "http://localhost:3102/command/iot/feed/" + (opts.id ? "update" : "create"),
+      Meteor.settings.commandURL + "/command/iot/feed/" + (opts.id ? "update" : "create"),
       { data: opts }
     );
     console.log("result is %j",result.data);
@@ -33,13 +33,27 @@ var saveIOTFeed = function(opts) {
 var saveDataset = function(opts) {
   try {
     var result = HTTP.post(
-      "http://localhost:3102/command/dataset/" + (opts.id ? "update" : "create"),
+      Meteor.settings.commandURL + "/command/dataset/" + (opts.id ? "update" : "create"),
       { data: opts }
     );
     console.log("result is %j",result.data);
     return result.data;
   } catch (e) {
-    console.log("failed: %s", e.message);
+    console.log("dataset save failed: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
+var deleteDataset = function(id) {
+  try {
+    var result = HTTP.post(
+      Meteor.settings.commandURL + "/command/dataset/delete",
+      { data: { id: id } }
+    );
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("dataset delete failed: %s", e.message);
     return { ok: false, error: e.message };
   }
 };
@@ -85,5 +99,9 @@ Meteor.methods({
   "/app/dataset/update": function(opts) {
     this.unblock();
     return saveDataset(opts);
+  },
+  "/app/dataset/delete": function(id) {
+    this.unblock();
+    return deleteDataset(id);
   }
 });
