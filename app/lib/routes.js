@@ -4,13 +4,13 @@ Router.configure({
   notFoundTemplate: 'notFound'
 });
 
-Router.onBeforeAction(function() {
-  if (!Meteor.userId()) {
-    this.render("login");
-  } else {
-    this.next();
-  }
-});
+//Router.onBeforeAction(function() {
+//  if (!Meteor.userId()) {
+//    this.render("login");
+//  } else {
+//    this.next();
+//  }
+//});
 
 var visualiseRoute =  {
   template: "visualise",
