@@ -1,4 +1,7 @@
 Template.editIOTHub.helpers({
+  isEdit: function() {
+    return Template.instance().data ? true : false;
+  },
   active: function(field) {
     return field && field.length > 0 ? "active" : "";
   },
@@ -32,6 +35,9 @@ Template.editIOTHub.events({
       opts.id = Template.instance().data.id;
       Meteor.call("/app/iothub/update", opts, cb);
     } else {
+      if (event.target.id.value.length > 0) {
+        opts.id = event.target.id.value;
+      }
       Meteor.call("/app/iothub/create", opts, cb);
     }
     return false;

@@ -2,10 +2,10 @@
 /* Server Only Methods */
 /*****************************************************************************/
 
-var saveIOTHub = function(opts) {
+var saveIOTHub = function(isNew, opts) {
   try {
     var result = HTTP.post(
-      Meteor.settings.commandURL + "/command/iot/hub/" + (opts.id ? "update" : "create"),
+      Meteor.settings.commandURL + "/command/iot/hub/" + (isNew ? "create" : "update"),
       { data: opts }
     );
     console.log("result is %j",result.data);
@@ -78,11 +78,11 @@ Meteor.methods({
   },
   "/app/iothub/create": function(opts) {
     this.unblock();
-    return saveIOTHub(opts);
+    return saveIOTHub(true, opts);
   },
   "/app/iothub/update": function(opts) {
     this.unblock();
-    return saveIOTHub(opts);
+    return saveIOTHub(false, opts);
   },
   "/app/iotfeed/create": function(opts) {
     this.unblock();

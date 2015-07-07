@@ -8,6 +8,9 @@ var flattenIndex = function(uniqueIndex) {
 };
 
 Template.editIOTFeed.helpers({
+  isEdit: function() {
+    return Template.instance().data ? true : false;
+  },
   active: function(field) {
     return field ? "active" : "";
   },

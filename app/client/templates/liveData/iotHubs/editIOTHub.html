@@ -6,6 +6,17 @@
   <div class="section">
     <div class="row">
       <form id="nqm-create-iot-hub-form" class="col s12">
+        {{#if isEdit}}
+          <!--do nothing-->
+        {{else}}
+          <div class="row">
+            <div class="input-field col s12">
+              <i class="material-icons prefix">perm_identity</i>
+              <input name="id" id="nqm-hub-id" type="text" class="validate" value="">
+              <label for="nqm-hub-id" class="{{active id}}">id</label>
+            </div>
+          </div>
+        {{/if}}
         <div class="row">
           <div class="input-field col s12">
             <i class="material-icons prefix">perm_device_information</i>
