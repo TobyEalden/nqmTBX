@@ -16,10 +16,10 @@ var saveIOTHub = function(opts) {
   }
 };
 
-var saveIOTFeed = function(opts) {
+var saveIOTFeed = function(isNew, opts) {
   try {
     var result = HTTP.post(
-      Meteor.settings.commandURL + "/command/iot/feed/" + (opts.id ? "update" : "create"),
+      Meteor.settings.commandURL + "/command/iot/feed/" + (isNew ? "update" : "create"),
       { data: opts }
     );
     console.log("result is %j",result.data);
@@ -86,11 +86,11 @@ Meteor.methods({
   },
   "/app/iotfeed/create": function(opts) {
     this.unblock();
-    return saveIOTFeed(opts);
+    return saveIOTFeed(true, opts);
   },
   "/app/iotfeed/update": function(opts) {
     this.unblock();
-    return saveIOTFeed(opts);
+    return saveIOTFeed(false, opts);
   },
   "/app/dataset/create": function(opts) {
     this.unblock();

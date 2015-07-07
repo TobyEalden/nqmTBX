@@ -31,6 +31,10 @@ var validateIOTFeed = function(form) {
   var errors = [];
   var feed = {};
 
+  if (form.id.value.length > 0) {
+    feed.id = form.id.value;
+  }
+
   feed.hubId = form.hub.value;
   if (feed.hubId.length === 0) {
     errors.push("no hub specified");

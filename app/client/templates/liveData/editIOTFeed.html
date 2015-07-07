@@ -23,6 +23,17 @@
             {{/if}}
           </div>
         </div>
+        {{#if isEdit}}
+          <!--do nothing-->
+        {{else}}
+          <div class="row">
+            <div class="input-field col s12">
+              <i class="material-icons prefix">perm_identity</i>
+              <input name="id" id="nqm-feed-id" type="text" class="validate" value="">
+              <label for="nqm-feed-id" class="{{active id}}">id</label>
+            </div>
+          </div>
+        {{/if}}
         <div class="row">
           <div class="input-field col s12">
             <i class="material-icons prefix">perm_device_information</i>
