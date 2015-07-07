@@ -19,7 +19,7 @@ var saveIOTHub = function(opts) {
 var saveIOTFeed = function(isNew, opts) {
   try {
     var result = HTTP.post(
-      Meteor.settings.commandURL + "/command/iot/feed/" + (isNew ? "update" : "create"),
+      Meteor.settings.commandURL + "/command/iot/feed/" + (isNew ? "create" : "update"),
       { data: opts }
     );
     console.log("result is %j",result.data);
