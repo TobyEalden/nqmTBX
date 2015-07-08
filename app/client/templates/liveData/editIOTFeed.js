@@ -34,7 +34,7 @@ var validateIOTFeed = function(form) {
   var errors = [];
   var feed = {};
 
-  if (form.feedId.value.length > 0) {
+  if (form.feedId && form.feedId.value.length > 0) {
     feed.feedId = form.feedId.value;
   }
 
