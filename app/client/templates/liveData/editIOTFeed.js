@@ -35,7 +35,7 @@ var validateIOTFeed = function(form) {
   var feed = {};
 
   if (form.feedId && form.feedId.value.length > 0) {
-    feed.feedId = form.feedId.value;
+    feed.id = form.feedId.value;
   }
 
   feed.hubId = form.hub.value;
@@ -106,6 +106,20 @@ Template.editIOTFeed.events({
     }
 
     return false;
+  },
+  "click #nqm-feed-delete": function(event, template) {
+    Meteor.call("/app/iotfeed/delete", { hubId: template.data.hubId, id: template.data.id }, function(err, result) {
+      if (result.error) {
+        err = new Error(result.error);
+      }
+      if (err) {
+        nqmTBX.ui.notification("delete failed: " + err.message, 2000);
+      }
+      if (result && result.ok) {
+        nqmTBX.ui.notification("command sent",2000);
+        Router.go("/liveData");
+      }
+    });
   }
 });
 

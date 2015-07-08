@@ -30,6 +30,20 @@ var saveIOTFeed = function(isNew, opts) {
   }
 };
 
+var deleteFeed = function(hubId, id) {
+  try {
+    var result = HTTP.post(
+      Meteor.settings.commandURL + "/command/iot/feed/delete",
+      { data: { hubId: hubId, id: id } }
+    );
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("feed delete failed: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
 var saveDataset = function(opts) {
   try {
     var result = HTTP.post(
@@ -91,6 +105,10 @@ Meteor.methods({
   "/app/iotfeed/update": function(opts) {
     this.unblock();
     return saveIOTFeed(false, opts);
+  },
+  "/app/iotfeed/delete": function(opts) {
+    this.unblock();
+    return deleteFeed(opts.hubId, opts.id);
   },
   "/app/dataset/create": function(opts) {
     this.unblock();
