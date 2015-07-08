@@ -52,15 +52,17 @@ var validateIOTFeed = function(form) {
   feed.tags = form.tags.value.split(/[\s,]+/);
 
   var idx = form.uniqueIndex.value.split(/[\s,]+/);
-  if (idx.length === 0) {
-    errors.push("specify at least one unique key field");
-  } else {
+  // Don't think we need to insist on unique index for feeds.
+  //
+  //if (idx.length === 0) {
+  //  errors.push("specify at least one unique key field");
+  //} else {
     feed.uniqueIndex = [];
-    // ToDo - support ascending/descending specificaton.
+    // ToDo - support ascending/descending specification.
     _.forEach(idx, function(i) {
       feed.uniqueIndex.push({ "asc": i });
     });
-  }
+  //}
   var schema;
   try {
     schema = JSON.parse(form.scheme.value || "{}");
