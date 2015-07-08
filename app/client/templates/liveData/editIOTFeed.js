@@ -35,7 +35,7 @@ var validateIOTFeed = function(form) {
   var feed = {};
 
   if (form.id.value.length > 0) {
-    feed.id = form.id.value;
+    feed.feedId = form.feedId.value;
   }
 
   feed.hubId = form.hub.value;

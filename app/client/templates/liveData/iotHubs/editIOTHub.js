@@ -35,8 +35,8 @@ Template.editIOTHub.events({
       opts.id = Template.instance().data.id;
       Meteor.call("/app/iothub/update", opts, cb);
     } else {
-      if (event.target.id.value.length > 0) {
-        opts.id = event.target.id.value;
+      if (event.target.hubId.value.length > 0) {
+        opts.id = event.target.hubId.value;
       }
       Meteor.call("/app/iothub/create", opts, cb);
     }
