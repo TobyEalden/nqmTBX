@@ -60,7 +60,9 @@ var validateIOTFeed = function(form) {
     feed.uniqueIndex = [];
     // ToDo - support ascending/descending specification.
     _.forEach(idx, function(i) {
-      feed.uniqueIndex.push({ "asc": i });
+      if (i.length > 0) {
+        feed.uniqueIndex.push({ "asc": i });
+      }
     });
   //}
   var schema;

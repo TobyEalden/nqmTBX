@@ -45,7 +45,9 @@ var validateDataset = function(form) {
     dataset.uniqueIndex = [];
     // ToDo - support ascending/descending specification.
     _.forEach(idx, function(i) {
-      dataset.uniqueIndex.push({ "asc": i });
+      if (i.length > 0) {
+        dataset.uniqueIndex.push({ "asc": i });
+      }
     });
   }
   var schema;
