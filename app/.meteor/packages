@@ -14,3 +14,7 @@ accounts-google
 service-configuration
 http
 tobyealden:nqm-tbx-globals
+meteorhacks:npm
+
+
+npm-container

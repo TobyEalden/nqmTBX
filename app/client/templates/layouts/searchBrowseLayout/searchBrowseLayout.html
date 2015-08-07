@@ -3,9 +3,14 @@
     <div class="navbar-fixed">
       <nav class="{{theme.mainColour}}" role="navigation">
         <div class="nav-wrapper">
-          {{> yield "pageHeader"}}
-          <ul class="left show-on-med-and-down">
-            <li><a href="#" data-activates="nqm-sideMenu" class="button-collapse {{theme.menuTextColour}}"><i class="material-icons">menu</i></a></li>
+          <div style="padding-left: 75px;">
+            {{> yield "pageHeader"}}
+          </div>
+          <ul class="right">
+            <li><a href="/logout" title="logout"><i class="material-icons">account_box</i></a></li>
+          </ul>
+          <ul class="left">
+            <li><a href="#" data-activates="nqm-sideMenu" class="button-collapse show-on-large {{theme.menuTextColour}}"><i class="material-icons">menu</i></a></li>
           </ul>
         </div>
       </nav>
@@ -14,8 +19,10 @@
 
   <main class="nqm-main-layout">
     <div class="nqm-container">
-      <ul id="nqm-sideMenu" class="{{theme.sideNav}} side-nav fixed">
-        <li id="nqm-logo-container" class="{{theme.mainColour}}"><a class="brand-logo" href="/"><span style="font-weight: bold;">nquiring</span><span style="font-weight: lighter;">toolbox</span></a></li>
+      <ul id="nqm-sideMenu" class="{{theme.sideNav}} side-nav">
+        <li id="nqm-logo-container" class="{{theme.mainColour}}">
+          <a class="brand-logo" href="/"><span style="font-weight: bold;">nquiring</span><span style="font-weight: lighter;">toolbox</span></a>
+        </li>
         <li><a href="/" class="waves-effect waves-purple">visualise<i class="left material-icons">dashboard</i></a></li>
         <li><a href="/liveData" class="waves-effect waves-purple">live data<i class="left material-icons">input</i></a></li>
         <li><a href="/datasets" class="waves-effect waves-purple">datasets<i class="left material-icons">data_usage</i></a></li>

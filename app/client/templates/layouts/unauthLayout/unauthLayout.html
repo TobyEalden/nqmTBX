@@ -1,0 +1,22 @@
+<template name="unauthLayout">
+  <header class="nqm-main-layout">
+    <div class="navbar-fixed">
+      <nav class="{{theme.mainColour}}" role="navigation">
+        <div class="nav-wrapper">
+          {{> yield "pageHeader"}}
+          {{# if Meteor.currentUser}}
+          <ul class="right">
+            <li><a href="/logout" title="logout"><i class="material-icons">account_box</i></a></li>
+          </ul>
+          {{/if}}
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="">
+    <div class="nqm-container">
+      {{> yield}}
+    </div>
+  </main>
+</template>

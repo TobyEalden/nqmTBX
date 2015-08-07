@@ -81,6 +81,7 @@ Meteor.startup(function() {
   };
 
   Meteor.subscribe("widgetTypes");
+  Meteor.subscribe("userData");
 
   Meteor.subscribe("hubs", function() {
     var startingUp = true;

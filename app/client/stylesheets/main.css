@@ -16,7 +16,7 @@ main {
 
 header.nqm-main-layout, main.nqm-main-layout {
     /* leave space for the side nav */
-    padding-left: 240px;
+    /*padding-left: 240px;*/
 }
 
 /* remove space for side nav at 992px */
@@ -30,12 +30,12 @@ i.material-icons {
     line-height: inherit;
 }
 
-ul.side-nav.fixed li#nqm-logo-container  {
+ul.side-nav li#nqm-logo-container  {
     padding: 10px 0px 10px 0px;
     margin-bottom: 5px;
 }
 
-#nqm-sideMenu.side-nav.fixed li#nqm-logo-container a {
+#nqm-sideMenu.side-nav li#nqm-logo-container a {
     font-size: 2em;
 }
 
@@ -141,21 +141,21 @@ ul.side-nav.fixed li#nqm-logo-container  {
 }
 
 /* START - Set uniform heights for LI items in side-nav */
-ul.side-nav.fixed {
+ul.side-nav {
     overflow: hidden;
 }
 
-ul.side-nav.fixed li {
+ul.side-nav li {
     line-height: 44px;
 }
 
-ul.side-nav.fixed li a {
+ul.side-nav li a {
     line-height: 44px;
     height: 44px;
     color: inherit;
 }
 
-ul.side-nav.fixed:hover {
+ul.side-nav:hover {
     overflow-y: auto;
 }
 /* END - Set uniform heights for LI items in side-nav */

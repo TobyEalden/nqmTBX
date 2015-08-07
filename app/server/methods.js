@@ -72,6 +72,30 @@ var deleteDataset = function(id) {
   }
 };
 
+var createUserAccount = function(name) {
+  try {
+    var user = Meteor.user();
+    var result = HTTP.post(
+      Meteor.settings.commandURL + "/command/account/create",
+      {
+        data: {
+          id: name,
+          authId: user.services.google.id
+        }
+      }
+    );
+
+    if (result.data && result.data.ok) {
+      Meteor.users.update(user._id, { $set: { nqmId: name } });
+    }
+
+    return result.data;
+  } catch (e) {
+    console.log("failed to create user account: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
 Meteor.methods({
   "/app/widget/add": function(widget) {
     var widgetType = widgetTypes.findOne({ name: widget.type});
@@ -121,5 +145,9 @@ Meteor.methods({
   "/app/dataset/delete": function(id) {
     this.unblock();
     return deleteDataset(id);
+  },
+  "/app/account/create": function(name) {
+    this.unblock();
+    return createUserAccount(name);
   }
 });

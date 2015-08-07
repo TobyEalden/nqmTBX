@@ -26,6 +26,10 @@ Template.editIOTFeed.helpers({
   },
   uniqueIndexJSON: function() {
     return Template.instance().data ? flattenIndex(Template.instance().data.uniqueIndex) : "";
+  },
+  discoverable: function(discoType) {
+    var feedDisco = (Template.instance().data && Template.instance().data.discoverable) ? Template.instance().data.discoverable : "private";
+    return feedDisco === discoType ? "checked" : "";
   }
 });
 

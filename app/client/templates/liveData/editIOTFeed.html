@@ -71,6 +71,25 @@
         </div>
         <div class="row">
           <div class="input-field col s12">
+            <i class="material-icons prefix">visibility</i>
+            <div style="padding-left: 45px">
+              <select name="nqm-feed-visibility">
+                <option value="private">private</option>
+                <option value="discoverable">discoverable</option>
+                <option value="public">public</option>
+              </select>
+            </div>
+            <label for="nqm-feed-visibility" class="active">visibility</label>
+            <!--<input name="discovery" id="nqm-feed-discover-private" type="radio" value="private" class="with-gap" {{discoverable "private"}}>-->
+            <!--<label for="nqm-feed-discover-private">private</label>-->
+            <!--<input name="discovery" id="nqm-feed-discover-discoverable" type="radio" value="discoverable" class="with-gap" {{discoverable "discoverable"}}>-->
+            <!--<label for="nqm-feed-discover-discoverable">discoverable</label>-->
+            <!--<input name="discovery" id="nqm-feed-discover-public" type="radio" value="public" class="with-gap" {{discoverable "public"}}>-->
+            <!--<label for="nqm-feed-discover-public">public</label>-->
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
             <button class="btn waves-effect waves-light" type="submit" name="action">{{submitText}}<i class="material-icons left">save</i></button>
             {{# if isEdit}}
               <button id="nqm-feed-delete" class="right btn waves-effect waves-light" type="button">delete<i class="material-icons left">delete</i></button>

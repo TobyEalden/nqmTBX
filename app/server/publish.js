@@ -1,3 +1,11 @@
+Meteor.publish("userData", function () {
+  if (this.userId) {
+    return Meteor.users.find({_id: this.userId}, {fields: {'nqmId': 1} });
+  } else {
+    this.ready();
+  }
+});
+
 Meteor.publish("widgets", function() {
   return widgets.find();
 });

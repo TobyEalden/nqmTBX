@@ -30,7 +30,7 @@ Template.searchBrowseLayout.onCreated(function () {
 
 Template.searchBrowseLayout.onRendered(function () {
   $(".button-collapse").sideNav({
-    closeOnClick: false
+    closeOnClick: true
   });
 
   $('.collapsible').collapsible({
