@@ -67,86 +67,103 @@ Template.registerHelper("queryURL", function() {
  * app-wide subscriptions.
  *****************************************************************************/
 Meteor.startup(function() {
+
+  // Set the themes data.
   Session.set("themes",themes);
 
+  // Change the body class to match the current theme.
   Tracker.autorun(function() {
     $("body").removeClass();
     $("body").addClass(themes[Session.get("theme") || "blue-grey"].background);
   });
 
+  // Helper/diagnostic function to notify when new data arrives.
   var notifyData = function(startingUp, msg) {
     if (!startingUp) {
       nqmTBX.ui.notification(msg,2000);
     }
   };
 
+  Tracker.autorun(function() {
+    // Wait for a valid nqm account to be logged in.
+    if (Meteor.user() && Meteor.user().nqmId) {
+      // Subscribe to the logged-in account.
+      Meteor.subscribe("account", function() {
+        nqmTBX.ui.notification("account is " + Meteor.user().nqmId);
+      });
+
+      // Subscribe to the IOT hubs for this user.
+      Meteor.subscribe("hubs", function() {
+        var startingUp = true;
+
+        // Observe the collection - just so we can notify when changes occur.
+        hubs.find().observe({
+          added: function(hub) {
+            console.log("adding hub %s", hub.id);
+            notifyData(startingUp, "new hub - " + hub.name);
+          },
+          changed: function(hub) {
+            console.log("updated hub %s", hub.id);
+            notifyData(startingUp, "hub update - " + hub.name);
+          },
+          removed: function(hub) {
+            console.log("removing hub %s", feed.id);
+            notifyData(startingUp, "removed hub - " + hub.name);
+          }
+        });
+
+        startingUp = false;
+      });
+
+      // Subscribe to feeds for this user.
+      Meteor.subscribe("feeds", function() {
+        var startingUp = true;
+
+        feeds.find().observe({
+          added: function(feed) {
+            console.log("adding feed %s", feed.store);
+            notifyData(startingUp, "new feed - " + feed.name);
+            feedDataCache[feed.store] = new Mongo.Collection(feed.store);
+          },
+          changed: function(feed) {
+            console.log("updated feed %s", feed.store);
+            notifyData(startingUp, "feed update - " + feed.name);
+          },
+          removed: function(feed) {
+            console.log("removing feed %s", feed.store);
+            notifyData(startingUp, "removed feed - " + feed.name);
+            delete feedDataCache[feed.store];
+          }
+        });
+
+        startingUp = false;
+      });
+
+      Meteor.subscribe("datasets", function() {
+        var startingUp = true;
+
+        datasets.find().observe({
+          added: function(dataset) {
+            console.log("adding dataset %s", dataset.store);
+            notifyData(startingUp, "new dataset - " + dataset.name);
+            datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
+          },
+          changed: function(dataset) {
+            console.log("updated dataset %s", dataset.store);
+            notifyData(startingUp, "dataset update - " + dataset.name);
+          },
+          removed: function(dataset) {
+            console.log("removing dataset %s", dataset.store);
+            notifyData(startingUp, "removed dataset - " + dataset.name);
+            delete datasetDataCache[dataset.store];
+          }
+        });
+
+        startingUp = false;
+      });
+    }
+  });
+
   Meteor.subscribe("widgetTypes");
   Meteor.subscribe("userData");
-
-  Meteor.subscribe("hubs", function() {
-    var startingUp = true;
-
-    hubs.find().observe({
-      added: function(hub) {
-        console.log("adding hub %s", hub.id);
-        notifyData(startingUp, "new hub - " + hub.name);
-      },
-      changed: function(hub) {
-        console.log("updated hub %s", hub.id);
-        notifyData(startingUp, "hub update - " + hub.name);
-      },
-      removed: function(hub) {
-        console.log("removing hub %s", feed.id);
-        notifyData(startingUp, "removed hub - " + hub.name);
-      }
-    });
-    
-    startingUp = false;
-  });
-
-  Meteor.subscribe("feeds", function() {
-    var startingUp = true;
-
-    feeds.find().observe({
-      added: function(feed) {
-        console.log("adding feed %s", feed.store);
-        notifyData(startingUp, "new feed - " + feed.name);
-        feedDataCache[feed.store] = new Mongo.Collection(feed.store);
-      },
-      changed: function(feed) {
-        console.log("updated feed %s", feed.store);
-        notifyData(startingUp, "feed update - " + feed.name);
-      },
-      removed: function(feed) {
-        console.log("removing feed %s", feed.store);
-        notifyData(startingUp, "removed feed - " + feed.name);
-        delete feedDataCache[feed.store];
-      }
-    });
-  
-    startingUp = false;
-  });
-
-  Meteor.subscribe("datasets", function() {
-    var startingUp = true;
-
-    datasets.find().observe({
-      added: function(dataset) {
-        console.log("adding dataset %s", dataset.store);
-        notifyData(startingUp, "new dataset - " + dataset.name);
-        datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
-      },
-      changed: function(dataset) {
-        console.log("updated dataset %s", dataset.store);
-        notifyData(startingUp, "dataset update - " + dataset.name);
-      },
-      removed: function(dataset) {
-        console.log("removing dataset %s", dataset.store);
-        notifyData(startingUp, "removed dataset - " + dataset.name);
-        delete datasetDataCache[dataset.store];
-      }
-    });
-    
-    startingUp = false;
-  });
 });

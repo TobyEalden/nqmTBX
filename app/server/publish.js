@@ -10,16 +10,33 @@ Meteor.publish("widgets", function() {
   return widgets.find();
 });
 
+Meteor.publish("account", function(opts) {
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.nqmId) {
+    return accounts.find({id: user.nqmId});
+  }
+});
+
 Meteor.publish("hubs", function(opts) {
-  return hubs.find();
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.nqmId) {
+    return hubs.find({ owner: user.nqmId });
+  }
 });
 
 Meteor.publish("feeds", function(opts) {
-  return feeds.find();
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.nqmId) {
+    return feeds.find({ owner: user.nqmId });
+  }
 });
 
 Meteor.publish("datasets", function(opts) {
-  return datasets.find();
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.nqmId) {
+    var shared = ["dataset-JDBLuT","ds001"];
+    return datasets.find({$or: [{ owner: user.nqmId },{ id: { $in: shared }}]});
+  }
 });
 
 Meteor.publish("widgetTypes", function() {

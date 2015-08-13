@@ -46,6 +46,7 @@ var deleteFeed = function(hubId, id) {
 
 var saveDataset = function(opts) {
   try {
+    opts.owner = Meteor.user().nqmId;
     var result = HTTP.post(
       Meteor.settings.commandURL + "/command/dataset/" + (opts.id ? "update" : "create"),
       { data: opts }
@@ -86,6 +87,7 @@ var createUserAccount = function(name) {
     );
 
     if (result.data && result.data.ok) {
+      // Save the nqmId with the default meteor User document.
       Meteor.users.update(user._id, { $set: { nqmId: name } });
     }
 
@@ -100,7 +102,7 @@ Meteor.methods({
   "/app/widget/add": function(widget) {
     var widgetType = widgetTypes.findOne({ name: widget.type});
     if (widgetType) {
-      console.log("adding widget of type: " + widget.type)
+      console.log("adding widget of type: " + widget.type);
       var newWidget = widgets.insert(widget);
       return newWidget._id;
     } else {
