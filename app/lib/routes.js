@@ -1,19 +1,27 @@
-Router.configure({
+AppController = RouteController.extend({
   layoutTemplate: "mainLayout",
   loadingTemplate: 'loading',
-  notFoundTemplate: 'notFound'
+  notFoundTemplate: 'notFound',
+  onBeforeAction: function() {
+    if (!Meteor.userId()) {
+      this.layout("unauthLayout");
+      this.render("login");
+    } else if (Meteor.user() && !Meteor.user().nqmId) {
+      this.layout("unauthLayout");
+      this.render("createAccount");
+    } else {
+      this.next();
+    }
+  }
 });
 
-Router.onBeforeAction(function() {
-  if (!Meteor.userId()) {
-    this.layout("unauthLayout");
-    this.render("login");
-  } else if (Meteor.user() && !Meteor.user().nqmId) {
-    this.layout("unauthLayout");
-    this.render("createAccount");
-  } else {
-    this.next();
-  }
+ConnectController = RouteController.extend({
+  layoutTemplate: "unauthLayout"
+});
+
+Router.configure({
+  // Default controller.
+  controller: AppController
 });
 
 var visualiseRoute =  {
@@ -103,3 +111,30 @@ Router.route("/dataset/edit/:id", {
 });
 
 Router.route("/logout");
+
+Router.route("/connect/:zoneId", {
+  controller: ConnectController,
+  template: "connect",
+  data: function() { return { zoneId: this.params.zoneId }}
+});
+
+Router.route("/manageUsers", {
+  template: "manageUsers",
+  layoutTemplate: "searchBrowseLayout",
+  waitOn: function() { return [ Meteor.subscribe("trustedUsers") ]; },
+  where: "client",
+  data: function() {
+    return {
+      trusted: trustedUsers.find({ status: "trusted", expires: { $gt: new Date() } }),
+      expired: trustedUsers.find({ status: "trusted", expires: { $lt: new Date() } }),
+      pending: trustedUsers.find({ status: "pending" }),
+      revoked: trustedUsers.find({ status: "revoked" })
+    }
+  }
+});
+
+Router.route("/createTrustedUser", {
+  template: "editTrustedUser",
+  layoutTemplate: "modalLayout",
+  where: "client"
+});

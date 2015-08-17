@@ -1,6 +1,7 @@
 {
   "public": {
-    "queryURL": "http://localhost:3104/v1"
+    "queryURL": "http://localhost:3104/v1",
+    "googleClientId": "1051724674890-6qk768hmaatgl2810lc4n9qbns08emqh.apps.googleusercontent.com"
   },
 
   "commandURL": "http://localhost:3102"

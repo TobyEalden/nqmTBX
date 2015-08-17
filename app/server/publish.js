@@ -6,6 +6,15 @@ Meteor.publish("userData", function () {
   }
 });
 
+Meteor.publish("trustedUsers", function(opts) {
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.nqmId) {
+    return trustedUsers.find({owner: user.nqmId});
+  } else {
+    this.ready();
+  }
+});
+
 Meteor.publish("widgets", function() {
   return widgets.find();
 });
@@ -119,7 +128,17 @@ var getDatasetPublisher = function(datasetName) {
   };
 };
 
+var addWidgetTypes = function() {
+  if (widgetTypes.find().count() === 0) {
+    widgetTypes.insert({ name: "scatterPlot", caption: "scatter plot" });
+    widgetTypes.insert({ name: "lineChart", caption: "line chart" });
+  }
+};
+
 Meteor.startup(function() {
+  // Add widget types if necessary.
+  addWidgetTypes();
+
   // Keep publications up-to-date as new feeds are added/removed.
   feeds.find().observe({
     added: function(feed) {

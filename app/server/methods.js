@@ -98,6 +98,40 @@ var createUserAccount = function(name) {
   }
 };
 
+var createTrustedUser = function(params) {
+  try {
+    params.owner = Meteor.user().nqmId;
+    var result = HTTP.post(
+      Meteor.settings.commandURL + "/command/trustedUser/create",
+      { data: params }
+    );
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("dataset save failed: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
+var setTrustedStatus = function(acceptId, status) {
+  try {
+    var target = trustedUsers.findOne({ id: acceptId });
+    if (target && target.owner === Meteor.user().nqmId) {
+      var result = HTTP.post(
+        Meteor.settings.commandURL + "/command/trustedUser/setStatus",
+        { data: { id: acceptId, status: status } }
+      );
+      console.log("result is %j",result.data);
+      return result.data;
+    } else {
+      throw new Error("not authorised");
+    }
+  } catch (e) {
+    console.log("set trusted status failed: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
 Meteor.methods({
   "/app/widget/add": function(widget) {
     var widgetType = widgetTypes.findOne({ name: widget.type});
@@ -151,5 +185,13 @@ Meteor.methods({
   "/app/account/create": function(name) {
     this.unblock();
     return createUserAccount(name);
+  },
+  "/app/trustedUser/create": function(opts) {
+    this.unblock();
+    return createTrustedUser(opts);
+  },
+  "/app/trustedUser/setStatus": function(acceptId,status) {
+    this.unblock();
+    return setTrustedStatus(acceptId, status);
   }
 });

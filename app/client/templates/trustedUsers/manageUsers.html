@@ -1,0 +1,86 @@
+<template name="manageUsers">
+  {{#contentFor "pageHeader" }}
+    <a class="brand-logo">trusted users</a>
+  {{/contentFor}}
+
+  {{#contentFor "pageLinks" }}
+    <li><a href="/createTrustedUser" class="waves-effect waves-purple">add trusted user<i class="left material-icons">add_box</i></a></li>
+  {{/contentFor}}
+
+  <div class="nqm-container">
+    <div class="row">
+      <div class="col s12">
+        <ul class="tabs">
+          <li class="tab col s3"><a href="#trusted">trusted</a></li>
+          <li class="tab col s3"><a href="#pending">pending</a></li>
+          <li class="tab col s3"><a href="#expired">expired</a></li>
+          <li class="tab col s3"><a href="#revoked">revoked</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <div class="row">
+        <div class="col s3">email</div>
+        <div class="col s3">action</div>
+        <div class="col s3">issued</div>
+        <div class="col s3">expires</div>
+      </div>
+      <div id="trusted" class="col s12">
+        {{#if hasData trusted}}
+          {{#each trusted}}
+            <div class="row">
+              <div class="col s3">{{userId}}</div>
+              <div class="col s3"><a class="btn nqm-status-btn" data-id="{{id}}" data-status="revoked" href="#">revoke</a></div>
+              <div class="col s3">{{issued}}</div>
+              <div class="col s3">{{expires}}</div>
+            </div>
+          {{/each}}
+        {{else}}
+          no data found
+        {{/if}}
+      </div>
+      <div id="pending" class="col s12">
+        {{#if hasData pending}}
+              {{#each pending}}
+                <div class="row">
+                  <div class="col s3">{{userId}}</div>
+                  <div class="col s3"><a class="btn nqm-status-btn" data-id="{{id}}" data-status="accepted" href="#">accept</a> <a class="btn nqm-status-btn" data-id="{{id}}" data-status="declined" href="#">decline</a></div>
+                  <div class="col s3">{{issued}}</div>
+                  <div class="col s3">{{expires}}</div>
+                </div>
+              {{/each}}
+        {{else}}
+          no data found
+        {{/if}}
+      </div>
+      <div id="expired" class="col s12">
+        {{#if hasData expired}}
+            {{#each expired}}
+              <div class="row">
+                <div class="col s3">{{userId}}</div>
+                <div class="col s3"><a class="btn nqm-status-btn" data-id="{{id}}" data-status="deleted" href="#">delete</a></div>
+                <div class="col s3">{{issued}}</div>
+                <div class="col s3">{{expires}}</div>
+              </div>
+            {{/each}}
+        {{else}}
+          no data found
+        {{/if}}
+      </div>
+      <div id="revoked" class="col s12">
+        {{#if hasData revoked}}
+          {{#each revoked}}
+            <div class="row">
+              <div class="col s3">{{userId}}</div>
+              <div class="col s3"><a class="btn nqm-status-btn" data-id="{{id}}" data-status="deleted" href="#">delete</a></div>
+              <div class="col s3">{{issued}}</div>
+              <div class="col s3">{{expires}}</div>
+            </div>
+          {{/each}}
+        {{else}}
+          no data found
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</template>
