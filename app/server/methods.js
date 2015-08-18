@@ -108,26 +108,45 @@ var createTrustedUser = function(params) {
     console.log("result is %j",result.data);
     return result.data;
   } catch (e) {
-    console.log("dataset save failed: %s", e.message);
+    console.log("create trusted user failed: %s", e.message);
     return { ok: false, error: e.message };
   }
 };
 
-var setTrustedStatus = function(acceptId, status) {
+var setTrustedStatus = function(id, status) {
   try {
-    var target = trustedUsers.findOne({ id: acceptId });
+    var target = trustedUsers.findOne({ id: id });
     if (target && target.owner === Meteor.user().nqmId) {
       var result = HTTP.post(
         Meteor.settings.commandURL + "/command/trustedUser/setStatus",
-        { data: { id: acceptId, status: status } }
+        { data: { id: id, status: status } }
       );
       console.log("result is %j",result.data);
       return result.data;
     } else {
-      throw new Error("not authorised");
+      throw new Error("id not found: " + id);
     }
   } catch (e) {
     console.log("set trusted status failed: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
+var deleteTrustedUser = function(id) {
+  try {
+    var target = trustedUsers.findOne({ id: id });
+    if (target && target.owner === Meteor.user().nqmId) {
+      var result = HTTP.post(
+        Meteor.settings.commandURL + "/command/trustedUser/delete",
+        { data: { id: id } }
+      );
+      console.log("result is %j",result.data);
+      return result.data;
+    } else {
+      throw new Error("id not found: " + id);
+    }
+  } catch (e) {
+    console.log("delete trusted user failed: %s", e.message);
     return { ok: false, error: e.message };
   }
 };
@@ -190,8 +209,12 @@ Meteor.methods({
     this.unblock();
     return createTrustedUser(opts);
   },
-  "/app/trustedUser/setStatus": function(acceptId,status) {
+  "/app/trustedUser/setStatus": function(id,status) {
     this.unblock();
-    return setTrustedStatus(acceptId, status);
+    return setTrustedStatus(id, status);
+  },
+  "/app/trustedUser/delete": function(id) {
+    this.unblock();
+    return deleteTrustedUser(id);
   }
 });
