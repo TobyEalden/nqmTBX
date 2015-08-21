@@ -4,6 +4,7 @@
   {{/contentFor}}
 
   {{#contentFor "pageLinks"}}
+    <li><a href="/dataset/labels" class="waves-effect waves-purple">labels<i class="left material-icons">label</i></a></li>
     <li><a href="/dataset/create" class="waves-effect waves-purple">new dataset<i class="left material-icons">add</i></a></li>
   {{/contentFor}}
 
@@ -16,6 +17,7 @@
         </div>
         <div class="card-action">
           <a target="_blank" href="{{queryURL}}/datasets/{{id}}/importconfig">import</a>
+          <a href="/dataset/share/{{id}}">share</a>
           <a class="right" target="_blank" href="{{queryURL}}/datasets/{{id}}">raw</a>
         </div>
       </div>

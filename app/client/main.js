@@ -92,6 +92,10 @@ Meteor.startup(function() {
         nqmTBX.ui.notification("account is " + Meteor.user().nqmId);
       });
 
+      //
+      // TODO - don't subscribe until data is required (at template level?)
+      //
+
       // Subscribe to the IOT hubs for this user.
       Meteor.subscribe("hubs", function() {
         var startingUp = true;

@@ -1,0 +1,38 @@
+<template name="shareDataset">
+  {{#contentFor "pageHeader"}}
+    <a class="brand-logo">&nbsp; share dataset</a>
+  {{/contentFor}}
+
+  <div class="section">
+    <div class="row">
+      <form id="nqm-share-form" class="col s12">
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">perm_device_information</i>
+            <input name="name" id="nqm-dataset-name" type="text" readonly class="validate" value="{{dataset.name}}">
+            <label for="nqm-dataset-name" class="{{active dataset.name}}">name</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <i class="material-icons prefix">people</i>
+            <input name="subject" id="nqm-subject-name" type="text" class="validate" value="">
+            <label for="nqm-subject-name" class="">share with</label>
+            {{#if haveMatches}}
+              <div class="collection">
+                {{#each shareMatch}}
+                  <a href="#!" class="collection-item" data-id="{{id}}">{{userId}}</a>
+                {{/each}}
+              </div>
+            {{/if}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <button class="btn waves-effect waves-light" type="submit" name="action">share<i class="material-icons left">share</i></button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>

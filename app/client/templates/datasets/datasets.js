@@ -7,8 +7,14 @@
 /*****************************************************************************/
 Template.datasets.events({
   "click .nqm-dataset-card": function(event, template) {
-    var components = event.currentTarget.id.split(":");
-    Router.go("/dataset/edit/" + components[1]);
+    // Ignore events bubbled from anchor elements.
+    if (event.target.href) {
+      return true;
+    } else {
+      var components = event.currentTarget.id.split(":");
+      Router.go("/dataset/edit/" + components[1]);
+      return false;
+    }
   }
 });
 

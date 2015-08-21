@@ -16,7 +16,15 @@ AppController = RouteController.extend({
 });
 
 ConnectController = RouteController.extend({
-  layoutTemplate: "unauthLayout"
+  layoutTemplate: "unauthLayout",
+  onBeforeAction: function() {
+    if (Meteor.userId() && Meteor.user()) {
+      console.log("authenticated " + Meteor.user().profile.name);
+      this.next();
+    } else {
+      this.next();
+    }
+  }
 });
 
 Router.configure({
@@ -110,6 +118,19 @@ Router.route("/dataset/edit/:id", {
   data: function() { return datasets.findOne({id: this.params.id }); }
 });
 
+Router.route("/dataset/share/:id", {
+  template: "shareDataset",
+  layoutTemplate: "modalLayout",
+  waitOn: function() { return [ Meteor.subscribe("trustedUsers") ]; },
+  where: "client",
+  data: function() {
+    return {
+      dataset: datasets.findOne({id: this.params.id }),
+      trustedUsers: trustedUsers.find({ status: "trusted", expires: { $gt: new Date() } })
+    }
+  }
+});
+
 Router.route("/logout");
 
 Router.route("/connect/:zoneId", {
@@ -137,4 +158,16 @@ Router.route("/createTrustedUser", {
   template: "editTrustedUser",
   layoutTemplate: "modalLayout",
   where: "client"
+});
+
+Router.route("/authenticate/:tuid/:rurl", {
+  template: "authenticate",
+  controller: ConnectController,
+  where: "client",
+  data: function() {
+    return {
+      tuid: this.params.tuid,
+      returnURL: this.params.rurl
+    }
+  }
 });
