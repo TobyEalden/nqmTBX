@@ -11,8 +11,8 @@ Template.authenticate.events({
     Meteor.loginWithGoogle({ prompt: "select_account consent" }, function(err) {
       if (!err) {
         nqmTBX.ui.notification("external authentication");
-        Meteor.call("/api/token/create", template.data.tuid, function(err, result) {
-          window.location.href = template.data.returnURL;
+        Meteor.call("/api/token/create", Meteor.user()._id, template.data.owner, function(err, result) {
+          window.location.replace(template.data.returnURL + "?t=" + "xyz");
         });
       }
     });

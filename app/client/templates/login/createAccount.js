@@ -8,7 +8,7 @@ Template.createAccount.onCreated(function() {
 
 Template.createAccount.helpers({
   suggestedAccount: function() {
-    return Meteor.user().profile.name.replace(/ /g,"_");
+    return Meteor.user().profile.name.replace(/ /g,".");
   }
 });
 

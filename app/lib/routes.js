@@ -160,14 +160,14 @@ Router.route("/createTrustedUser", {
   where: "client"
 });
 
-Router.route("/authenticate/:tuid/:rurl", {
+Router.route("/:uid/authenticate", {
   template: "authenticate",
   controller: ConnectController,
   where: "client",
   data: function() {
     return {
-      tuid: this.params.tuid,
-      returnURL: this.params.rurl
+      owner: this.params.uid,
+      returnURL: this.params.query.rurl
     }
   }
 });
