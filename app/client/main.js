@@ -86,10 +86,23 @@ Meteor.startup(function() {
 
   Tracker.autorun(function() {
     // Wait for a valid nqm account to be logged in.
-    if (Meteor.user() && Meteor.user().nqmId) {
+    var router = Router.current();
+    if (router && router.route.getName() === "shareAuth") {
+      if (!Meteor.loggingIn() && Meteor.user()) {
+        nqmTBX.ui.notification("share authentication");
+        // Create api access token for this user.
+        Meteor.call("/api/token/create", router.data().owner, function(err, result) {
+          window.location.replace(router.data().returnURL + "?t=" + result.result.id);
+        });
+      }
+    } else if (Meteor.user() && Meteor.user().nqmId) {
       // Subscribe to the logged-in account.
       Meteor.subscribe("account", function() {
-        nqmTBX.ui.notification("account is " + Meteor.user().nqmId);
+        if (Meteor.user()) {
+          nqmTBX.ui.notification("account is " + Meteor.user().nqmId);
+        } else {
+          nqmTBX.ui.notification("no account");
+        }
       });
 
       //

@@ -161,6 +161,7 @@ Router.route("/createTrustedUser", {
 });
 
 Router.route("/:uid/authenticate", {
+  name: "shareAuth",
   template: "authenticate",
   controller: ConnectController,
   where: "client",

@@ -3,17 +3,14 @@
  */
 
 Template.authenticate.onCreated(function() {
-  Meteor.logout();
+  //Meteor.logout();
 });
 
 Template.authenticate.events({
   "click #googleAuthButton": function(event, template) {
+    Session.set("share-auth",template.data);
     Meteor.loginWithGoogle({ prompt: "select_account consent" }, function(err) {
       if (!err) {
-        nqmTBX.ui.notification("external authentication");
-        Meteor.call("/api/token/create", Meteor.user()._id, template.data.owner, function(err, result) {
-          window.location.replace(template.data.returnURL + "?t=" + "xyz");
-        });
       }
     });
   }

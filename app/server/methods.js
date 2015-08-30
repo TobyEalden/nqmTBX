@@ -151,16 +151,14 @@ var deleteTrustedUser = function(id) {
   }
 };
 
-var createAccessToken = function(opts) {
+var createShareToken = function(opts) {
   try {
     opts.owner = Meteor.user().nqmId;
     // Get the target trusted user.
-    var target = trustedUsers.findOne({ userId: opts.userId });
-    // Check that target belongs to currently logged in user.
-    // ToDo - add helper function for fetching e-mail address from user object (i.e. don't assume google service).
+    var target = trustedUsers.findOne({ userId: opts.userId, status: "trusted" });
     if (target) {
       var result = HTTP.post(
-        Meteor.settings.commandURL + "/command/accessToken/create",
+        Meteor.settings.commandURL + "/command/shareToken/create",
         { data: opts }
       );
       console.log("result is %j",result.data);
@@ -169,7 +167,34 @@ var createAccessToken = function(opts) {
       throw new Error("invalid arguments");
     }
   } catch (e) {
-    console.log("createAccessToken failed %s", e.message);
+    console.log("createShareToken failed %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
+var createApiToken = function(ownerId) {
+  try {
+    // Get the target trusted user.
+    var email = getUserEmail();
+    var target = trustedUsers.findOne({ owner: ownerId, userId: email, status: "trusted" });
+    if (target) {
+      var result = HTTP.post(
+        Meteor.settings.commandURL + "/command/apiToken/create",
+        {
+          data: {
+            userId: target.id,
+            issued: Date.now(),
+            expires: Date.now() + 10*60*1000  // 10 mins?
+          }
+        }
+      );
+      console.log("result is %j",result.data);
+      return result.data;
+    } else {
+      throw new Error("no trusted user found");
+    }
+  } catch (e) {
+    console.log("createApiToken failed %s", e.message);
     return { ok: false, error: e.message };
   }
 };
@@ -240,8 +265,12 @@ Meteor.methods({
     this.unblock();
     return deleteTrustedUser(id);
   },
-  "/api/token/create": function(opts) {
+  "/app/share/create": function(opts) {
     this.unblock();
-    return createAccessToken(opts);
+    return createShareToken(opts);
+  },
+  "/api/token/create": function(ownerId) {
+    this.unblock();
+    return createApiToken(ownerId);
   }
 });

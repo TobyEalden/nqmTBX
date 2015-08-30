@@ -59,7 +59,7 @@ Template.shareDataset.events({
         issued: Date.now(),
         expires: Date.now() + 24*60*60*1000
       };
-      Meteor.call("/api/token/create", params, cb);
+      Meteor.call("/app/share/create", params, cb);
     }
 
     return false;
