@@ -19,7 +19,7 @@ Meteor.startup(function() {
 
   Tracker.autorun(function() {
     if (Accounts.loginServicesConfigured() && Meteor.userId()) {
-      docCookies.setItem("nqmT",Meteor.userId());
+      docCookies.setItem("nqmT",Meteor.userId(),null,"/");
       //docCookies.setItem("meteor_logintoken",localStorage.getItem("Meteor.loginToken"),30);
     }
 

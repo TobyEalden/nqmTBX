@@ -74,6 +74,7 @@ MainLayout = React.createClass({
     this.setState({ sidebarOpen: !this.state.sidebarOpen });
   },
   logout: function() {
+    docCookies.removeItem("nqmT","/");
     Meteor.logout();
     FlowRouter.go("/");
   },

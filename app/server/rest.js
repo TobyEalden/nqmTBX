@@ -4,6 +4,27 @@
 
 var Cookies = Meteor.npmRequire("cookies");
 
+var ALLOW_HEADERS = [
+  'accept',
+  'accept-version',
+  'content-type',
+  'request-id',
+  'origin',
+  'x-api-version',
+  'x-request-id',
+  'x-auth-token'
+];
+
+var EXPOSE_HEADERS = [
+  'api-version',
+  'content-length',
+  'content-md5',
+  'content-type',
+  'date',
+  'request-id',
+  'response-time'
+];
+
 var authUser = function() {
   var user;
   var cookies = new Cookies(this.request, this.response);
@@ -31,8 +52,10 @@ var authUser = function() {
     var redirectURL = 'http' + '://' + this.request.headers.host + this.request.originalUrl;
     this.response.writeHead(302, {
       "Location": authURL + "?rurl=" + redirectURL,
-      "access-control-allow-headers":"Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token",
-      "access-control-allow-origin":"*"
+      "Access-Control-Allow-Origin":"*",
+      "Access-Control-Allow-Headers": ALLOW_HEADERS.join(","),
+      "Access-Control-Expose-Headers": EXPOSE_HEADERS.join(","),
+      //'Access-Control-Allow-Credentials': 'true'
     });
     this.response.write(authURL);
     //this.response.statusCode = 302;
@@ -47,7 +70,9 @@ var authUser = function() {
 var defaultOptionsEndpoint = function() {
   var corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token'
+    'Access-Control-Allow-Headers': ALLOW_HEADERS.join(","),
+    'Access-Control-Expose-Headers' : EXPOSE_HEADERS.join(","),
+    //'Access-Control-Allow-Credentials': 'true'
   };
   this.response.writeHead(200, corsHeaders);
   return this.done();
