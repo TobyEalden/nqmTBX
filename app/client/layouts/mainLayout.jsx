@@ -45,8 +45,8 @@ let componentThemes = {
 };
 
 const ThemeManager = new mui.Styles.ThemeManager();
-ThemeManager.setPalette(appPalette);
-ThemeManager.setComponentThemes(componentThemes);
+//ThemeManager.setPalette(appPalette);
+//ThemeManager.setComponentThemes(componentThemes);
 //ThemeManager.setTheme(ThemeManager.types.DARK);
 
 MainLayout = React.createClass({

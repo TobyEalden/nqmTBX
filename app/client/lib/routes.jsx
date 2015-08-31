@@ -35,8 +35,16 @@ FlowRouter.route("/trusted", {
   }
 });
 
+FlowRouter.route("/:uid/authenticate", {
+  name: "shareAuth",
+  action: function() {
+    localStorage.clear();
+    ReactLayout.render(UnauthLayout,{ content: function() { return <ShareAuthPage />; } });
+  }
+});
+
 FlowRouter.route("/test", {
   action: function() {
-    ReactLayout.render(UnauthLayout,{ content: function() { return <TestPage /> } });
+    ReactLayout.render(UnauthLayout,{ content: function() { return <TestPage />; } });
   }
 });

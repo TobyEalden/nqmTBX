@@ -4,7 +4,9 @@ const {
   CardTitle,
   CardActions,
   CardText,
-  RaisedButton
+  RaisedButton,
+  RadioButton,
+  RadioButtonGroup
   } = mui;
 
 const ThemeManager = new mui.Styles.ThemeManager();
@@ -38,6 +40,9 @@ DatasetSummary = React.createClass({
       this.props.onSummaryExpanded(this);
     }
   },
+  stopPropagation: function(e) {
+    e.stopPropagation();
+  },
   render: function() {
     var styles = {
       card: {
@@ -53,7 +58,8 @@ DatasetSummary = React.createClass({
         textOverflow: "ellipsis"
       },
       cardText: {
-        color: ThemeManager.getCurrentTheme().palette.textColor
+        color: ThemeManager.getCurrentTheme().palette.textColor,
+        fontWeight: "normal"
       },
       anchor: {
         color: ThemeManager.getCurrentTheme().palette.textColor
@@ -72,6 +78,20 @@ DatasetSummary = React.createClass({
           <p>dataset id: {this.props.dataset.id}</p>
           <p>metadata URL: <a style={styles.anchor} target="_blank" href={Meteor.settings.public.queryURL + "/" + this.props.dataset.id}>{Meteor.settings.public.queryURL + "/" + this.props.dataset.id}</a></p>
           <p>data URL: <a style={styles.anchor} target="_blank" href={this.props.dataset.dataUrl}>{this.props.dataset.dataUrl}</a></p>
+        </CardText>
+        <CardTitle titleStyle={styles.cardTitle} subtitleStyle={styles.cardSubtitle} title="sharing" subtitle="sharing options for this resource" expandable={true} />
+        <CardText expandable={true}>
+          <RadioButtonGroup name="shareType" defaultSelected="private">
+            <RadioButton onClick={this.stopPropagation}
+                         value="public"
+                         label="public - anyone with the link can access"/>
+            <RadioButton onClick={this.stopPropagation}
+                         value="specific"
+                         label="trusted - only people you trust can access"/>
+            <RadioButton onClick={this.stopPropagation}
+                         value="private"
+                         label="private - only you can access"/>
+          </RadioButtonGroup>
         </CardText>
         <CardActions expandable={true}>
           <RaisedButton label="edit" primary={true} />

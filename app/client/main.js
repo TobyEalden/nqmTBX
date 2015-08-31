@@ -18,11 +18,31 @@ Meteor.startup(function() {
   };
 
   Tracker.autorun(function() {
+    if (Accounts.loginServicesConfigured() && Meteor.userId()) {
+      docCookies.setItem("nqmT",Meteor.userId());
+      //docCookies.setItem("meteor_logintoken",localStorage.getItem("Meteor.loginToken"),30);
+    }
+
     // Wait for a valid nqm account to be logged in.
-    if (Meteor.user() && Meteor.user().nqmId) {
+    var router = FlowRouter.current();
+    if (router && router.route.name === "shareAuth") {
+      if (!Meteor.loggingIn() && Meteor.user()) {
+        nqmTBX.ui.notification("share authentication");
+        // Create api access token for this user.
+        Meteor.call("/api/token/create", router.params.uid, function(err, result) {
+          setTimeout(function() {
+            window.location.replace(router.queryParams.rurl + "?access_token=" + result.result.id);
+          },1000);
+        });
+      }
+    } else if (Meteor.user() && Meteor.user().nqmId) {
       // Subscribe to the logged-in account.
       Meteor.subscribe("account", function() {
-        nqmTBX.ui.notification("account is " + Meteor.user().nqmId);
+        if (Meteor.user()) {
+          nqmTBX.ui.notification("account is " + Meteor.user().nqmId);
+        } else {
+          nqmTBX.ui.notification("no account");
+        }
       });
 
       //
