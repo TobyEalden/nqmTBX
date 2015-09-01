@@ -18,7 +18,7 @@ kadira:flow-router
 tobyealden:nqm-tbx-globals
 d3js:d3
 accounts-google
-meteortoys:allthings
 service-configuration
 http
 nimble:restivus
+accounts-password

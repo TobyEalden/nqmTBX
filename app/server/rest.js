@@ -46,22 +46,18 @@ var authUser = function() {
     }
   }
 
-  if (!user) {
-//    var authURL = config.toolboxURL + uid + "/authenticate";
-    var authURL = "http://localhost:2222/" + "test.001" + "/authenticate";
-    var redirectURL = 'http' + '://' + this.request.headers.host + this.request.originalUrl;
-    this.response.writeHead(302, {
-      "Location": authURL + "?rurl=" + redirectURL,
-      "Access-Control-Allow-Origin":"*",
-      "Access-Control-Allow-Headers": ALLOW_HEADERS.join(","),
-      "Access-Control-Expose-Headers": EXPOSE_HEADERS.join(","),
-      //'Access-Control-Allow-Credentials': 'true'
-    });
-    this.response.write(authURL);
-    //this.response.statusCode = 302;
-    //this.response.statusMessage = authURL;
-    this.done();
-  }
+//  if (!user) {
+////    var authURL = config.toolboxURL + uid + "/authenticate";
+//    var authURL = "http://localhost:2222/" + "test.001" + "/authenticate";
+//    var redirectURL = 'http' + '://' + this.request.headers.host + this.request.originalUrl;
+//    this.response.writeHead(302, {
+//      "Location": authURL + "?rurl=" + redirectURL,
+//      "Access-Control-Allow-Origin":"*",
+//      "Access-Control-Allow-Headers": ALLOW_HEADERS.join(",")
+//    });
+//    this.response.write(authURL);
+//    this.done();
+//  }
   return {
     user: user
   };
@@ -70,9 +66,7 @@ var authUser = function() {
 var defaultOptionsEndpoint = function() {
   var corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': ALLOW_HEADERS.join(","),
-    'Access-Control-Expose-Headers' : EXPOSE_HEADERS.join(","),
-    //'Access-Control-Allow-Credentials': 'true'
+    'Access-Control-Allow-Headers': ALLOW_HEADERS.join(",")
   };
   this.response.writeHead(200, corsHeaders);
   return this.done();
@@ -90,12 +84,71 @@ var api = new Restivus({
   //}
 });
 
-// HACK - enable Authorization CORS header.
-api._config.defaultHeaders["Access-Control-Allow-Headers"] += ", X-Auth-Token";
-//api._config.defaultHeaders["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
+// HACK - enable Authorization CORS header. TODO - fix
+api._config.defaultHeaders["Access-Control-Allow-Headers"] = ALLOW_HEADERS.join(",");
 
-api.addRoute("datasets/:id", { authRequired: true }, {
+var routeDenied = function() {
+  return {
+    statusCode: 401,
+    headers: {
+      'Content-Type': 'text/plain'
+    },
+    body: '401 - unauthorised'
+  };
+};
+
+var routeNotFound = function() {
+  return {
+    statusCode: 404,
+    headers: {
+      'Content-Type': 'text/plain',
+    },
+    body: '404 - not found'
+  };
+};
+
+api.addRoute("datasets/:id", {
   get: function() {
-    return datasets.findOne({id: this.urlParams.id});
+    var ds = datasets.findOne({id: this.urlParams.id});
+    if (ds) {
+      if (!ds.public) {
+        // Dataset not public => need to authenticate.
+        var authInfo = authUser.call(this);
+        if (authInfo.user) {
+          if (ds.private) {
+            if (ds.owner === authInfo.user.nqmId) {
+              // Dataset is private and owner is authenticated
+              // PERMIT
+            } else {
+              // DENY
+              return routeDenied();
+            }
+          } else {
+            // Dataset not public or private => shared with specific users.
+            // Find a share token for the authenticated user with the dataset scope.
+            var tokens = shareTokens.find({ userId: trustedUser.userId, scope: scope, expires: { $gt: new Date() }, "resources.resource": "dataset", "resources.actions": "read" });
+            if (tokens.length > 0) {
+              // PERMIT
+            } else {
+              // DENY
+              return routeDenied();
+            }
+          }
+        } else {
+          // Not authenticated.
+          // DENY
+          return routeDenied();
+        }
+      } else {
+        // Dataset is public.
+        // PERMIT
+      }
+    } else {
+      // No dataset found.
+      // 404
+      return routeNotFound();
+    }
+
+    return ds;
   }
 });

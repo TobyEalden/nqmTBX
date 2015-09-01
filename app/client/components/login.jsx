@@ -21,6 +21,19 @@ Login = React.createClass({
       }
     });
   },
+  doNQMLogin: function() {
+    var config = {
+      'client_id': '1051724674890-6qk768hmaatgl2810lc4n9qbns08emqh.apps.googleusercontent.com',
+      'scope': 'https://www.googleapis.com/auth/userinfo.profile'
+    };
+    gapi.auth.authorize(config, function() {
+      console.log('login complete');
+      console.log(gapi.auth.getToken());
+      Meteor.loginWithNQM("google", gapi.auth.getToken().access_token, function(err) {
+        console.log("logged in with NQM!!!!");
+      });
+    });
+  },
   render: function () {
     var styles = {
       nquiring: {
@@ -43,6 +56,7 @@ Login = React.createClass({
           </CardText>
           <CardActions style={{textAlign: "center"}}>
             <RaisedButton label="Login with Google" primary={true} onClick={this.doLogin} />
+            <RaisedButton label="NQM Login" secondary={true} onClick={this.doNQMLogin} />
           </CardActions>
         </Card>
         <div className="Grid-cell"></div>

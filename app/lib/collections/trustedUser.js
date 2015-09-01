@@ -4,3 +4,4 @@
 
 trustedUsers = new Mongo.Collection("TrustedUser");
 apiTokens = new Mongo.Collection("ApiToken");
+shareTokens = new Mongo.Collection("ShareToken");
