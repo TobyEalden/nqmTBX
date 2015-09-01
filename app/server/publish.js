@@ -15,6 +15,15 @@ Meteor.publish("trustedUsers", function(opts) {
   }
 });
 
+Meteor.publish("shareTokens", function(datasetId) {
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.nqmId) {
+    return shareTokens.find({owner: user.nqmId, scope: datasetId});
+  } else {
+    this.ready();
+  }
+});
+
 Meteor.publish("widgets", function() {
   return widgets.find();
 });
@@ -43,7 +52,7 @@ Meteor.publish("feeds", function(opts) {
 Meteor.publish("datasets", function(opts) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.nqmId) {
-    var shared = ["dataset-JDBLuT","ds001"];
+    var shared = []; //["dataset-JDBLuT","ds001"];
     return datasets.find({$or: [{ owner: user.nqmId },{ id: { $in: shared }}]});
   }
 });

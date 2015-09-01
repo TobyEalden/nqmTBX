@@ -18,10 +18,10 @@ const {
   IconMenu,
   IconButton,
   CircularProgress,
-  RaisedButton,
+  FlatButton,
   } = mui;
 
-MainLayout = React.createClass({
+ModalLayout = React.createClass({
   mixins: [ ReactMeteorData ],
   childContextTypes: {
     muiTheme: React.PropTypes.object
@@ -35,23 +35,20 @@ MainLayout = React.createClass({
     return data;
   },
   getInitialState: function() {
-    return { sidebarOpen: true }
+    return { }
   },
   getChildContext: function() {
     return {
       muiTheme: ThemeManager.getCurrentTheme()
     };
   },
-  toggleNav: function() {
-    this.setState({ sidebarOpen: !this.state.sidebarOpen });
-  },
   logout: function() {
     docCookies.removeItem("nqmT","/");
     Meteor.logout();
     FlowRouter.go("/");
   },
-  searchTextChanged: function(e) {
-    Session.set("nqm-search",e.target.value);
+  goBack: function() {
+    window.history.go(-1);
   },
   getContent: function() {
     var muiTheme = ThemeManager.getCurrentTheme();
@@ -66,19 +63,6 @@ MainLayout = React.createClass({
         //backgroundColor: appPalette.primary2Color,
         alignContent: "stretch"
       },
-      title: {
-        fontFamily: ThemeManager.getCurrentTheme().contentFontFamily,
-        color: ThemeManager.getCurrentTheme().palette.textColor
-      },
-      nquiring: {
-        fontWeight: "lighter",
-        paddingRight: "0px",
-        color: ThemeManager.getCurrentTheme().palette.textColor
-      },
-      toolbox: {
-        fontWeight: "bolder",
-        color: ThemeManager.getCurrentTheme().palette.textColor
-      },
       iconButton: {
         marginTop: (toolbarHeight - iconButtonSize) / 2,
       },
@@ -90,12 +74,6 @@ MainLayout = React.createClass({
         position: "fixed",
         zIndex: 10,
         boxShadow: "0px 2px 2px rgba(0,0,0,0.2)"
-      },
-      sideBar: {
-        width: "200px",
-        flex: "none",
-        position: "relative",
-        transition: "all 2s linear"
       },
       contentCell: {
         position: "relative",
@@ -117,15 +95,9 @@ MainLayout = React.createClass({
     return <div style={styles.page}>
       <Toolbar style={styles.toolbar}>
         <ToolbarGroup key={0} float="left">
-          <IconButton style={styles.iconButton} onClick={this.toggleNav}><FontIcon className="material-icons">menu</FontIcon></IconButton>
-        </ToolbarGroup>
-        <ToolbarGroup key={1} float="left" style={styles.title}>
-          <ToolbarTitle text="nquiring" style={styles.nquiring} />
-          <ToolbarTitle text="Toolbox" style={styles.toolbox} />
-        </ToolbarGroup>
-        <ToolbarGroup key={2} float="left" style={styles.title}>
-          <FontIcon className="material-icons">search</FontIcon>
-          <TextField hintText="search" onChange={this.searchTextChanged} />
+          <FlatButton label="back" onClick={this.goBack}>
+            <FontIcon style={{float:"left", height: "100%", lineHeight: "36px", verticalAlign: "middle"}} className="material-icons">arrow_back</FontIcon>
+          </FlatButton>
         </ToolbarGroup>
         <ToolbarGroup key={3} float="right" >
           <IconMenu style={styles.iconButton} iconButtonElement={<FontIcon className="material-icons">account_box</FontIcon>}>
@@ -135,7 +107,6 @@ MainLayout = React.createClass({
         </ToolbarGroup>
       </Toolbar>
       <div className="Grid" style={styles.grid}>
-        { sideBar }
         <div className="Grid-cell" style={styles.contentCell}>
           <div style={styles.content}>
             { this.props.content() }

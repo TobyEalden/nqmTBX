@@ -2,14 +2,14 @@
 /*  Client and Server Methods */
 /*****************************************************************************/
 
+
 Meteor.methods({
-  'lib/method_name': function () {
-    
-    if (this.isSimulation) {
-    //   // do some client stuff while waiting for
-    //   // result from server.
-    //   return;
-    }
-    // server method logic
-  }
+  //"/app/share/delete": function(id) {
+  //  if (this.isSimulation) {
+  //    shareTokens.remove({id: id });
+  //  } else {
+  //    this.unblock();
+  //    return deleteShareToken(id);
+  //  }
+  //}
 });

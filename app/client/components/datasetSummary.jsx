@@ -9,8 +9,6 @@ const {
   RadioButtonGroup
   } = mui;
 
-const ThemeManager = new mui.Styles.ThemeManager();
-
 DatasetSummary = React.createClass({
   propTypes: {
     dataset: React.PropTypes.object,
@@ -42,6 +40,12 @@ DatasetSummary = React.createClass({
   },
   stopPropagation: function(e) {
     e.stopPropagation();
+  },
+  edit: function() {
+    FlowRouter.go("datasetEdit"); //, {id: this.props.dataset.id });
+  },
+  share: function(e) {
+    FlowRouter.go("datasetShare",{id: this.props.dataset.id});
   },
   render: function() {
     var styles = {
@@ -79,23 +83,9 @@ DatasetSummary = React.createClass({
           <p>metadata URL: <a style={styles.anchor} target="_blank" href={Meteor.settings.public.queryURL + "/" + this.props.dataset.id}>{Meteor.settings.public.queryURL + "/" + this.props.dataset.id}</a></p>
           <p>data URL: <a style={styles.anchor} target="_blank" href={this.props.dataset.dataUrl}>{this.props.dataset.dataUrl}</a></p>
         </CardText>
-        <CardTitle titleStyle={styles.cardTitle} subtitleStyle={styles.cardSubtitle} title="sharing" subtitle="sharing options for this resource" expandable={true} />
-        <CardText expandable={true}>
-          <RadioButtonGroup name="shareType" defaultSelected="private">
-            <RadioButton onClick={this.stopPropagation}
-                         value="public"
-                         label="public - anyone with the link can access"/>
-            <RadioButton onClick={this.stopPropagation}
-                         value="specific"
-                         label="trusted - only people you trust can access"/>
-            <RadioButton onClick={this.stopPropagation}
-                         value="private"
-                         label="private - only you can access"/>
-          </RadioButtonGroup>
-        </CardText>
         <CardActions expandable={true}>
-          <RaisedButton label="edit" primary={true} />
-          <RaisedButton label="share" secondary={true} />
+          <RaisedButton label="edit" primary={true} linkButton={true} href="/dataset/edit" />
+          <RaisedButton label="share" secondary={true} linkButton={true} href={"/dataset/share/" + this.props.dataset.id} />
         </CardActions>
       </Card>
     );

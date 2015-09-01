@@ -23,6 +23,20 @@ FlowRouter.route("/datasets", {
   }
 });
 
+FlowRouter.route("/dataset/edit", {
+  name: "datasetEdit",
+  action: function(params) {
+    ReactLayout.render(UnauthLayout, { content: function() { return <DatasetEditPage />; } });
+  }
+});
+
+FlowRouter.route("/dataset/share/:id", {
+  name: "datasetShare",
+  action: function(params) {
+    ReactLayout.render(ModalLayout, { content: function() { return <DatasetSharePage datasetId={params.id} /> }});
+  }
+});
+
 FlowRouter.route("/visualise", {
   action: function () {
     ReactLayout.render(MainLayout, { content: function() { return <VisualisePage />; } });
@@ -32,6 +46,12 @@ FlowRouter.route("/visualise", {
 FlowRouter.route("/trusted", {
   action: function() {
     ReactLayout.render(MainLayout, { content: function() { return <TrustedUserPage />; } });
+  }
+});
+
+FlowRouter.route("/createTrustedUser", {
+  action: function() {
+    ReactLayout.render(ModalLayout, { content: function() { return <EditTrustedUserPage />; } });
   }
 });
 

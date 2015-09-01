@@ -46,6 +46,7 @@ var deleteFeed = function(hubId, id) {
 
 var saveDataset = function(opts) {
   try {
+    // TODO - security check on updates.
     opts.owner = Meteor.user().nqmId;
     var result = HTTP.post(
       Meteor.settings.commandURL + "/command/dataset/" + (opts.id ? "update" : "create"),
@@ -55,6 +56,21 @@ var saveDataset = function(opts) {
     return result.data;
   } catch (e) {
     console.log("dataset save failed: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
+var setDatasetShareMode = function(id, mode) {
+  try {
+    // TODO - security check.
+    var result = HTTP.post(
+      Meteor.settings.commandURL + "/command/dataset/setShareMode",
+      { data: { id: id, shareMode: mode } }
+    );
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("dataset setShareMode failed: %s", e.message);
     return { ok: false, error: e.message };
   }
 };
@@ -172,6 +188,26 @@ var createShareToken = function(opts) {
   }
 };
 
+var deleteShareToken = function(id) {
+  try {
+    // Get the target trusted user.
+    var target = shareTokens.findOne({ id: id });
+    if (target && target.owner === Meteor.user().nqmId) {
+      var result = HTTP.post(
+        Meteor.settings.commandURL + "/command/shareToken/delete",
+        { data: { id: id } }
+      );
+      console.log("result is %j",result.data);
+      return result.data;
+    } else {
+      throw new Error("invalid arguments");
+    }
+  } catch (e) {
+    console.log("deleteShareToken failed %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
 var createApiToken = function(ownerId) {
   try {
     // Get the email address of the currently logged in user.
@@ -250,6 +286,10 @@ Meteor.methods({
     this.unblock();
     return deleteDataset(id);
   },
+  "/app/dataset/setShareMode": function(id, mode) {
+    this.unblock();
+    return setDatasetShareMode(id, mode);
+  },
   "/app/account/create": function(name) {
     this.unblock();
     return createUserAccount(name);
@@ -269,6 +309,10 @@ Meteor.methods({
   "/app/share/create": function(opts) {
     this.unblock();
     return createShareToken(opts);
+  },
+  "/app/share/delete": function(id) {
+    this.unblock();
+    return deleteShareToken(id);
   },
   "/api/token/create": function(ownerId) {
     this.unblock();
