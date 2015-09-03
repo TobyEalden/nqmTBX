@@ -38,8 +38,7 @@ DatasetSharePage = React.createClass({
       ready: dsSub.ready() && shareSub.ready() && trustedSub.ready(),
       currentUser: Meteor.user(),
       dataset: datasets.findOne({ id: this.props.datasetId }),
-      shares: shareTokens.find({ scope: this.props.datasetId, owner: Meteor.user().nqmId }).fetch(),
-      trustedUsers: trustedUsers.find().fetch()
+      shares: shareTokens.find({ scope: this.props.datasetId, owner: Meteor.user().nqmId }).fetch()
     }
   },
   save: function() {
@@ -73,7 +72,7 @@ DatasetSharePage = React.createClass({
     var lookup = e.target.value;
     if (lookup.length > 0) {
       var searchTerm = new RegExp(lookup,"gi");
-      this.setState({ trustedMatch: trustedUsers.find({ userId: searchTerm}).fetch()});
+      this.setState({ trustedMatch: trustedUsers.find({  userId: searchTerm, status: "trusted", expires: {$gt: new Date() }}).fetch()});
     } else {
       this.setState({ trustedMatch: []});
     }

@@ -104,7 +104,17 @@ var createUserAccount = function(name) {
 
     if (result.data && result.data.ok) {
       // Save the nqmId with the default meteor User document.
-      Meteor.users.update(user._id, { $set: { nqmId: name } });
+      // TODO - check if username already exists before setting it.
+      Meteor.users.update(user._id, { $set: { username: name, nqmId: name } });
+
+      // Add a self-referencing trusted user.
+      result.data = createTrustedUser({
+        userId: getUserEmail(),
+        serviceProvider: "google",
+        issued: Date.now(),
+        expires: (new Date(8640000000000000)).getTime(),
+        status: "trusted"
+      });
     }
 
     return result.data;
@@ -210,6 +220,11 @@ var deleteShareToken = function(id) {
 
 var createApiToken = function(ownerId) {
   try {
+    if (Meteor.user().nqmId !== ownerId) {
+
+    } else {
+
+    }
     // Get the email address of the currently logged in user.
     var email = getUserEmail();
     // Make sure the currently logged in user is trusted by the ownerId.
@@ -233,6 +248,34 @@ var createApiToken = function(ownerId) {
   } catch (e) {
     console.log("createApiToken failed %s", e.message);
     return { ok: false, error: e.message };
+  }
+};
+
+var tokenLogin = function(provider, token) {
+  var userInfo;
+
+  if (provider === "google") {
+    try {
+      var result = HTTP.get("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + token);
+      userInfo = {
+        email: result.data.email
+      };
+
+      var user = Meteor.users.findOne({"services.google.email": result.data.email });
+
+      // Create a token and add it to the user
+      var stampedToken = Accounts._generateStampedLoginToken();
+      var hashStampedToken = Accounts._hashStampedToken(stampedToken);
+
+      Meteor.users.update(user._id, {$push: {'services.resume.loginTokens': hashStampedToken}});
+
+      //var pwd = Meteor.uuid();
+      //Accounts.setPassword(user._id, pwd, { logout: false });
+
+      return stampedToken.token;
+    } catch (e) {
+      console.log("failed to get token info from google: " + e.message);
+    }
   }
 };
 
@@ -317,5 +360,9 @@ Meteor.methods({
   "/api/token/create": function(ownerId) {
     this.unblock();
     return createApiToken(ownerId);
+  },
+  "/app/auth": function(provider, token) {
+    this.unblock();
+    return tokenLogin(provider, token);
   }
 });

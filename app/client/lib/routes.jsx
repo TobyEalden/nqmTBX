@@ -55,7 +55,7 @@ FlowRouter.route("/createTrustedUser", {
   }
 });
 
-FlowRouter.route("/:uid/authenticate", {
+FlowRouter.route("/authenticate/:uid", {
   name: "shareAuth",
   action: function() {
     localStorage.clear();

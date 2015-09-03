@@ -14,11 +14,18 @@ TrustedUserList = React.createClass({
     return {
       ready: trustedSub.ready(),
       currentUser: Meteor.user(),
-      trustedUsers: trustedUsers.find().fetch()
+      trustedUsers: trustedUsers.find({ status: "trusted", expires: {$gt: new Date() }}).fetch()
     }
   },
   deleteUser: function(id) {
     console.log("deleting share " + id);
+    Meteor.call("/app/trustedUser/delete",id,function(err, result) {
+      if (result.error) {
+        console.log("error deleting share: " + result.error);
+      } else {
+        console.log("share deleted: " + id);
+      }
+    });
   },
   render: function() {
     if (this.data.ready) {

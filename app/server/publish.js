@@ -9,7 +9,7 @@ Meteor.publish("userData", function () {
 Meteor.publish("trustedUsers", function(opts) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.nqmId) {
-    return trustedUsers.find({owner: user.nqmId});
+    return trustedUsers.find({owner: user.nqmId, userId: {$ne: getUserEmail(user) }});
   } else {
     this.ready();
   }

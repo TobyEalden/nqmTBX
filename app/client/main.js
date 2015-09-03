@@ -19,7 +19,7 @@ Meteor.startup(function() {
 
   Tracker.autorun(function() {
     if (Accounts.loginServicesConfigured() && Meteor.userId()) {
-      docCookies.setItem("nqmT",Meteor.userId(),null,"/");
+//      docCookies.setItem("nqmT",Meteor.userId(),null,"/");
       //docCookies.setItem("meteor_logintoken",localStorage.getItem("Meteor.loginToken"),30);
     }
 
@@ -30,9 +30,19 @@ Meteor.startup(function() {
         nqmTBX.ui.notification("share authentication");
         // Create api access token for this user.
         Meteor.call("/api/token/create", router.params.uid, function(err, result) {
-          setTimeout(function() {
-            window.location.replace(router.queryParams.rurl + "?access_token=" + result.result.id);
-          },1000);
+          if (!result.ok) {
+            nqmTBX.ui.notification("failed to create API token: " + result.error);
+            // How to return error to caller - can't redirect 401.
+            // TODO - redirect to a 'request access' page on TBX
+          } else {
+            setTimeout(function() {
+              var urlParser = document.createElement('a');
+              urlParser.href = router.queryParams.rurl;
+              urlParser.search += urlParser.search.length > 0 ? "&t=" : "?t=";
+              urlParser.search += result.result.id;
+              window.location.replace(urlParser.protocol + "//" + urlParser.host + urlParser.pathname + urlParser.search + urlParser.hash);
+            },1000);
+          }
         });
       }
     } else if (Meteor.user() && Meteor.user().nqmId) {

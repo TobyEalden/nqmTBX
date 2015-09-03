@@ -3,6 +3,7 @@
  */
 
 var Cookies = Meteor.npmRequire("cookies");
+var jwt = Meteor.npmRequire("jwt-simple");
 
 var ALLOW_HEADERS = [
   'accept',
@@ -12,7 +13,7 @@ var ALLOW_HEADERS = [
   'origin',
   'x-api-version',
   'x-request-id',
-  'x-auth-token'
+  'authorization'
 ];
 
 var EXPOSE_HEADERS = [
@@ -26,41 +27,39 @@ var EXPOSE_HEADERS = [
 ];
 
 var authUser = function() {
-  var user;
+  var userInfo = {};
   var cookies = new Cookies(this.request, this.response);
 
   // See if there is a currently logged in user.
   var nqmCookie = cookies.get("nqmT");
   if (nqmCookie) {
-    user = Meteor.users.findOne({_id: nqmCookie});
+    var user = Meteor.users.findOne({_id: nqmCookie});
+    userInfo.nqmId = user.nqmId;
   }
 
   // See if there is an authorisation header.
-  if (!user && (this.request.headers["x-auth-token"] || this.request.query.access_token)) {
-    var apiTokenHeader = this.request.headers["x-auth-token"] || this.request.query.access_token;
+  if (!userInfo.nqmId) {
+    var apiTokenHeader;
+    if (this.request.headers["authorization"]) {
+      var parse = this.request.headers["authorization"].split(" ");
+      if (parse.length > 1 && parse[0] === "nqm") {
+        apiTokenHeader = parse[1];
+      }
+    } else if (this.request.query.t) {
+      apiTokenHeader = this.request.query.t;
+    }
+
     if (apiTokenHeader) {
       var token = apiTokens.findOne({id: apiTokenHeader});
       if (token) {
-        user = trustedUsers.findOne({ id: token.userId, status: "trusted", expires: { $gt: new Date() } });
+        var trusted = trustedUsers.findOne({ id: token.userId, status: "trusted", expires: { $gt: new Date() } });
+        userInfo.nqmId = trusted.owner;
+        userInfo.userId = trusted.userId;
       }
     }
   }
 
-//  if (!user) {
-////    var authURL = config.toolboxURL + uid + "/authenticate";
-//    var authURL = "http://localhost:2222/" + "test.001" + "/authenticate";
-//    var redirectURL = 'http' + '://' + this.request.headers.host + this.request.originalUrl;
-//    this.response.writeHead(302, {
-//      "Location": authURL + "?rurl=" + redirectURL,
-//      "Access-Control-Allow-Origin":"*",
-//      "Access-Control-Allow-Headers": ALLOW_HEADERS.join(",")
-//    });
-//    this.response.write(authURL);
-//    this.done();
-//  }
-  return {
-    user: user
-  };
+  return userInfo;
 };
 
 var defaultOptionsEndpoint = function() {
@@ -85,7 +84,8 @@ var api = new Restivus({
 });
 
 // HACK - enable Authorization CORS header. TODO - fix
-api._config.defaultHeaders["Access-Control-Allow-Headers"] = ALLOW_HEADERS.join(",");
+//api._config.defaultHeaders["Access-Control-Allow-Headers"] = ALLOW_HEADERS.join(",");
+api._config.defaultHeaders["Access-Control-Expose-Headers"] = "x-nqm-xhr-redirect";
 
 var routeDenied = function() {
   return {
@@ -111,33 +111,47 @@ api.addRoute("datasets/:id", {
   get: function() {
     var ds = datasets.findOne({id: this.urlParams.id});
     if (ds) {
-      if (!ds.public) {
+      if (ds.shareMode !== "public") {
         // Dataset not public => need to authenticate.
         var authInfo = authUser.call(this);
-        if (authInfo.user) {
-          if (ds.private) {
-            if (ds.owner === authInfo.user.nqmId) {
-              // Dataset is private and owner is authenticated
+        if (authInfo.nqmId) {
+          if (ds.owner === authInfo.nqmId) {
+            // Owner is authenticated
+            // PERMIT
+          } else if (ds.shareMode === "specific") {
+            // Dataset is shared with specific users.
+            // Find a share token for the authenticated user with the dataset scope.
+            var tokens = shareTokens.find({ owner: ds.owner, userId: authInfo.userId, scope: ds.id, expires: { $gt: new Date() }, "resources.resource": "dataset", "resources.actions": "read" });
+            if (tokens.length > 0) {
+              // Found a valid share token for the authenticated user.
               // PERMIT
             } else {
+              // No share token found.
               // DENY
               return routeDenied();
             }
           } else {
-            // Dataset not public or private => shared with specific users.
-            // Find a share token for the authenticated user with the dataset scope.
-            var tokens = shareTokens.find({ userId: trustedUser.userId, scope: scope, expires: { $gt: new Date() }, "resources.resource": "dataset", "resources.actions": "read" });
-            if (tokens.length > 0) {
-              // PERMIT
-            } else {
-              // DENY
-              return routeDenied();
-            }
+            // Dataset is private
+            // DENY
+            return routeDenied();
           }
         } else {
           // Not authenticated.
-          // DENY
-          return routeDenied();
+          // DENY - and re-direct?
+          //    var authURL = config.toolboxURL + uid + "/authenticate";
+          var authURL = "http://localhost:2222" + "/authenticate/" + ds.owner;
+          var redirectURL = 'http' + '://' + this.request.headers.host + this.request.originalUrl;
+          return {
+            statusCode: 302,
+            headers: {
+              'Content-Type': 'text/plain',
+              'Location': authURL + "?rurl=" + redirectURL,
+              "Access-Control-Allow-Origin":"*",
+              "Access-Control-Allow-Headers": ALLOW_HEADERS.join(","),
+              "Access-Control-Expose-Headers":"x-nqm-xhr-redirect"
+        },
+            body: '302 - authenticate' + authURL
+          };
         }
       } else {
         // Dataset is public.

@@ -49,3 +49,26 @@ Accounts.registerLoginHandler("NQM",function(loginRequest) {
     userId: user._id
   }
 });
+
+var connectHandler = WebApp.connectHandlers; // get meteor-core's connect-implementation
+
+// attach connect-style middleware for response header injection
+Meteor.startup(function () {
+  connectHandler.use(function (req, res, next) {
+    // TODO - Enforce https
+    //res.setHeader('Strict-Transport-Security', 'max-age=2592000; includeSubDomains'); // 2592000s / 30 days
+    if (req.originalUrl.indexOf("/authenticate/") === 0) {
+      var url = Meteor.npmRequire("url");
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Expose-Headers","x-nqm-xhr-redirect");
+      // When sending the authentication page, include a header containing the URL.
+      // This helps xhr clients know where to redirect to (as xhr doesn't see 302 responses).
+      // TODO - review use of x-fowarded-proto
+      var original = url.parse(req.headers["x-forwarded-proto"] + "://" + req.headers["host"] + req.originalUrl);
+      delete original.search;
+      var redirectUrl = url.format(original);
+      res.setHeader("x-nqm-xhr-redirect", redirectUrl);
+    }
+    return next();
+  })
+})

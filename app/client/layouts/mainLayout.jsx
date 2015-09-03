@@ -29,7 +29,7 @@ MainLayout = React.createClass({
   getMeteorData: function() {
     var data = {
       loggingIn: Meteor.loggingIn(),
-      loggedIn: Meteor.user()
+      loggedIn: Meteor.user() && Meteor.user().nqmId
     };
 
     return data;
@@ -46,9 +46,7 @@ MainLayout = React.createClass({
     this.setState({ sidebarOpen: !this.state.sidebarOpen });
   },
   logout: function() {
-    docCookies.removeItem("nqmT","/");
-    Meteor.logout();
-    FlowRouter.go("/");
+    nqmTBX.helpers.logout();
   },
   searchTextChanged: function(e) {
     Session.set("nqm-search",e.target.value);
