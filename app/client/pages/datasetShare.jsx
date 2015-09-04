@@ -97,7 +97,7 @@ DatasetSharePage = React.createClass({
       userId: this.refs["search"].getValue(),
       scope: this.props.datasetId,
       resources: [
-        { resource: "dataset", actions: ["read"] }
+        { resource: "access", actions: ["read"] }
       ],
       issued: Date.now(),
       expires: Date.now() + 24*60*60*1000

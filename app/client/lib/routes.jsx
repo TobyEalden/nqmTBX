@@ -23,17 +23,24 @@ FlowRouter.route("/datasets", {
   }
 });
 
-FlowRouter.route("/dataset/edit", {
+FlowRouter.route("/dataset/create", {
+  name: "datasetCreate",
+  action: function(params) {
+    ReactLayout.render(ModalLayout, { content: function() { return <DatasetEditPage />; } });
+  }
+});
+
+FlowRouter.route("/dataset/edit/:id", {
   name: "datasetEdit",
   action: function(params) {
-    ReactLayout.render(UnauthLayout, { content: function() { return <DatasetEditPage />; } });
+    ReactLayout.render(ModalLayout, { content: function() { return <DatasetEditPage datasetId={params.id} />; } });
   }
 });
 
 FlowRouter.route("/dataset/share/:id", {
   name: "datasetShare",
   action: function(params) {
-    ReactLayout.render(ModalLayout, { content: function() { return <DatasetSharePage datasetId={params.id} /> }});
+    ReactLayout.render(ModalLayout, { content: function() { return <DatasetSharePage datasetId={params.id} /> } });
   }
 });
 

@@ -52,8 +52,15 @@ Meteor.publish("feeds", function(opts) {
 Meteor.publish("datasets", function(opts) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.nqmId) {
-    var shared = []; //["dataset-JDBLuT","ds001"];
-    return datasets.find({$or: [{ owner: user.nqmId },{ id: { $in: shared }}]});
+    if (opts && opts.id) {
+      // Requested specific dataset only.
+      return datasets.find({owner: user.nqmId, id: opts.id});
+    } else {
+      // Request all datasets.
+      // TODO - implement filters?
+      var shared = []; //["dataset-JDBLuT","ds001"];
+      return datasets.find({$or: [{ owner: user.nqmId },{ id: { $in: shared }}]});
+    }
   }
 });
 
@@ -160,6 +167,18 @@ Meteor.startup(function() {
       // A feed has been removed => remove from cache.
       console.log("removing feed %s", feed.store);
       delete feedDataCache[feed.store];
+    }
+  });
+
+  datasets.find().observe({
+    added: function(ds) {
+      console.log("publishing dataset %s", ds.store);
+      datasetDataCache[ds.store] = new Mongo.Collection(ds.store);
+      Meteor.publish(ds.store, getDatasetPublisher(ds.store));
+    },
+    removed: function(ds) {
+      console.log("removing dataset %s", ds.store);
+      delete datasetDataCache[ds.store];
     }
   });
 });

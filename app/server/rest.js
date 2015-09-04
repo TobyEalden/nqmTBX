@@ -30,19 +30,18 @@ var getClientIP = function(request) {
   return ip;
 };
 
-var authUser = function() {
+var getTokenDetails = function(request) {
   var userInfo = {};
-  var cookies = new Cookies(this.request, this.response);
 
   // See if there is an authorisation header.
   var apiTokenHeader;
-  if (this.request.headers["authorization"]) {
-    var parse = this.request.headers["authorization"].split(" ");
+  if (request.headers["authorization"]) {
+    var parse = request.headers["authorization"].split(" ");
     if (parse.length > 1 && parse[0] === "nqm") {
       apiTokenHeader = parse[1];
     }
-  } else if (this.request.query.t) {
-    apiTokenHeader = this.request.query.t;
+  } else if (request.query.t) {
+    apiTokenHeader = request.query.t;
   }
 
   if (apiTokenHeader) {
@@ -56,7 +55,7 @@ var authUser = function() {
       }
 
       // Check the referer.
-      if (token.referer !== getClientIP(this.request)) {
+      if (token.referer !== getClientIP(request)) {
         throw new Error("bad referer");
       }
 
@@ -73,17 +72,6 @@ var authUser = function() {
       console.log("Failed to get api token - " + e.message);
     }
   }
-
-  //if (!userInfo.userId) {
-  //  // No access token found, see if there is a currently logged in user.
-  //  var nqmCookie = cookies.get("nqm");
-  //  if (nqmCookie) {
-  //    var user = Meteor.users.findOne({_id: nqmCookie});
-  //    if (user && user.status.lastLogin.ipAddr === getClientIP(this.request)) {
-  //      userInfo.loggedIn = user.nqmId;
-  //    }
-  //  }
-  //}
 
   return userInfo;
 };
@@ -125,15 +113,15 @@ var routeNotFound = function() {
   };
 };
 
-var routeAuthenticate = function(owner) {
+var routeAuthenticate = function(request, owner) {
   var jt = jwt.encode({
     iss: owner,
     expires: moment().add(Meteor.settings.authenticationTokenTimeout, "minutes").valueOf(),
-    referer: getClientIP(this.request)
+    referer: getClientIP(request)
   }, Meteor.settings.APIKey);
 
   var authURL = process.env.ROOT_URL + "authenticate/" + jt;
-  var redirectURL = this.request.connection.encrypted ? "https" : "http" + '://' + this.request.headers.host + this.request.originalUrl;
+  var redirectURL = request.connection.encrypted ? "https" : "http" + '://' + request.headers.host + request.originalUrl;
 
   return {
     statusCode: 302,
@@ -148,50 +136,74 @@ var routeAuthenticate = function(owner) {
   };
 };
 
+function authorised(request, resource, accessRequired) {
+  var authorise = {
+    permit: false
+  };
+
+  // Default to read-only access.
+  accessRequired = accessRequired || "read";
+
+  if (!resource) {
+    // No resource found => 404
+    authorise.response = routeNotFound();
+  } else if (resource.shareMode === "public") {
+    // Resource is public => PERMIT
+    authorise.permit = true;
+  } else {
+    // Resource not public => need to authenticate.
+    var authInfo = getTokenDetails(request);
+    if (authInfo.userId || authInfo.owner) {
+      // There is an authenticated user.
+      if (resource.owner === authInfo.token.subId) {
+        // Owner of the resource is authenticated => PERMIT
+        authorise.permit = true;
+      } else if (resource.shareMode === "specific") {
+        // Resource is shared with specific users.
+        // Find a share token for the authenticated user with the resource scope.
+        var tokens = shareTokens.find({ owner: resource.owner, userId: authInfo.userId, scope: resource.id, expires: { $gt: new Date() }, "resources.resource": "access", "resources.actions": accessRequired }).fetch();
+        if (tokens.length > 0) {
+          // Found a valid share token for the authenticated user => PERMIT
+          authorise.permit = true;
+        } else {
+          // No share token found => DENY and re-direct.
+          authorise.response = routeDenied();
+        }
+      } else {
+        // Dataset is private => DENY
+        authorise.response = routeDenied();
+      }
+    } else {
+      // Not authenticated => DENY and re-direct.
+      authorise.response = routeAuthenticate(request, resource.owner);
+    }
+  }
+
+  if (authorise.permit) {
+    authorise.response = resource;
+  }
+
+  return authorise;
+}
+
 api.addRoute("datasets/:id", {
   get: function() {
     var ds = datasets.findOne({id: this.urlParams.id});
-    if (ds) {
-      if (ds.shareMode !== "public") {
-        // Dataset not public => need to authenticate.
-        var authInfo = authUser.call(this);
-        if (authInfo.userId || authInfo.owner) {
-          // There is an authenticated user.
-          if (ds.owner === authInfo.loggedIn || ds.owner === authInfo.token.subId) {
-            // Owner is authenticated
-            // PERMIT
-          } else if (ds.shareMode === "specific") {
-            // Dataset is shared with specific users.
-            // Find a share token for the authenticated user with the dataset scope.
-            var tokens = shareTokens.find({ owner: ds.owner, userId: authInfo.userId, scope: ds.id, expires: { $gt: new Date() }, "resources.resource": "dataset", "resources.actions": "read" }).fetch();
-            if (tokens.length > 0) {
-              // Found a valid share token for the authenticated user.
-              // PERMIT
-            } else {
-              // No share token found.
-              // DENY
-              return routeDenied();
-            }
-          } else {
-            // Dataset is private
-            // DENY
-            return routeDenied();
-          }
-        } else {
-          // Not authenticated.
-          // DENY - and re-direct.
-          return routeAuthenticate.call(this, ds.owner);
-        }
-      } else {
-        // Dataset is public.
-        // PERMIT
-      }
-    } else {
-      // No dataset found.
-      // 404
-      return routeNotFound();
-    }
+    var auth = authorised(this.request, ds);
+    return auth.response;
+  }
+});
 
-    return ds;
+api.addRoute("datasets/:id/data", {
+  get: function() {
+    var ds = datasets.findOne({id: this.urlParams.id});
+    var auth = authorised(this.request, ds);
+    if (!auth.permit) {
+      // Not permitted.
+      return auth.response;
+    }
+    // Have permission to access dataset.
+    var data = datasetDataCache[ds.store];
+    return data.find().fetch();
   }
 });

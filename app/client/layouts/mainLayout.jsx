@@ -93,7 +93,8 @@ MainLayout = React.createClass({
         width: "200px",
         flex: "none",
         position: "relative",
-        transition: "all 2s linear"
+        transition: "all 2s linear",
+        borderRight: "1px solid #eee"
       },
       contentCell: {
         position: "relative",

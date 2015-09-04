@@ -5,6 +5,7 @@ const {
   CardActions,
   CardText,
   RaisedButton,
+  FontIcon,
   RadioButton,
   RadioButtonGroup
   } = mui;
@@ -67,6 +68,11 @@ DatasetSummary = React.createClass({
       },
       anchor: {
         color: ThemeManager.getCurrentTheme().palette.textColor
+      },
+      buttonIcon: {
+        verticalAlign: "middle",
+        paddingRight: "4px",
+        color: ThemeManager.getCurrentTheme().palette.canvasColor
       }
     };
     return (
@@ -79,13 +85,12 @@ DatasetSummary = React.createClass({
           showExpandableButton={true}>
         </CardTitle>
         <CardText style={styles.cardText} expandable={true}>
-          <p>dataset id: {this.props.dataset.id}</p>
-          <p>metadata URL: <a style={styles.anchor} target="_blank" href={Meteor.settings.public.queryURL + "/" + this.props.dataset.id}>{Meteor.settings.public.queryURL + "/" + this.props.dataset.id}</a></p>
-          <p>data URL: <a style={styles.anchor} target="_blank" href={this.props.dataset.dataUrl}>{this.props.dataset.dataUrl}</a></p>
+          <p>REST endpoint: <a style={styles.anchor} target="_blank" href={Meteor.settings.public.queryURL + "/datasets/" + this.props.dataset.id}>{Meteor.settings.public.queryURL + "/datasets/" + this.props.dataset.id}</a></p>
         </CardText>
         <CardActions expandable={true}>
-          <RaisedButton label="edit" primary={true} linkButton={true} href="/dataset/edit" />
-          <RaisedButton label="share" secondary={true} linkButton={true} href={"/dataset/share/" + this.props.dataset.id} />
+          <RaisedButton label="view" secondary={true} linkButton={true} href={"/dataset/view/" + this.props.dataset.id}><FontIcon style={styles.buttonIcon} className="material-icons">visibility</FontIcon></RaisedButton>
+          <RaisedButton label="share" secondary={true} linkButton={true} href={"/dataset/share/" + this.props.dataset.id}><FontIcon style={styles.buttonIcon} className="material-icons">share</FontIcon></RaisedButton>
+          <RaisedButton label="edit" primary={true} linkButton={true} href={"/dataset/edit/" + this.props.dataset.id}><FontIcon style={styles.buttonIcon} className="material-icons">edit</FontIcon></RaisedButton>
         </CardActions>
       </Card>
     );

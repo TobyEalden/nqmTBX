@@ -48,17 +48,28 @@ var deleteFeed = function(hubId, id) {
 
 var saveDataset = function(opts) {
   try {
-    // TODO - security check on updates.
     opts.owner = Meteor.user().nqmId;
+    if (opts.id) {
+      // Validate that the current user owns the dataset
+      var target = datasets.findOne({id: opts.id});
+      if (!target || target.owner !== opts.owner) {
+        throw new Error("permission denied");
+      }
+    } else {
+      opts.shareMode = "private";
+    }
     var result = HTTP.post(
       Meteor.settings.commandURL + "/command/dataset/" + (opts.id ? "update" : "create"),
       { data: opts }
     );
     console.log("result is %j",result.data);
+    if (!result.data.ok) {
+      throw new Error(result.data.error || "call failed");
+    }
     return result.data;
   } catch (e) {
     console.log("dataset save failed: %s", e.message);
-    return { ok: false, error: e.message };
+    throw e;
   }
 };
 
