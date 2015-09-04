@@ -18,34 +18,41 @@ Meteor.startup(function() {
   };
 
   Tracker.autorun(function() {
-    if (Accounts.loginServicesConfigured() && Meteor.userId()) {
-//      docCookies.setItem("nqmT",Meteor.userId(),null,"/");
-      //docCookies.setItem("meteor_logintoken",localStorage.getItem("Meteor.loginToken"),30);
-    }
-
-    // Wait for a valid nqm account to be logged in.
     var router = FlowRouter.current();
+
+    // Check if the current route is the share authentication page.
     if (router && router.route.name === "shareAuth") {
       if (!Meteor.loggingIn() && Meteor.user()) {
+        // A user has just authenticated to request sharing.
         nqmTBX.ui.notification("share authentication");
+
         // Create api access token for this user.
-        Meteor.call("/api/token/create", router.params.uid, function(err, result) {
+        Meteor.call("/api/token/create", router.params.jwt, function (err, result) {
           if (!result.ok) {
             nqmTBX.ui.notification("failed to create API token: " + result.error);
             // How to return error to caller - can't redirect 401.
             // TODO - redirect to a 'request access' page on TBX
           } else {
-            setTimeout(function() {
-              var urlParser = document.createElement('a');
-              urlParser.href = router.queryParams.rurl;
-              urlParser.search += urlParser.search.length > 0 ? "&t=" : "?t=";
-              urlParser.search += result.result.id;
-              window.location.replace(urlParser.protocol + "//" + urlParser.host + urlParser.pathname + urlParser.search + urlParser.hash);
-            },1000);
+            setTimeout(function () {
+              var urlParser = new URI(router.queryParams.rurl);
+              urlParser.setSearch("t", result.token);
+              window.location.replace(urlParser.toString());
+            }, 1000);
           }
         });
       }
-    } else if (Meteor.user() && Meteor.user().nqmId) {
+    }
+  });
+
+  Tracker.autorun(function() {
+    if (Meteor.user() && Meteor.user().nqmId) {
+      // A valid nqm account is logged in.
+
+      // Set a cookie for the currently logged in user.
+      // This is done so that a logged-in user can access their data via the
+      // REST api without needing a token.
+      //docCookies.setItem("nqm",Meteor.userId(),null,"/");
+
       // Subscribe to the logged-in account.
       Meteor.subscribe("account", function() {
         if (Meteor.user()) {

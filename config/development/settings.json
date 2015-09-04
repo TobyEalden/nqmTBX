@@ -5,5 +5,7 @@
   },
 
   "commandURL": "http://localhost:3102",
-  "APIKey": "2snfDAfVHnZM"
+  "APIKey": "2snfDAfVHnZM",
+  "authenticationTokenTimeout": 2,
+  "apiTokenTimeout": 10
 }

@@ -55,12 +55,16 @@ FlowRouter.route("/createTrustedUser", {
   }
 });
 
-FlowRouter.route("/authenticate/:uid", {
+var authExit = function(context, redirect) {
+  debugger;
+};
+
+FlowRouter.route("/authenticate/:jwt", {
   name: "shareAuth",
   action: function() {
-    localStorage.clear();
     ReactLayout.render(UnauthLayout,{ content: function() { return <ShareAuthPage />; } });
-  }
+  },
+  triggersExit: [authExit]
 });
 
 FlowRouter.route("/test", {

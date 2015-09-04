@@ -2,6 +2,8 @@
 /* Server Only Methods */
 /*****************************************************************************/
 
+var jwt = Meteor.npmRequire("jwt-simple");
+
 var saveIOTHub = function(isNew, opts) {
   try {
     var result = HTTP.post(
@@ -218,32 +220,44 @@ var deleteShareToken = function(id) {
   }
 };
 
-var createApiToken = function(ownerId) {
+var createApiToken = function(authToken) {
   try {
-    if (Meteor.user().nqmId !== ownerId) {
-
-    } else {
-
+    var jt = jwt.decode(authToken, Meteor.settings.APIKey);
+    if (jt.exp <= Date.now()) {
+      // Token has expired.
+      throw new Error("auth token expired");
     }
+
     // Get the email address of the currently logged in user.
     var email = getUserEmail();
-    // Make sure the currently logged in user is trusted by the ownerId.
-    var target = trustedUsers.findOne({ owner: ownerId, userId: email, status: "trusted" });
+
+    // Make sure the currently logged in user is trusted by the token issuer.
+    var target = trustedUsers.findOne({ owner: jt.iss, userId: email, status: "trusted", expires: { $gt: new Date() } });
     if (target) {
-      var result = HTTP.post(
-        Meteor.settings.commandURL + "/command/apiToken/create",
-        {
-          data: {
-            userId: target.id,
-            issued: Date.now(),
-            expires: Date.now() + 10*60*1000  // 10 mins?
-          }
-        }
-      );
-      console.log("result is %j",result.data);
-      return result.data;
+      //var result = HTTP.post(
+      //  Meteor.settings.commandURL + "/command/apiToken/create",
+      //  {
+      //    data: {
+      //      userId: target.id,
+      //
+      //      issued: Date.now(),
+      //      expires: Date.now() + 10*60*1000  // 10 mins?
+      //    }
+      //  }
+      //);
+      //console.log("result is %j",result.data);
+      //return result.data;
+      var apiToken = jwt.encode({
+        iss: jt.iss,
+        sub: target.id,
+        exp: moment().add(Meteor.settings.apiTokenTimeout, "minutes").valueOf(),
+        referer: jt.referer,
+        subId: Meteor.user().nqmId
+      }, Meteor.settings.APIKey);
+      console.log("api token is %s",apiToken);
+      return { ok: true, token: apiToken };
     } else {
-      throw new Error("no trusted user found");
+      throw new Error(jt.iss + " does not trust " + email);
     }
   } catch (e) {
     console.log("createApiToken failed %s", e.message);
@@ -357,9 +371,9 @@ Meteor.methods({
     this.unblock();
     return deleteShareToken(id);
   },
-  "/api/token/create": function(ownerId) {
+  "/api/token/create": function(authToken) {
     this.unblock();
-    return createApiToken(ownerId);
+    return createApiToken(authToken);
   },
   "/app/auth": function(provider, token) {
     this.unblock();
