@@ -94,12 +94,14 @@ var getIOTFeedPublisher = function(feedName) {
   return function(opts) {
     if (feedDataCache.hasOwnProperty(feedName)) {
       var lookup = {};
+      opts = opts || {};
       if (opts.from) {
         lookup["timestamp"] = { $gt: opts.from };
       }
       opts.limit = opts.limit || 1000;
 
-      return feedDataCache[feedName].find(lookup,{ sort: { "timestamp": -1 }, limit: opts.limit });
+      var coll = feedDataCache[feedName].find(lookup,{ sort: { "timestamp": -1 }, limit: opts.limit });
+      return coll;
     } else {
       console.log("feed not found: %s",feedName);
       this.stop();

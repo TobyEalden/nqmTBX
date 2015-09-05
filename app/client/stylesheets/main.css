@@ -12,3 +12,45 @@ body, html {
 #react-root {
     height: 100%;
 }
+
+.nqm-grid-stack-item {
+
+}
+
+/*
+ * Grid-stack patches.
+ * Hide vertical scroll on visualisation cards.
+ */
+.grid-stack>.grid-stack-item>.grid-stack-item-content.card.card-content {
+    overflow-y: hidden;
+}
+
+.grid-stack>.grid-stack-item>.grid-stack-item-content.card {
+    overflow-y: hidden;
+}
+
+.grid-stack-item-content.card .card-content {
+    padding: 0;
+}
+
+
+/*
+ * d3 stuff
+ */
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #aaa;
+    shape-rendering: crispEdges;
+}
+
+.x.axis text, .y.axis text {
+    fill: #aaa;
+}
+
+.line {
+    fill: none;
+    stroke: orange;
+    stroke-width: 2;
+}
+
