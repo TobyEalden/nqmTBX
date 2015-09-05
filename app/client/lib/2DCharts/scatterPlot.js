@@ -4,8 +4,8 @@
 
 window.NQMScatterPlot = (function() {
   // Constructor
-  function ScatterPlot(cfg, ctrl) {
-    SeriesBase.call(this, cfg, ctrl);
+  function ScatterPlot(ctrl) {
+    SeriesBase.call(this, ctrl);
   }
 
   ScatterPlot.prototype = Object.create(SeriesBase.prototype);
@@ -19,7 +19,7 @@ window.NQMScatterPlot = (function() {
       .enter()
       .append("circle")
       .attr("r",1)
-      .attr("fill",function(d) { return self._colour(d[self._config.datum]); });
+      .attr("fill",function(d) { return self._colour(d[self._ctrl.props.config.datum]); });
 
     updateSelection
       .transition()

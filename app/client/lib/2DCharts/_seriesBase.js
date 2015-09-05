@@ -6,11 +6,11 @@ SeriesBase = (function() {
   var updateDelayTimeout = 100;
 
   // Constructor
-  function SeriesBase(cfg, ctrl) {
+  function SeriesBase(ctrl) {
+    this._ctrl = ctrl;
     this._svgElement = null;
     this._dataGroup = null;
     this._renderGroup = null;
-    this._config = cfg;
     this._xAxis = null;
     this._yAxis = null;
     this._xScale = null;
@@ -24,8 +24,6 @@ SeriesBase = (function() {
       bottom: 30,
       left: 50
     };
-
-    this._ctrl = ctrl;
   }
 
   SeriesBase.prototype.render = function() {
@@ -40,12 +38,12 @@ SeriesBase = (function() {
     var self = this;
 
     // Create SVG container.
-    this._svgElement = d3.select("#" + this._config.type + "-" + this._config._id);
+    this._svgElement = d3.select("#" + this._ctrl.props.config.type + "-" + this._ctrl.props.config._id);
 
-    this._xValue = function (d) { return d[self._config.series] };
+    this._xValue = function (d) { return d[self._ctrl.props.config.series] };
     this._xMap = function (d) { return self._xScale(self._xValue(d)); };
 
-    this._yValue = function (d) { return parseFloat(d[self._config.datum]); };
+    this._yValue = function (d) { return parseFloat(d[self._ctrl.props.config.datum]); };
     this._yMap = function (d) { return self._yScale(self._yValue(d)); };
 
     this._colour = d3.scale.category20b();
@@ -59,19 +57,19 @@ SeriesBase = (function() {
 
     // x axis.
     this._dataGroup.append("g")
-      .attr("id", "nqm-vis-x-axis-" + this._config._id)
+      .attr("id", "nqm-vis-x-axis-" + this._ctrl.props.config._id)
       .attr("class", "x axis");
 
     // y axis.
     this._dataGroup.append("g")
-      .attr("id", "nqm-vis-y-axis-" + this._config._id)
+      .attr("id", "nqm-vis-y-axis-" + this._ctrl.props.config._id)
       .attr("class", "y axis")
       .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text(this._config.datum);
+      .text(this._ctrl.props.config.datum);
 
     this._renderGroup = this._dataGroup.append("g");
 
@@ -98,7 +96,7 @@ SeriesBase = (function() {
   var scaleAndRender = function() {
     if (this._ctrl.props.config.collection) {
       var timer = Date.now();
-//      console.log(this._config.type + " starting render: " + (Date.now() - timer));
+//      console.log(this._ctrl.props.config.type + " starting render: " + (Date.now() - timer));
 
       // Set the axis domain range.
       var xExtent = d3.extent(this._ctrl.props.config.collection, this._xValue);
@@ -131,7 +129,7 @@ SeriesBase = (function() {
         .call(this._yAxis);
 
       this.onRender(this._renderGroup);
-//      console.log(this._config.type + " finished render: " + (Date.now() - timer));
+//      console.log(this._ctrl.props.config.type + " finished render: " + (Date.now() - timer));
     }
 
     this._timeout = 0;
@@ -139,11 +137,11 @@ SeriesBase = (function() {
 
   SeriesBase.prototype.checkSize = function() {
     // Get parent card.
-    var card = d3.select("#nqm-vis-card-" + this._config._id);
+    var card = d3.select("#nqm-vis-card-" + this._ctrl.props.config._id);
     // Get parent card content.
-    var cardContent = d3.select("#nqm-vis-content-" + this._config._id);
+    var cardContent = d3.select("#nqm-vis-content-" + this._ctrl.props.config._id);
     // Get title.
-    var title = d3.select("#nqm-vis-title-" + this._config._id);
+    var title = d3.select("#nqm-vis-title-" + this._ctrl.props.config._id);
 
     // Determine dimensions of parent node.
     var width = card.node().offsetWidth;
@@ -171,7 +169,7 @@ SeriesBase = (function() {
       this._yScale = d3.scale.linear().range([height, 0]);
       this._yAxis = d3.svg.axis().scale(this._yScale).orient("left");
 
-      d3.select("#nqm-vis-x-axis-" + this._config._id)
+      d3.select("#nqm-vis-x-axis-" + this._ctrl.props.config._id)
         .attr("transform", "translate(" + 0 + "," + height + ")");
 
       throttledRender.call(this);

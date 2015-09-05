@@ -16,7 +16,6 @@ VisualisePage = React.createClass({
     return (
       <div>
         <nqmTBX.vis.Sheet />
-        <mui.FloatingActionButton style={styles.actionButton} onClick={this.addVis} tooltip="new dataset"><mui.FontIcon className="material-icons">add</mui.FontIcon></mui.FloatingActionButton>
       </div>
     );
   }

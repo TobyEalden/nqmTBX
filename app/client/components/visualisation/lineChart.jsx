@@ -1,7 +1,7 @@
 
-nqmTBX.vis.ScatterPlot = React.createClass({
+nqmTBX.vis.LineChart = React.createClass({
   mixins: [ReactMeteorData],
-  displayName: "nqmTBX.vis.ScatterPlot",
+  displayName: "nqmTBX.vis.LineChart",
   propTypes: {
     config: React.PropTypes.object.isRequired
   },
@@ -15,7 +15,7 @@ nqmTBX.vis.ScatterPlot = React.createClass({
   },
   componentDidMount: function() {
     // Create the visualisation.
-    this._visualisation = new NQMScatterPlot(this);
+    this._visualisation = new NQMLineChart(this);
     this._debugTiming = true;
   },
   shouldComponentUpdate: function() {
@@ -29,7 +29,7 @@ nqmTBX.vis.ScatterPlot = React.createClass({
   render: function() {
     var content;
     if (this.data.ready) {
-      content = <svg id={"ScatterPlot-" + this.props.config._id} className="nqm-svg"></svg>;
+      content = <svg id={"LineChart-" + this.props.config._id} className="nqm-svg"></svg>;
     } else {
       content = <mui.CircularProgress mode="indeterminate" />;
     }

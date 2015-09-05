@@ -4,8 +4,8 @@
 
 window.NQMLineChart = (function() {
   // Constructor
-  function LineChart(cfg) {
-    SeriesBase.call(this, cfg);
+  function LineChart(ctrl) {
+    SeriesBase.call(this, ctrl);
   }
 
   LineChart.prototype = Object.create(SeriesBase.prototype);
@@ -28,7 +28,7 @@ window.NQMLineChart = (function() {
     sel
       .transition()
       .duration(1000)
-      .attr("d",this._line(this._config.collection));
+      .attr("d",this._line(this._ctrl.props.config.collection));
 
     sel.exit().remove();
   };

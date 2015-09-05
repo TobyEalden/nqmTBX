@@ -148,8 +148,8 @@ var getDatasetPublisher = function(datasetName) {
 
 var addWidgetTypes = function() {
   if (widgetTypes.find().count() === 0) {
-    widgetTypes.insert({ name: "scatterPlot", caption: "scatter plot" });
-    widgetTypes.insert({ name: "lineChart", caption: "line chart" });
+    widgetTypes.insert({ name: "ScatterPlot", caption: "scatter plot" });
+    widgetTypes.insert({ name: "LineChart", caption: "line chart" });
   }
 };
 

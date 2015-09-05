@@ -2,9 +2,9 @@
 nqmTBX.vis.Sheet = React.createClass({
   mixins: [ReactMeteorData],
   propTypes: {
-
   },
   getMeteorData: function() {
+    // Load the visualisations for this sheet.
     var visSub = Meteor.subscribe("widgets");
 
     return {
@@ -12,10 +12,27 @@ nqmTBX.vis.Sheet = React.createClass({
       visualisations: widgets.find().fetch()
     }
   },
+  render: function() {
+    var content;
+    if (this.data.ready) {
+      content = <nqmTBX.vis.SheetView visualisations={this.data.visualisations} />
+    } else {
+      content = <mui.CircularProgress mode="indeterminate" />
+    }
+
+    return content;
+  }
+});
+
+nqmTBX.vis.SheetView = React.createClass({
+  propTypes: {
+    visualisations: React.PropTypes.array.isRequired
+  },
   getInitialState: function() {
     return {
+      isDirty: false,
       gridReady: false,
-      grid: {}
+      dirtyItems: {}
     }
   },
   initGridstack: function() {
@@ -25,6 +42,7 @@ nqmTBX.vis.Sheet = React.createClass({
     var options = {
       animate: false,
       auto: true,
+      static_grid: false,
       float: false,
       cell_height: 80,
       vertical_margin: 20,
@@ -35,25 +53,71 @@ nqmTBX.vis.Sheet = React.createClass({
     };
     var dom = this.getDOMNode();
     $(dom).gridstack(options);
+
+    // Register to be notified of gridstack changes.
     $(dom).on("change", function(e,items) {
-      if (!self._ignoreUpdates && items.length > 0) {
-        _.forEach(items, function(it) {
-          Session.set("nqm-vis-grid-update-" + it.el.data().widgetId, true);
+      if (items.length > 0) {
+        // Keep a cache of items that need saving.
+        var dirty = self.state.dirtyItems;
+        _.each(items, function(it) {
+          var visId = it.el.data().widgetId;
+          Session.set("nqm-vis-grid-update-" + visId, true);
+          dirty[visId] = it;
         });
+        self.setState({isDirty: true, dirtyItems: dirty});
       }
     });
-    var grid = $(dom).data("gridstack");
 
+    // Register a handler for window resizing.
     var layout = _.debounce(this.onWindowResized, 500);
     $(window).resize(layout);
 
+    // Set grid ready state.
     if (!this.state.gridReady) {
       this.setState({gridReady: true });
     }
   },
+  saveWidgetPosition: function(id, pos, cb) {
+    console.log("saving widget position: " + id);
+    Meteor.call("/app/widget/updatePosition",{ _id: id, position: pos}, function(err) {
+      if (err) {
+        console.log("failed to save widget position: " + err.message);
+        cb();
+      } else {
+        console.log("saved widget position: " + id);
+        cb();
+      }
+    });
+  },
+  save: function() {
+    _.each(this.state.dirtyItems, function(item,k) {
+      var widgetId = item.el.data().widgetId;
+      var current = widgets.findOne({_id: widgetId});
+      if (!current.position || current.position.x != item.x || current.position.y != item.y || current.position.w != item.width || current.position.h != item.height) {
+        this.saveWidgetPosition(widgetId,{ x: item.x, y: item.y, w: item.width, h: item.height }, function() {
+          console.log("saved " + widgetId);
+        });
+      }
+    }, this);
+    this.setState({isDirty: false});
+  },
+  updatePositions: function(props) {
+    if (this.state.isDirty) {
+      // TODO - fix, use auto-save or allow override.
+      console.log("ignored update from external source when sheet is dirty");
+    } else {
+      var dom = this.getDOMNode();
+      var grid = $(dom).data("gridstack");
+
+      _.each(props.visualisations, function(v) {
+        var nodeElement = $("#nqm-vis-" + v._id);
+        grid.update(nodeElement,v.position.x,v.position.y,v.position.w,v.position.h);
+      });
+    }
+  },
   invalidateAll: function() {
-    console.log("layout");
-    _.each(this.data.visualisations, function(v) {
+    console.log("invalidate all");
+    _.each(this.props.visualisations, function(v) {
       Session.set("nqm-vis-grid-update-" + v._id, true);
     });
   },
@@ -63,17 +127,22 @@ nqmTBX.vis.Sheet = React.createClass({
     }
   },
   componentDidMount: function() {
-    if (this.data.ready && !this.state.gridReady) {
+    // If data is ready but the grid has not been initialised, do so now.
+    if (!this.state.gridReady) {
       this.initGridstack();
     }
   },
   componentDidUpdate: function() {
-    if (this.data.ready && !this.state.gridReady) {
+    // If data is ready but the grid has not been initialised, do so now.
+    if (!this.state.gridReady) {
       this.initGridstack();
     }
   },
   shouldComponentUpdate: function(props, state) {
-    if (this.data.ready && this.state.gridReady) {
+    // TODO - review for sheets with pure React components.
+    // No need to update if the data and grid are already up.
+    if (this.state.gridReady) {
+      this.updatePositions(props);
       this.invalidateAll();
       return false;
     } else {
@@ -81,21 +150,25 @@ nqmTBX.vis.Sheet = React.createClass({
     }
   },
   render: function() {
+    var styles = {
+      actionButton: {
+        position: "fixed",
+        bottom: "15px",
+        right: "15px"
+      }
+    };
 
     var content;
-    if (this.data.ready) {
-      var visualisations = this.data.visualisations.map(function(vis) {
-        return <nqmTBX.vis.Container key={vis._id} grid={this.state.grid} config={vis} />;
-      },this);
+    var visualisations = this.props.visualisations.map(function(vis) {
+      return <nqmTBX.vis.Container key={vis._id} config={vis} />;
+    },this);
 
-      content = (
-        <div className="grid-stack">
-          {visualisations}
-        </div>
-      );
-    } else {
-      content = <mui.CircularProgress mode="indeterminate" />
-    }
+    content = (
+      <div className="grid-stack">
+        {visualisations}
+        <mui.FloatingActionButton style={styles.actionButton} onClick={this.save} tooltip="new dataset"><mui.FontIcon className="material-icons">add</mui.FontIcon></mui.FloatingActionButton>
+      </div>
+    );
 
     return content;
   }
