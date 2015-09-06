@@ -24,14 +24,17 @@ Meteor.startup(function() {
     if (router && router.route.name === "shareAuth") {
       if (!Meteor.loggingIn() && Meteor.user()) {
         // A user has just authenticated to request sharing.
-        nqmTBX.ui.notification("share authentication");
+        console.log("share authentication");
 
         // Create api access token for this user.
         Meteor.call("/api/token/create", router.params.jwt, function (err, result) {
           if (!result.ok) {
-            nqmTBX.ui.notification("failed to create API token: " + result.error);
+            console.log("failed to create API token: " + result.error);
             // How to return error to caller - can't redirect 401.
             // TODO - redirect to a 'request access' page on TBX
+            var requestURL = FlowRouter.path("requestAccess",{jwt: router.params.jwt });
+            FlowRouter.go(requestURL);
+            //window.location.replace(requestURL);
           } else {
             setTimeout(function () {
               var urlParser = new URI(router.queryParams.rurl);

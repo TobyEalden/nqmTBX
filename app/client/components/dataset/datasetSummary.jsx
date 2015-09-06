@@ -52,7 +52,8 @@ DatasetSummary = React.createClass({
     var styles = {
       card: {
         marginBottom: "4px",
-        backgroundColor: "white"
+        backgroundColor: "white",
+        borderBottom: "1px solid #ddd"
       },
       cardTitle: {
         fontSize: 14
@@ -76,7 +77,7 @@ DatasetSummary = React.createClass({
       }
     };
     return (
-      <Card ref={"card-" + this.props.dataset.id} key={this.props.dataset.id} className="" initiallyExpanded={false} style={styles.card} onClick={this.onClick.bind(this,this.props.dataset.id)} onExpandChange={this.onExpandChange}>
+      <Card ref={"card-" + this.props.dataset.id} key={this.props.dataset.id} className="" initiallyExpanded={false} style={styles.card} onClick={this.onClick.bind(this,this.props.dataset.id)} onExpandChange={this.onExpandChange} zDepth={0}>
         <CardTitle
           titleStyle={styles.cardTitle}
           subtitleStyle={styles.cardSubtitle}

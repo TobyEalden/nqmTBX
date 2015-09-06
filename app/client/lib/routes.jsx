@@ -74,6 +74,13 @@ FlowRouter.route("/authenticate/:jwt", {
   triggersExit: [authExit]
 });
 
+FlowRouter.route("/requestAccess/:jwt", {
+  name: "requestAccess",
+  action: function() {
+    ReactLayout.render(UnauthLayout, { content: function() { return <nqmTBX.pages.RequestAccessPage />; } });
+  }
+});
+
 FlowRouter.route("/test", {
   action: function() {
     ReactLayout.render(UnauthLayout,{ content: function() { return <TestPage />; } });

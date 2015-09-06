@@ -136,6 +136,29 @@ var routeAuthenticate = function(request, owner) {
   };
 };
 
+var routeRequestAccess = function(request, resource) {
+  var jt = jwt.encode({
+    iss: resource.owner,
+    expires: moment().add(Meteor.settings.authenticationTokenTimeout, "minutes").valueOf(),
+    referer: getClientIP(request)
+  }, Meteor.settings.APIKey);
+
+  var authURL = process.env.ROOT_URL + "requestAccess/" + jt;
+  var redirectURL = request.connection.encrypted ? "https" : "http" + '://' + request.headers.host + request.originalUrl;
+
+  return {
+    statusCode: 302,
+    headers: {
+      'Content-Type': 'text/plain',
+      'Location': authURL + "?rurl=" + redirectURL,
+      "Access-Control-Allow-Origin":"*",
+      "Access-Control-Allow-Headers": ALLOW_HEADERS.join(","),
+      "Access-Control-Expose-Headers":"x-nqm-xhr-redirect"
+    },
+    body: '302 - authenticate - ' + authURL
+  };
+};
+
 function authorised(request, resource, accessRequired) {
   var authorise = {
     permit: false
@@ -166,8 +189,8 @@ function authorised(request, resource, accessRequired) {
           // Found a valid share token for the authenticated user => PERMIT
           authorise.permit = true;
         } else {
-          // No share token found => DENY and re-direct.
-          authorise.response = routeDenied();
+          // No share token found => DENY and re-direct to access request.
+          authorise.response = routeRequestAccess(request, resource);
         }
       } else {
         // Dataset is private => DENY

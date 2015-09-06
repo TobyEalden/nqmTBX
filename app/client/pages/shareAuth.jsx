@@ -1,6 +1,8 @@
 
 ShareAuthPage = React.createClass({
   render: function() {
-    return <Login />
+    return (
+        <nqmTBX.auth.Login allowCreate={false} />
+    );
   }
 });

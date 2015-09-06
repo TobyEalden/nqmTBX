@@ -122,7 +122,7 @@ ModalLayout = React.createClass({
     } else if (this.data.loggedIn) {
       content = this.getContent();
     } else {
-      content = <Login />;
+      content = <nqmTBX.auth.Login />;
     }
     return <AppCanvas>{content}</AppCanvas>
   }

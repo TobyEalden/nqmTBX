@@ -84,8 +84,8 @@ nqmTBX.TitleBar = React.createClass({
         <mui.ToolbarGroup style={styles.rightToolGroup} key={3} float="right" >
           <span>{this.data.currentUser + " "}</span>
           <mui.IconMenu style={styles.iconMenuButton} iconButtonElement={<mui.FontIcon className="material-icons">account_box</mui.FontIcon>}>
+            <mui.MenuItem primaryText="profile" />
             <mui.MenuItem primaryText="logout" onClick={this.logout} />
-            <mui.MenuItem primaryText="about" />
           </mui.IconMenu>
         </mui.ToolbarGroup>
       );

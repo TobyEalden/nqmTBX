@@ -5,6 +5,7 @@
 timeSeriesBase = {};
 
 var doVisualisationRender = function() {
+  var self = this;
   // Make sure loading screen is gone.
 //  $("#nqm-vis-loading-" + this.data._id).remove();
 
@@ -16,10 +17,9 @@ var doVisualisationRender = function() {
   //  // Display 'no data' if there's none.
   //  $("#nqm-vis-no-data-" + this.data._id).removeClass("hide");
   //}
-  var self = this;
-  setTimeout(function() {
-    self._visualisation.render();
-  },0);
+
+  // This is necessary to ensure the React component has finished loading.
+  setTimeout(function() { self._visualisation.render(); },0);
 };
 
 var debugStart = function() {
@@ -88,7 +88,7 @@ timeSeriesBase.startSubscriptions = function() {
       }
     });
   } else {
-    // Failed to load dataset.
+    // Failed to find/load/access dataset.
   }
 
   return feedSub;

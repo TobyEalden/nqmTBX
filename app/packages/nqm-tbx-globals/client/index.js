@@ -20,3 +20,6 @@ nqmTBX.vis = {};
 
 // Authentication namespace.
 nqmTBX.auth = {};
+
+// Pages namespace.
+nqmTBX.pages = {};

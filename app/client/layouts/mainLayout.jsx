@@ -29,7 +29,7 @@ MainLayout = React.createClass({
   getMeteorData: function() {
     var data = {
       loggingIn: Meteor.loggingIn(),
-      loggedIn: Meteor.user() && Meteor.user().nqmId
+      loggedIn: (Meteor.user() && Meteor.user().nqmId ? true : false)
     };
 
     return data;
@@ -51,17 +51,19 @@ MainLayout = React.createClass({
       sideBar = <div className="Grid-cell" style={styles.sideBar}><SideBarMenu /></div>
     }
 
-    return <div style={styles.page}>
-      <nqmTBX.TitleBar onNavToggle={this.toggleNav} showSearch={true} showUserMenu={true} />
-      <div className="Grid" style={styles.grid}>
-        { sideBar }
-        <div className="Grid-cell" style={styles.contentCell}>
-          <div style={styles.content}>
-            { this.props.content() }
+    return (
+      <div style={styles.page}>
+        <nqmTBX.TitleBar onNavToggle={this.toggleNav} showSearch={this.data.loggedIn} showUserMenu={this.data.loggedIn} />
+        <div className="Grid" style={styles.grid}>
+          { sideBar }
+          <div className="Grid-cell" style={styles.contentCell}>
+            <div style={styles.content}>
+              { this.props.content() }
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    );
   },
   render: function() {
     var muiTheme = ThemeManager.getCurrentTheme();
@@ -113,7 +115,12 @@ MainLayout = React.createClass({
     } else if (this.data.loggedIn) {
       content = this.getContent(styles);
     } else {
-      content = <nqmTBX.auth.LoginPage />;
+      content = (
+        <div>
+          <nqmTBX.TitleBar showSearch={false} showUserMenu={this.data.loggedIn} />
+          <nqmTBX.auth.Login allowCreate={true} />;
+        </div>
+      );
     }
     return (
       <AppCanvas>

@@ -1,5 +1,8 @@
-nqmTBX.auth.LoginPage = React.createClass({
+nqmTBX.auth.Login = React.createClass({
   mixins: [ReactMeteorData],
+  propTypes: {
+    allowCreate: React.PropTypes.bool
+  },
   getMeteorData: function() {
     return {
       user: Meteor.user(),
@@ -9,12 +12,11 @@ nqmTBX.auth.LoginPage = React.createClass({
   render: function () {
     var content;
     if (this.data.user) {
-      if (this.data.user.nqmId) {
-        // User is logged in with a valid nqm account. At this point the layout
-        // should re-render with authenticated account.
+      if (this.data.user.nqmId || !this.props.allowCreate) {
+        // User is logged in with a valid nqm account (or account creation is disabled).
+        // At this point the layout should re-render with authenticated account.
         content = (
-          <div>
-            <p>logging in...</p>
+          <div style={{textAlign:"center"}}>
             <mui.CircularProgress mode="indeterminate" />
           </div>);
       } else {
@@ -23,12 +25,10 @@ nqmTBX.auth.LoginPage = React.createClass({
       }
     } else {
       // Not logged in.
-      content = <nqmTBX.auth.Login />;
+      content = <nqmTBX.auth.Authenticate />;
     }
 
     return (
-      <div>
-        <nqmTBX.TitleBar showSearch={false} showUserMenu={this.data.loggedIn} />
         <div style={{paddingTop: mui.Styles.Spacing.desktopKeylineIncrement*2}} className="Grid">
           <div className="Grid-cell"></div>
           <mui.Card className="Grid-cell" style={{width: 300, flex: "none" }} zDepth={0}>
@@ -36,12 +36,11 @@ nqmTBX.auth.LoginPage = React.createClass({
           </mui.Card>
           <div className="Grid-cell"></div>
         </div>
-      </div>
     )
   }
 });
 
-nqmTBX.auth.Login = React.createClass({
+nqmTBX.auth.Authenticate = React.createClass({
   doGoogleLogin: function() {
     Meteor.loginWithGoogle({ prompt: "select_account consent" }, function(err) {
       if (!err) {
