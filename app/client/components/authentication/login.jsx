@@ -1,32 +1,53 @@
-const {
-  AppCanvas,
-  AppBar,
-  TextField,
-  Styles,
-  Card,
-  CardHeader,
-  CardText,
-  CardActions,
-  CardTitle,
-  RaisedButton
-} = mui;
-
-const ThemeManager = new mui.Styles.ThemeManager();
-
-Login = React.createClass({
+nqmTBX.auth.LoginPage = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData: function() {
     return {
-      user: Meteor.user()
+      user: Meteor.user(),
+      loggedIn: Meteor.userId() != null
     }
   },
-  logout: function() {
-    nqmTBX.helpers.logout();
-  },
-  doLogin: function() {
+  render: function () {
+    var content;
+    if (this.data.user) {
+      if (this.data.user.nqmId) {
+        // User is logged in with a valid nqm account. At this point the layout
+        // should re-render with authenticated account.
+        content = (
+          <div>
+            <p>logging in...</p>
+            <mui.CircularProgress mode="indeterminate" />
+          </div>);
+      } else {
+        // User is logged in, but has no nqm account.
+        content = <nqmTBX.auth.CreateAccount user={this.data.user} />;
+      }
+    } else {
+      // Not logged in.
+      content = <nqmTBX.auth.Login />;
+    }
+
+    return (
+      <div>
+        <nqmTBX.TitleBar showSearch={false} showUserMenu={this.data.loggedIn} />
+        <div style={{paddingTop: mui.Styles.Spacing.desktopKeylineIncrement*2}} className="Grid">
+          <div className="Grid-cell"></div>
+          <mui.Card className="Grid-cell" style={{width: 300, flex: "none" }} zDepth={0}>
+            {content}
+          </mui.Card>
+          <div className="Grid-cell"></div>
+        </div>
+      </div>
+    )
+  }
+});
+
+nqmTBX.auth.Login = React.createClass({
+  doGoogleLogin: function() {
     Meteor.loginWithGoogle({ prompt: "select_account consent" }, function(err) {
       if (!err) {
         nqmTBX.ui.notification("logged in");
+      } else {
+        nqmTBX.ui.notification(err.message);
       }
     });
   },
@@ -43,6 +64,32 @@ Login = React.createClass({
       });
     });
   },
+  render: function() {
+    var content = (
+      <div>
+        <mui.CardText style={{textAlign: "center"}}>
+          w h o &nbsp; a r e &nbsp; y o u ?
+        </mui.CardText>
+        <mui.CardActions style={{textAlign: "center"}}>
+          <mui.RaisedButton label="Login with Google" primary={true} onClick={this.doGoogleLogin} /><br /><br />
+          <mui.RaisedButton label="Login with Facebook" disabled={true} secondary={true} onClick={this.doFacebookLogin} /><br /><br />
+          <mui.RaisedButton label="Login with Twitter" disabled={true} secondary={true} onClick={this.doTwitterLogin} /><br /><br />
+          {/*<RaisedButton label="NQM Login" secondary={true} onClick={this.doNQMLogin} />*/}
+        </mui.CardActions>
+      </div>
+    );
+
+    return content;
+  }
+});
+
+nqmTBX.auth.CreateAccount = React.createClass({
+  propTypes: {
+    user: React.PropTypes.object.isRequired
+  },
+  logout: function() {
+    nqmTBX.helpers.logout();
+  },
   createAccount: function() {
     var accountName = this.refs["accountName"].getValue();
     Meteor.call("/app/account/create", accountName, function(err, result) {
@@ -50,62 +97,26 @@ Login = React.createClass({
         err = new Error(result.error);
       }
       if (err) {
-        nqmTBX.ui.notification("create account failed: " + err.message);
+        nqmTBX.ui.notification("create account failed: " + err.message, 15000);
       }
       if (result && result.ok) {
         nqmTBX.ui.notification("account created");
       }
     });
   },
-  render: function () {
-    var styles = {
-      nquiring: {
-        fontWeight: "lighter",
-        paddingRight: "0px",
-        color: ThemeManager.getCurrentTheme().palette.textColor
-      },
-      toolbox: {
-        fontWeight: "bolder",
-        color: ThemeManager.getCurrentTheme().palette.textColor
-      },
-    };
+  render: function() {
+    var content = (<div>
+      <mui.CardTitle title="create account" />
+      {/*<mui.CardHeader title="choose username" avatar={<mui.FontIcon style={{fontSize:"36px"}} className="material-icons">face</mui.FontIcon>} />*/}
+      <mui.CardText>
+        <p>Choose a name to identify yourself on the nquiring<span style={{fontWeight:"bolder"}}>Minds</span> platform.</p>
+        <mui.TextField ref="accountName" floatingLabelText="username" defaultValue={this.props.user.profile.name.replace(/ /g,".")} />
+      </mui.CardText>
+      <mui.CardActions style={{textAlign:"center"}}>
+        <mui.RaisedButton label="create account" primary={true} onClick={this.createAccount} />
+      </mui.CardActions>
+    </div>);
 
-    var content;
-    if (this.data.user) {
-      if (this.data.user.nqmId) {
-        content = <div>logged in!</div>;
-      } else {
-        content = <div>
-          <CardTitle title="create an nqminds account" />
-          <CardText>
-            <TextField ref="accountName" floatingLabelText="nqm id" value={this.data.user.profile.name.replace(/ /g,".")} />
-          </CardText>
-          <CardActions>
-            <RaisedButton label="create account" primary={true} onClick={this.createAccount} />
-            <RaisedButton label="logout" onClick={this.logout} style={{float: "right"}} />
-          </CardActions>
-        </div>;
-      }
-    } else {
-      content = <div>
-          <CardTitle title={<span><span style={styles.nquiring}>nquiring</span><span style={styles.minds}>Toolbox</span></span>}/>
-          <CardText>
-          </CardText>
-          <CardActions style={{textAlign: "center"}}>
-            <RaisedButton label="Login with Google" primary={true} onClick={this.doLogin} />
-            {/*<RaisedButton label="NQM Login" secondary={true} onClick={this.doNQMLogin} />*/}
-          </CardActions>
-        </div>;
-    }
-
-    return (
-      <div style={{paddingTop: Styles.Spacing.desktopKeylineIncrement*2}} className="Grid">
-        <div className="Grid-cell"></div>
-        <Card className="Grid-cell" style={{width: 300, flex: "none" }}>
-          {content}
-        </Card>
-        <div className="Grid-cell"></div>
-      </div>
-    )
+    return content;
   }
 });

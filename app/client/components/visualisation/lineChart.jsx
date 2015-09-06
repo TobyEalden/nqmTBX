@@ -9,7 +9,7 @@ nqmTBX.vis.LineChart = React.createClass({
     var feedSub = timeSeriesBase.startSubscriptions.call(this);
 
     var data = {
-      ready: feedSub.ready()
+      ready: feedSub && feedSub.ready()
     };
     return data;
   },

@@ -12,8 +12,8 @@ Meteor.startup(function() {
 
   // Helper/diagnostic function to notify when new data arrives.
   var notifyData = function(startingUp, msg) {
-    if (!startingUp) {
-      nqmTBX.ui.notification(msg,2000);
+    if (true || !startingUp) {
+      nqmTBX.ui.notification(msg,250);
     }
   };
 
@@ -48,15 +48,10 @@ Meteor.startup(function() {
     if (Meteor.user() && Meteor.user().nqmId) {
       // A valid nqm account is logged in.
 
-      // Set a cookie for the currently logged in user.
-      // This is done so that a logged-in user can access their data via the
-      // REST api without needing a token.
-      //docCookies.setItem("nqm",Meteor.userId(),null,"/");
-
       // Subscribe to the logged-in account.
       Meteor.subscribe("account", function() {
         if (Meteor.user()) {
-          nqmTBX.ui.notification("account is " + Meteor.user().nqmId);
+          nqmTBX.ui.notification("account is " + Meteor.user().nqmId,500);
         } else {
           nqmTBX.ui.notification("no account");
         }
@@ -81,7 +76,7 @@ Meteor.startup(function() {
             notifyData(startingUp, "hub update - " + hub.name);
           },
           removed: function(hub) {
-            console.log("removing hub %s", feed.id);
+            console.log("removing hub %s", hub.id);
             notifyData(startingUp, "removed hub - " + hub.name);
           }
         });
@@ -97,7 +92,10 @@ Meteor.startup(function() {
           added: function(feed) {
             console.log("adding feed %s", feed.store);
             notifyData(startingUp, "new feed - " + feed.name);
-            feedDataCache[feed.store] = new Mongo.Collection(feed.store);
+            feedDataCache[feed.store] = Mongo.Collection.get(feed.store);
+            if (!feedDataCache[feed.store]) {
+              feedDataCache[feed.store] = new Mongo.Collection(feed.store);
+            }
           },
           changed: function(feed) {
             console.log("updated feed %s", feed.store);
@@ -120,7 +118,10 @@ Meteor.startup(function() {
           added: function(dataset) {
             console.log("adding dataset %s", dataset.store);
             notifyData(startingUp, "new dataset - " + dataset.name);
-            datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
+            datasetDataCache[dataset.store] = Mongo.Collection.get(dataset.store);
+            if (!datasetDataCache[dataset.store]) {
+              datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
+            }
           },
           changed: function(dataset) {
             console.log("updated dataset %s", dataset.store);

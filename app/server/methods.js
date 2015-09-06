@@ -104,30 +104,46 @@ var deleteDataset = function(id) {
 
 var createUserAccount = function(name) {
   try {
+    var result;
     var user = Meteor.user();
-    var result = HTTP.post(
-      Meteor.settings.commandURL + "/command/account/create",
-      {
-        data: {
-          id: name,
-          authId: user.services.google.id
-        }
+
+    if (user) {
+      // Replace spaces with period.
+      name = name.replace(/ /g,".");
+
+      var existing = Meteor.users.findOne({username: name});
+      if (existing) {
+        throw new Error("user already exists with name: " + name);
       }
-    );
+      result = HTTP.post(
+        Meteor.settings.commandURL + "/command/account/create",
+        {
+          data: {
+            id: name,
+            authId: user.services.google.id
+          }
+        }
+      );
 
-    if (result.data && result.data.ok) {
-      // Save the nqmId with the default meteor User document.
-      // TODO - check if username already exists before setting it.
-      Meteor.users.update(user._id, { $set: { username: name, nqmId: name } });
+      if (result.data && result.data.ok) {
+        // Save the nqmId with the default meteor User document.
+        Meteor.users.update(user._id, { $set: { username: name, nqmId: name } });
 
-      // Add a self-referencing trusted user.
-      result.data = createTrustedUser({
-        userId: getUserEmail(),
-        serviceProvider: "google",
-        issued: Date.now(),
-        expires: (new Date(8640000000000000)).getTime(),
-        status: "trusted"
-      });
+        // Add a self-referencing trusted user.
+        result.data = createTrustedUser({
+          userId: getUserEmail(),
+          serviceProvider: "google",
+          issued: Date.now(),
+          expires: (new Date(8640000000000000)).getTime(),
+          status: "trusted"
+        });
+      }
+    } else {
+      if (!user) {
+        throw new Error("no user logged in");
+      } else {
+        throw new Error("user already has account: " + user.username);
+      }
     }
 
     return result.data;

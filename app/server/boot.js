@@ -8,6 +8,17 @@ Accounts.onLogin(function(details) {
   }
 });
 
+Accounts.onCreateUser(function(opts,user) {
+  if (opts.profile) {
+    user.profile = opts.profile;
+    if (!user.username) {
+      // Create a username from the profile name (replace space with '.')
+      user.username = user.profile.name.replace(/ /g,".");
+    }
+  }
+  return user;
+});
+
 var handleGoogleAuth = function(token) {
   var userInfo;
 

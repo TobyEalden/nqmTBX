@@ -34,6 +34,7 @@ var debugOut = function(msg) {
 
 timeSeriesBase.startSubscriptions = function() {
   var self = this;
+  var feedSub;
   self.props.config.collection = [];
 
   // Debug timing.
@@ -41,51 +42,54 @@ timeSeriesBase.startSubscriptions = function() {
   debugOut.call(self,"starting subscription for: " + self.props.config.name);
 
   var feed = feeds.findOne({hubId: self.props.config.hubId, id: self.props.config.feedId });
+  if (feed) {
+    // Subscribe to data for last 24 hours.
+    var sinceDate = new Date(Date.now() - 24*60*60*1000);
+//  feedSub = Meteor.subscribe(feed.store, { from: sinceDate.getTime() });
+    feedSub = Meteor.subscribe(feed.store);
 
-  // Subscribe to data for last 24 hours.
-  var sinceDate = new Date(Date.now() - 24*60*60*1000);
-//  var feedSub = Meteor.subscribe(feed.store, { from: sinceDate.getTime() });
-  var feedSub = Meteor.subscribe(feed.store);
+    // Get notified when the subscription is ready.
+    Tracker.autorun(function() {
+      if (feedSub.ready()) {
+        debugOut.call(self,"starting data find");
 
-  // Get notified when the subscription is ready.
-  Tracker.autorun(function() {
-    if (feedSub.ready()) {
-      debugOut.call(self,"starting data find");
+        // Build the projection based on the visualisation configuration.
+        var projection = {
+          fields: {},
+          sort: { "timestamp": 1 }
+        };
+        projection.fields[self.props.config.series] = 1;
+        projection.fields[self.props.config.datum] = 1;
+        var cursor = feedDataCache[feed.store].find({}, projection);
+        debugOut.call(self,"finished find");
 
-      // Build the projection based on the visualisation configuration.
-      var projection = {
-        fields: {},
-        sort: { "timestamp": 1 }
-      };
-      projection.fields[self.props.config.series] = 1;
-      projection.fields[self.props.config.datum] = 1;
-      var cursor = feedDataCache[feed.store].find({}, projection);
-      debugOut.call(self,"finished find");
+        // Listen for changes to the collection.
+        cursor.observe({
+          added: function(d) {
+            self.props.config.collection.push(d);
+            doVisualisationRender.call(self);
+          },
+          removedAt: function(d,i) {
+            self.props.config.collection.splice(i,1);
+            doVisualisationRender.call(self);
+          }
+        });
+        debugOut.call(self,"data loaded");
 
-      // Listen for changes to the collection.
-      cursor.observe({
-        added: function(d) {
-          self.props.config.collection.push(d);
-          doVisualisationRender.call(self);
-        },
-        removedAt: function(d,i) {
-          self.props.config.collection.splice(i,1);
-          doVisualisationRender.call(self);
-        }
-      });
-      debugOut.call(self,"data loaded");
+        // Perform initial render.
+        doVisualisationRender.call(self);
+      }
+    });
 
-      // Perform initial render.
-      doVisualisationRender.call(self);
-    }
-  });
-
-  Tracker.autorun(function() {
-    if (Session.get("nqm-vis-grid-update-" + self.props.config._id) === true) {
-      Session.set("nqm-vis-grid-update-" + self.props.config._id,undefined);
-      self._visualisation.checkSize();
-    }
-  });
+    Tracker.autorun(function() {
+      if (Session.get("nqm-vis-grid-update-" + self.props.config._id) === true) {
+        Session.set("nqm-vis-grid-update-" + self.props.config._id,undefined);
+        self._visualisation.checkSize();
+      }
+    });
+  } else {
+    // Failed to load dataset.
+  }
 
   return feedSub;
 };
