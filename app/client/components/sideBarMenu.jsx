@@ -38,7 +38,8 @@ SideBarMenu = React.createClass({
       <ListItem primaryText="visualise" onClick={goVisualise} leftIcon={<FontIcon className="material-icons">dashboard</FontIcon>} />
       <ListItem primaryText="sensor data" leftIcon={<FontIcon className="material-icons">input</FontIcon>} />
       <ListItem primaryText="datasets" onClick={goDatasets} leftIcon={<FontIcon className="material-icons">data_usage</FontIcon>} />
-      <ListItem primaryText="trusted users" onClick={goTrustedUsers} leftIcon={<FontIcon className="material-icons">supervisor_account</FontIcon>} />
+      <ListItem primaryText="groups" onClick={goDatasets} leftIcon={<FontIcon className="material-icons">group_work</FontIcon>} />
+      <ListItem primaryText="connections" onClick={goTrustedUsers} leftIcon={<FontIcon className="material-icons">supervisor_account</FontIcon>} />
       <ListItem primaryText="help" onClick={goHelp} leftIcon={<FontIcon className="material-icons">help_outline</FontIcon>} />
  </List>;
 

@@ -56,6 +56,7 @@ var saveDataset = function(opts) {
         throw new Error("permission denied");
       }
     } else {
+      // Default new datasets to 'private'.
       opts.shareMode = "private";
     }
     var result = HTTP.post(
@@ -75,7 +76,12 @@ var saveDataset = function(opts) {
 
 var setDatasetShareMode = function(id, mode) {
   try {
-    // TODO - security check.
+    var owner = Meteor.user().username;
+    // Validate that the current user owns the dataset
+    var target = datasets.findOne({id: id});
+    if (!target || target.owner !== owner) {
+      throw new Error("permission denied");
+    }
     var result = HTTP.post(
       Meteor.settings.commandURL + "/command/dataset/setShareMode",
       { data: { id: id, shareMode: mode } }
@@ -84,7 +90,7 @@ var setDatasetShareMode = function(id, mode) {
     return result.data;
   } catch (e) {
     console.log("dataset setShareMode failed: %s", e.message);
-    return { ok: false, error: e.message };
+    throw new Meteor.Error("setDatasetShareMode",e.message);
   }
 };
 
@@ -206,24 +212,67 @@ var deleteTrustedUser = function(id) {
   }
 };
 
-var createShareToken = function(opts) {
+/*
+ * Creates a trusted share token.
+ * The resource owner is the authenticated user.
+ */
+var createTrustedShareToken = function(params) {
   try {
-    opts.owner = Meteor.user().nqmId;
-    // Get the target trusted user.
-    var target = trustedUsers.findOne({ userId: opts.userId, status: "trusted" });
-    if (target) {
-      var result = HTTP.post(
-        Meteor.settings.commandURL + "/command/shareToken/create",
-        { data: opts }
-      );
+    // The token owner is the authenticated user.
+    var opts = {}
+    opts.owner = Meteor.user().username;
+
+    // Make sure there is a valid trusted user.
+    var trustedUser = trustedUsers.findOne({ owner: opts.owner, userId: params.userId, status: "trusted" });
+    if (trustedUser) {
+      // Check to see if a share already exists.
+      var existing = shareTokens.findOne({ owner: opts.owner, userId: params.userId, scope: params.scope, "resources.resource": "access", "resources.actions": "read", expires: {$gt: new Date()}, status: "trusted"  });
+      if (existing) {
+        throw new Error("share already exists");
+      }
+
+      // The owner is authenticated and the target user is trusted.
+      opts.status = "trusted";
+      opts.userId = params.userId;
+      opts.scope = params.scope;
+      opts.resources = [ { resource: "access", actions: [params.access] } ];
+      opts.issued = moment().valueOf();
+      opts.expires = moment().add(params.expires, "minutes").valueOf();
+      var result = HTTP.post(Meteor.settings.commandURL + "/command/shareToken/create",{ data: opts });
       console.log("result is %j",result.data);
       return result.data;
     } else {
-      throw new Error("invalid arguments");
+      throw new Error("no trusted user");
     }
   } catch (e) {
-    console.log("createShareToken failed %s", e.message);
-    return { ok: false, error: e.message };
+    console.log("createTrustedShareToken failed %s", e.message);
+    throw new Meteor.Error("createTrustedShareToken",e.message);
+  }
+};
+
+var createShareTokenRequest = function(params) {
+  try {
+    // Make sure there is a valid trusted user.
+    var trustedUser = trustedUsers.findOne({ owner: params.owner, userId: params.userId, status: "trusted" });
+    if (trustedUser) {
+      var data = {
+        owner: params.owner,
+        userId: params.userId,
+        scope: params.resource,
+        resources: [ { resource: "access", actions: [params.access] } ],
+        status: "pending",
+        issued: moment().valueOf(),
+        expires: moment().add(params.expires, "minutes").valueOf()
+      };
+      var result = HTTP.post(Meteor.settings.commandURL + "/command/shareToken/create",{ data: data });
+      console.log("result is %j",result.data);
+      return result.data;
+    } else {
+      throw new Error("no trusted user");
+    }
+  } catch (e) {
+    console.log("createShareTokenRequest failed - %s", e.message);
+    throw new Meteor.Error("createShareTokenRequest",e.message);
   }
 };
 
@@ -278,12 +327,18 @@ var createApiToken = function(authToken) {
         iss: jt.iss,
         sub: target.id,
         exp: moment().add(Meteor.settings.apiTokenTimeout, "minutes").valueOf(),
-        referer: jt.referer,
-        subId: Meteor.user().nqmId
+        ref: jt.ref,
+        subId: Meteor.user().username
       }, Meteor.settings.APIKey);
       console.log("api token is %s",apiToken);
       return { ok: true, token: apiToken };
     } else {
+      // Not trusted user found.
+      if (jt.aud) {
+        // The token contains an aud member, which implies the resource is not
+        // private.
+        return { ok: true };
+      }
       throw new Error(jt.iss + " does not trust " + email);
     }
   } catch (e) {
@@ -317,6 +372,36 @@ var tokenLogin = function(provider, token) {
     } catch (e) {
       console.log("failed to get token info from google: " + e.message);
     }
+  }
+};
+
+var requestAccess = function(authToken) {
+  try {
+    var jt = jwt.decode(authToken, Meteor.settings.APIKey);
+    if (jt.exp <= Date.now()) {
+      // Token has expired.
+      throw new Error("auth token expired");
+    }
+
+    // Get the email address of the currently logged in user.
+    var email = getUserEmail();
+
+    // Make sure the currently logged in user is trusted by the token issuer.
+    var trustedUser = trustedUsers.findOne({owner: jt.iss, userId: email, status: "trusted", expires: {$gt: new Date()} });
+    if (trustedUser) {
+      return createShareTokenRequest({
+        owner: jt.iss,
+        userId: email,
+        resource: jt.sub,
+        access: "read"
+      });
+    } else {
+      // Not trusted.
+      throw new Error("no trusted user");
+    }
+  } catch (e) {
+    console.log(e.message);
+    throw new Meteor.Error("requestAccess", e.message);
   }
 };
 
@@ -392,7 +477,7 @@ Meteor.methods({
   },
   "/app/share/create": function(opts) {
     this.unblock();
-    return createShareToken(opts);
+    return createTrustedShareToken(opts);
   },
   "/app/share/delete": function(id) {
     this.unblock();
@@ -405,5 +490,9 @@ Meteor.methods({
   "/app/auth": function(provider, token) {
     this.unblock();
     return tokenLogin(provider, token);
+  },
+  "/app/share/request": function(authToken) {
+    this.unblock();
+    return requestAccess(authToken);
   }
 });

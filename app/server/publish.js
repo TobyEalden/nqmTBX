@@ -1,6 +1,22 @@
+var jwt = Meteor.npmRequire("jwt-simple");
+
 Meteor.publish("userData", function () {
   if (this.userId) {
     return Meteor.users.find({_id: this.userId}, {fields: {'nqmId': 1} });
+  } else {
+    this.ready();
+  }
+});
+
+Meteor.publish("jwt", function(tokenString) {
+  if (this.userId) {
+    try {
+      var token = jwt.decode(tokenString, Meteor.settings.APIKey);
+      this.added("JWTokens", tokenString, token);
+    } catch (e) {
+      console.log("failed to decode token: " + tokenString);
+    }
+    this.ready();
   } else {
     this.ready();
   }

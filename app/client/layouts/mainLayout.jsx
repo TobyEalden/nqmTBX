@@ -60,7 +60,7 @@ MainLayout = React.createClass({
         width: "100%"
       },
       sideBar: {
-        width: "200px",
+        width: "220px",
         flex: "none",
         position: "relative",
         transition: "all 2s linear",
@@ -80,7 +80,7 @@ MainLayout = React.createClass({
 
     var content;
     if (this.data.loggingIn) {
-      content = <CircularProgress mode="indeterminate" />;
+      content = <mui.CircularProgress mode="indeterminate" />;
     } else if (this.data.loggedIn) {
       content = this.getContent(styles);
     } else {

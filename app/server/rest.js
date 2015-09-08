@@ -55,7 +55,7 @@ var getTokenDetails = function(request) {
       }
 
       // Check the referer.
-      if (token.referer !== getClientIP(request)) {
+      if (token.ref !== getClientIP(request)) {
         throw new Error("bad referer");
       }
 
@@ -113,12 +113,23 @@ var routeNotFound = function() {
   };
 };
 
-var routeAuthenticate = function(request, owner) {
-  var jt = jwt.encode({
-    iss: owner,
-    expires: moment().add(Meteor.settings.authenticationTokenTimeout, "minutes").valueOf(),
-    referer: getClientIP(request)
-  }, Meteor.settings.APIKey);
+var createJWT = function(request, resource, authInfo) {
+  var token =  {
+    iss: resource.owner,
+    sub: resource.name,
+    subId: resource.id,
+    exp: moment().add(Meteor.settings.authenticationTokenTimeout, "minutes").valueOf(),
+    ref: getClientIP(request),
+  };
+
+  if (authInfo) {
+    token.aud = authInfo.userId;
+  }
+  return jwt.encode(token, Meteor.settings.APIKey);
+};
+
+var routeAuthenticate = function(request, resource) {
+  var jt = createJWT(request, resource);
 
   var authURL = process.env.ROOT_URL + "authenticate/" + jt;
   var redirectURL = request.connection.encrypted ? "https" : "http" + '://' + request.headers.host + request.originalUrl;
@@ -136,12 +147,8 @@ var routeAuthenticate = function(request, owner) {
   };
 };
 
-var routeRequestAccess = function(request, resource) {
-  var jt = jwt.encode({
-    iss: resource.owner,
-    expires: moment().add(Meteor.settings.authenticationTokenTimeout, "minutes").valueOf(),
-    referer: getClientIP(request)
-  }, Meteor.settings.APIKey);
+var routeRequestAccess = function(request, resource, authInfo) {
+  var jt = createJWT(request, resource, authInfo);
 
   var authURL = process.env.ROOT_URL + "requestAccess/" + jt;
   var redirectURL = request.connection.encrypted ? "https" : "http" + '://' + request.headers.host + request.originalUrl;
@@ -176,7 +183,7 @@ function authorised(request, resource, accessRequired) {
   } else {
     // Resource not public => need to authenticate.
     var authInfo = getTokenDetails(request);
-    if (authInfo.userId || authInfo.owner) {
+    if (authInfo.userId) {
       // There is an authenticated user.
       if (resource.owner === authInfo.token.subId) {
         // Owner of the resource is authenticated => PERMIT
@@ -190,7 +197,7 @@ function authorised(request, resource, accessRequired) {
           authorise.permit = true;
         } else {
           // No share token found => DENY and re-direct to access request.
-          authorise.response = routeRequestAccess(request, resource);
+          authorise.response = routeRequestAccess(request, resource, authInfo);
         }
       } else {
         // Dataset is private => DENY
@@ -198,7 +205,7 @@ function authorised(request, resource, accessRequired) {
       }
     } else {
       // Not authenticated => DENY and re-direct.
-      authorise.response = routeAuthenticate(request, resource.owner);
+      authorise.response = routeAuthenticate(request, resource);
     }
   }
 

@@ -2,6 +2,13 @@
  * Created by toby on 25/08/15.
  */
 
+FlowRouter.route("/error/:statusCode", {
+  name: "error",
+  action: function(params) {
+    ReactLayout.render(UnauthLayout, { content: function() { return <nqmTBX.pages.ErrorPage statusCode={params.statusCode} /> }});
+  }
+});
+
 FlowRouter.route("/", {
   action: function() {
     ReactLayout.render(MainLayout, { content: function() { return <DatasetsPage />; } });
@@ -40,7 +47,7 @@ FlowRouter.route("/dataset/edit/:id", {
 FlowRouter.route("/dataset/share/:id", {
   name: "datasetShare",
   action: function(params) {
-    ReactLayout.render(ModalLayout, { content: function() { return <DatasetSharePage datasetId={params.id} /> } });
+    ReactLayout.render(ModalLayout, { content: function() { return <nqmTBX.pages.DatasetSharePage datasetId={params.id} /> } });
   }
 });
 
@@ -63,7 +70,7 @@ FlowRouter.route("/createTrustedUser", {
 });
 
 var authExit = function(context, redirect) {
-  debugger;
+  //debugger;
 };
 
 FlowRouter.route("/authenticate/:jwt", {
@@ -71,13 +78,21 @@ FlowRouter.route("/authenticate/:jwt", {
   action: function() {
     ReactLayout.render(UnauthLayout,{ content: function() { return <ShareAuthPage />; } });
   },
+  triggersEnter: [authExit],
   triggersExit: [authExit]
 });
 
 FlowRouter.route("/requestAccess/:jwt", {
   name: "requestAccess",
+  action: function(params) {
+    ReactLayout.render(UnauthLayout, { content: function() { return <nqmTBX.pages.RequestAccessPage jwt={params.jwt} />; } });
+  }
+});
+
+FlowRouter.route("/trustedBy/:jwt", {
+  name: "trustedBy",
   action: function() {
-    ReactLayout.render(UnauthLayout, { content: function() { return <nqmTBX.pages.RequestAccessPage />; } });
+    ReactLayout.render(UnauthLayout, { content: function() { return <nqmTBX.pages.TrustedByPage />; } });
   }
 });
 

@@ -31,7 +31,7 @@ nqmTBX.vis.LineChart = React.createClass({
     if (this.data.ready) {
       content = <svg id={"LineChart-" + this.props.config._id} className="nqm-svg"></svg>;
     } else {
-      content = <mui.CircularProgress mode="indeterminate" />;
+      content = <div style={{textAlign:"center", paddingTop: "10px"}}><mui.CircularProgress mode="indeterminate" /></div>;
     }
     return content;
   }

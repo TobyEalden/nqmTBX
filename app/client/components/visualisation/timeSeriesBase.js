@@ -19,7 +19,7 @@ var doVisualisationRender = function() {
   //}
 
   // This is necessary to ensure the React component has finished loading.
-  setTimeout(function() { self._visualisation.render(); },0);
+  setTimeout(function() { if (self._visualisation) { self._visualisation.render(); } },0);
 };
 
 var debugStart = function() {
