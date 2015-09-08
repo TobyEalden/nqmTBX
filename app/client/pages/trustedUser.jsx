@@ -9,7 +9,7 @@ const {
 TrustedUserPage = React.createClass({
   render: function() {
    return (
-     <Card>
+     <Card zDepth={0}>
        <CardTitle title="trusted users" />
        <CardText>
          <TrustedUserList />

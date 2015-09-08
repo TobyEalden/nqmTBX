@@ -1,25 +1,3 @@
-const {
-  AppCanvas,
-  AppBar,
-  DropDownMenu,
-  DropDownIcon,
-  MenuItem,
-  LeftNav,
-  List,
-  ListItem,
-  ListDivider,
-  FontIcon,
-  Paper,
-  TextField,
-  Toolbar,
-  ToolbarGroup,
-  ToolbarTitle,
-  ToolbarSeparator,
-  IconMenu,
-  IconButton,
-  CircularProgress,
-  FlatButton,
-  } = mui;
 
 ModalLayout = React.createClass({
   mixins: [ ReactMeteorData ],
@@ -29,7 +7,7 @@ ModalLayout = React.createClass({
   getMeteorData: function() {
     var data = {
       loggingIn: Meteor.loggingIn(),
-      loggedIn: Meteor.user()
+      loggedIn: (Meteor.user() && Meteor.user().nqmId ? true : false)
     };
 
     return data;
@@ -43,17 +21,11 @@ ModalLayout = React.createClass({
     };
   },
   logout: function() {
-    docCookies.removeItem("nqmT","/");
-    Meteor.logout();
-    FlowRouter.go("/");
-  },
-  goBack: function() {
-    window.history.go(-1);
+    nqmTBX.helpers.logout();
   },
   getContent: function() {
     var muiTheme = ThemeManager.getCurrentTheme();
     var toolbarHeight = muiTheme.component.toolbar.height;
-    var iconButtonSize = muiTheme.component.button.iconButtonSize;
 
     var styles = {
       page: {
@@ -62,9 +34,6 @@ ModalLayout = React.createClass({
         flexDirection: "row",
         //backgroundColor: appPalette.primary2Color,
         alignContent: "stretch"
-      },
-      iconButton: {
-        marginTop: (toolbarHeight - iconButtonSize) / 2,
       },
       grid: {
         paddingTop: toolbarHeight,
@@ -87,25 +56,8 @@ ModalLayout = React.createClass({
       }
     };
 
-    var sideBar;
-    if (this.state.sidebarOpen) {
-      sideBar = <div className="Grid-cell" style={styles.sideBar}><SideBarMenu /></div>
-    }
-
     return <div style={styles.page}>
-      <Toolbar style={styles.toolbar}>
-        <ToolbarGroup key={0} float="left">
-          <FlatButton label="back" onClick={this.goBack}>
-            <FontIcon style={{float:"left", height: "100%", lineHeight: "36px", verticalAlign: "middle"}} className="material-icons">arrow_back</FontIcon>
-          </FlatButton>
-        </ToolbarGroup>
-        <ToolbarGroup key={3} float="right" >
-          <IconMenu style={styles.iconButton} iconButtonElement={<FontIcon className="material-icons">account_box</FontIcon>}>
-            <MenuItem primaryText="logout" onClick={this.logout} />
-            <MenuItem primaryText="about" />
-          </IconMenu>
-        </ToolbarGroup>
-      </Toolbar>
+      <nqmTBX.TitleBar showBack={true} showSearch={false} showUserMenu={this.data.loggedIn} />
       <div className="Grid" style={styles.grid}>
         <div className="Grid-cell" style={styles.contentCell}>
           <div style={styles.content}>
@@ -118,12 +70,17 @@ ModalLayout = React.createClass({
   render: function() {
     var content;
     if (this.data.loggingIn) {
-      content = <CircularProgress mode="indeterminate" />;
+      content = <mui.CircularProgress mode="indeterminate" />;
     } else if (this.data.loggedIn) {
       content = this.getContent();
     } else {
       content = <nqmTBX.auth.Login />;
     }
-    return <AppCanvas>{content}</AppCanvas>
+    return (
+      <mui.AppCanvas>
+        {content}
+        <nqmTBX.Notification />
+      </mui.AppCanvas>
+    );
   }
 });

@@ -84,7 +84,9 @@ timeSeriesBase.startSubscriptions = function() {
     Tracker.autorun(function() {
       if (Session.get("nqm-vis-grid-update-" + self.props.config._id) === true) {
         Session.set("nqm-vis-grid-update-" + self.props.config._id,undefined);
-        self._visualisation.checkSize();
+        if (self._visualisation) {
+          self._visualisation.checkSize();
+        }
       }
     });
   } else {

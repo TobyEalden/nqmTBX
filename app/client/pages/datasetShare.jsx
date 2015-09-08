@@ -123,7 +123,6 @@ DatasetSharePage = React.createClass({
     var styles = {
       card: {
         marginBottom: "4px",
-        backgroundColor: "white"
       },
       cardTitle: {
         fontSize: 14

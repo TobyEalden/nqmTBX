@@ -36,11 +36,12 @@ EditTrustedUser = React.createClass({
   },
   render: function() {
     return (
-      <Card>
+      <Card zDepth={0}>
         <CardTitle title="trusted user details" />
         <CardText>
           <div><TextField ref="username" floatingLabelText="user name" /></div>
           <div><TextField ref="email" floatingLabelText="user email" /></div>
+          <div><TextField ref="nqmId" floatingLabelText="nqm identifier (optional)" hintText="toby.nqminds.com" /></div>
         </CardText>
         <CardActions>
           <RaisedButton label="create" primary={true} onClick={this.save} />

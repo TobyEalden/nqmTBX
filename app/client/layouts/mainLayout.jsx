@@ -1,25 +1,3 @@
-const {
-  AppCanvas,
-  AppBar,
-  DropDownMenu,
-  DropDownIcon,
-  MenuItem,
-  LeftNav,
-  List,
-  ListItem,
-  ListDivider,
-  FontIcon,
-  Paper,
-  TextField,
-  Toolbar,
-  ToolbarGroup,
-  ToolbarTitle,
-  ToolbarSeparator,
-  IconMenu,
-  IconButton,
-  CircularProgress,
-  RaisedButton,
-  } = mui;
 
 MainLayout = React.createClass({
   mixins: [ ReactMeteorData ],
@@ -77,15 +55,6 @@ MainLayout = React.createClass({
         //backgroundColor: appPalette.primary2Color,
         alignContent: "stretch"
       },
-      nquiring: {
-        fontWeight: "lighter",
-        paddingRight: "0px",
-        color: ThemeManager.getCurrentTheme().palette.textColor
-      },
-      toolbox: {
-        fontWeight: "bolder",
-        color: ThemeManager.getCurrentTheme().palette.textColor
-      },
       grid: {
         paddingTop: toolbarHeight,
         width: "100%"
@@ -123,10 +92,10 @@ MainLayout = React.createClass({
       );
     }
     return (
-      <AppCanvas>
+      <mui.AppCanvas>
         {content}
         <nqmTBX.Notification />
-      </AppCanvas>
+      </mui.AppCanvas>
     );
   }
 });

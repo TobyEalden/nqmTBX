@@ -11,7 +11,6 @@ if (!nqmTBX.helpers) {
 }
 
 nqmTBX.helpers.logout = function() {
-  docCookies.removeItem("nqmT","/");
   Meteor.logout();
   FlowRouter.go("/");
 };

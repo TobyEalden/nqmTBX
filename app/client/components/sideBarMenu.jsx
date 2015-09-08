@@ -13,6 +13,7 @@ SideBarMenu = React.createClass({
   render: function() {
     let styles = {
       root: {
+        backgroundColor: appPalette.canvasColor,
         position: "absolute",
         width: "100%",
         height: "100%",

@@ -46,12 +46,12 @@ body, html {
 .axis path,
 .axis line {
     fill: none;
-    stroke: #aaa;
+    stroke: #666;
     shape-rendering: crispEdges;
 }
 
 .x.axis text, .y.axis text {
-    fill: #aaa;
+    fill: #666;
     font-size: .8em;
 }
 

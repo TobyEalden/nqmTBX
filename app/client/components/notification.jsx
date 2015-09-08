@@ -8,15 +8,18 @@ nqmTBX.Notification = React.createClass({
     if (notificationQ.length > 0 && !Session.get("nqm-ui-notification-busy")) {
       var msg = notificationQ.splice(0,1);
       Session.set("nqm-ui-notification",notificationQ);
-      if (msg.length > 0) {
+      if (msg.length > 0 && self.refs.snackBar) {
         data.notificationMsg = msg[0].msg;
         data.notificationDuration = msg[0].delay;
         Session.set("nqm-ui-notification-msg", data.notificationMsg);
         Session.set("nqm-ui-notification-duration", data.notificationDuration);
         Session.set("nqm-ui-notification-busy", true);
-        setTimeout(function() {
-          self.refs.snackBar.show();
-        },0);
+        self.refs.snackBar.show();
+        //setTimeout(function() {
+        //  if (self.refs.snackBar) {
+        //    self.refs.snackBar.show();
+        //  }
+        //},0);
       } else {
       }
     } else {
