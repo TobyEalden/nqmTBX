@@ -18,24 +18,27 @@ nqmTBX.pages.TrustedUser = React.createClass({
   },
   _onCreateUser: function() {
     var fields = this.refs.editTrustedUser.getData();
-    var valid = {
-      id: Random.id(),
-      userId: fields.email,
-      issued: moment().valueOf(),
-      expires: nqmTBX.helpers.neverExpire.valueOf(),
-    };
-    if (fields.server) {
-      valid.server = fields.server;
-    }
-    if (fields.status) {
-      valid.status = fields.status;
-    }
-    if (fields.remoteStatus) {
-      valid.remoteStatus = fields.remoteStatus;
-    }
+    if (!fields) {
+      nqmTBX.ui.notification("please enter a valid e-mail address",6000);
+    } else {
+      var valid = {
+        userId: fields.email,
+        issued: moment().valueOf(),
+        expires: nqmTBX.helpers.neverExpire.valueOf()
+      };
+      if (fields.server) {
+        valid.server = fields.server;
+      }
+      if (fields.status) {
+        valid.status = fields.status;
+      }
+      if (fields.remoteStatus) {
+        valid.remoteStatus = fields.remoteStatus;
+      }
 
-    Meteor.call("/app/trustedUser/create", valid, nqmTBX.helpers.methodCallback("trustedUser/create"));
-    this.refs.addUserDialog.dismiss();
+      Meteor.call("/app/trustedUser/create", valid, nqmTBX.helpers.methodCallback("trustedUser/create"));
+      this.refs.addUserDialog.dismiss();
+    }
   },
   userInfo: function() {
     nqmTBX.ui.notification("not implemented");
@@ -48,9 +51,11 @@ nqmTBX.pages.TrustedUser = React.createClass({
     var list;
     if (this.state.activeTab === "trustedByMe") {
       sel = this.refs.trustedByMeList.getSelection();
+      this.refs.trustedByMeList.clearSelection();
       list = this.data.trustedUsers;
     } else {
       sel = this.refs.trustingMeList.getSelection();
+      this.refs.trustingMeList.clearSelection();
       list = this.data.trustingUsers;
     }
     if (sel.length == 0) {

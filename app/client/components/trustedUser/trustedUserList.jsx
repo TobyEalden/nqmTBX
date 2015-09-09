@@ -12,6 +12,9 @@ nqmTBX.TrustedUserList = React.createClass({
   getSelection: function() {
     return this.state.selection;
   },
+  clearSelection: function() {
+    this.setState({selection:[]});
+  },
   onSelection: function(selectedRows) {
     this.state.selection = selectedRows;
   },

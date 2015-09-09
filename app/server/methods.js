@@ -160,32 +160,49 @@ var createUserAccount = function(name) {
 };
 
 var createTrustedUser = function(params) {
+  check(params,{
+    id: String,
+    userId: String,
+    issued: Number,
+    expires: Number
+  });
+
   try {
     if (!nqmTBX.helpers.isEmailValid(params.userId)) {
       throw new Error("invalid arguments - bad email");
     }
+
+    // The owner is the currently authenticated user.
     params.owner = Meteor.user().nqmId;
 
     // Find any existing trusts.
     var existing = trustedUsers.findOne({ owner: params.owner, userId: params.userId, expires: {$gt: new Date() } });
     var command = "create";
+    var isLocal = false;
     if (existing) {
-      params.id = existing.id;
       command = "update";
+      params.id = existing.id;
+      isLocal = existing.server && existing.server.indexOf(Meteor.settings.public.rootURL) === 0;
     } else {
       // No existing trusted user - set status defaults.
       params.status = params.status || "pending";
       params.remoteStatus = params.remoteStatus || "pending";
     }
+
+    // Send create or update command.
     var result = HTTP.post(Meteor.settings.commandURL + "/command/trustedUser/" + command,{ data: params });
-    if ((!existing || existing.status !== "trusted") && params.status === "trusted" && result.data && result.data.ok) {
-      // Send the target user an email with a token for reciprocating the trust.
+
+    // Do we need to send a notification e-mail to the newly trusted zone?
+    if (result.data && result.data.ok && params.status === "trusted" && (!existing || existing.status !== "trusted")) {
+      // Send the target zone an email with a token for acknowledging/reciprocating the trust.
       var connectToken = {
-        iss: nqmTBX.helpers.getUserURI(),
-        sub: nqmTBX.helpers.getUserEmail(),
-        aud: params.userId,
-        exp: moment().add(7,"days").valueOf()
+        iss: nqmTBX.helpers.getUserURI(),       // Issuer is the URI of the authenticated zone.
+        sub: nqmTBX.helpers.getUserEmail(),     // Subject is the e-mail of the authenticated zone.
+        aud: params.userId,                     // Audience is the e-mail of the target zone.
+        exp: moment().add(7,"days").valueOf()   // TODO - parameterise.
       };
+      var encodedToken = jwt.encode(connectToken,Meteor.settings.APIKey);
+      console.log("emailing token %s to %s",encodedToken,params.userId);
       Email.send({
         to: params.userId,
         from: Meteor.settings.emailFromAddress,
@@ -194,7 +211,7 @@ var createTrustedUser = function(params) {
           "<p>" + params.owner + " has added you as a trusted connection.</p>" +
           "<p>You don't have to do anything further in order to be able to access resources that " + params.owner + " shares with you.</p>" +
           "<p>However if you would like to share some of your resources with " + params.owner + " you can make them a trusted connection by visiting the Connections page on your nquiringToolbox, clicking the 'add trusted connection' button and pasting the following code into the 'connect' field:</p>" +
-          "<p>" + jwt.encode(connectToken,Meteor.settings.APIKey) + "</p>" +
+          "<p>" + encodedToken + "</p>" +
           "<p>Note that none of you private data will be visible to " + params.owner + " unless you explicitly share resource(s) with them</p>"
       });
     }
