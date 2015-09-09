@@ -1,45 +1,70 @@
 
-const {
-  FontIcon,
-  CircularProgress,
-  List,
-  ListItem
-  } = mui;
-
-TrustedUserList = React.createClass({
-  mixins: [ReactMeteorData],
-  getMeteorData: function() {
-    var trustedSub = Meteor.subscribe("trustedUsers");
-
+nqmTBX.TrustedUserList = React.createClass({
+  propTypes: {
+    trustedUsers: React.PropTypes.array.isRequired
+  },
+  getInitialState: function() {
     return {
-      ready: trustedSub.ready(),
-      currentUser: Meteor.user(),
-      trustedUsers: trustedUsers.find({ status: "trusted", expires: {$gt: new Date() }}).fetch()
+      selection: []
     }
   },
-  deleteUser: function(id) {
-    console.log("deleting share " + id);
-    Meteor.call("/app/trustedUser/delete",id,function(err, result) {
-      if (result.error) {
-        console.log("error deleting share: " + result.error);
-      } else {
-        console.log("share deleted: " + id);
-      }
-    });
+  getSelection: function() {
+    return this.state.selection;
+  },
+  onSelection: function(selectedRows) {
+    this.state.selection = selectedRows;
   },
   render: function() {
-    if (this.data.ready) {
-      var trusted = this.data.trustedUsers.map(function (sh) {
-        return <ListItem key={sh.id} primaryText={sh.userId} rightIcon={<FontIcon style={{verticalAlign: "middle"}} onClick={this.deleteUser.bind(this,sh.id)} className="material-icons">delete</FontIcon>} />;
-      }, this);
-
+    var styles = {
+    };
+    var trustedBig = this.props.trustedUsers.map(function (sh) {
+      var expiry = (nqmTBX.helpers.neverExpire.valueOf() == sh.expires.valueOf()) ? "never" : moment(sh.expires).format("YYYY-MM-DD");
       return (
-        <List style={{width:"300px"}}>
-          {trusted}
-        </List>
+        <mui.TableRow key={sh.id}>
+          <mui.TableRowColumn>{sh.userId}</mui.TableRowColumn>
+          <mui.TableRowColumn>{expiry}</mui.TableRowColumn>
+          <mui.TableRowColumn>{sh.status}</mui.TableRowColumn>
+        </mui.TableRow>
       );
-    } else {
-      return <CircularProgress mode="indeterminate"/>;
-    }
+    }, this);
+
+    var trustedSmall = this.props.trustedUsers.map(function (sh) {
+      return (
+        <mui.TableRow key={sh.id}>
+          <mui.TableRowColumn>{sh.userId}</mui.TableRowColumn>
+        </mui.TableRow>
+      );
+    }, this);
+
+    // Need to do media query at top level unfortunately as tables seem very
+    // sensitive to being mutated by the browser and then upsetting react.
+    var content = (
+      <div>
+        <MediaQuery minWidth={900}>
+          <mui.Table ref="table" selectable={true} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
+            <mui.TableHeader displaySelectAll={false}>
+              <mui.TableRow>
+                <mui.TableHeaderColumn tooltip="e-mail address">e-mail</mui.TableHeaderColumn>
+                <mui.TableHeaderColumn tooltip="expired">expires</mui.TableHeaderColumn>
+                <mui.TableHeaderColumn tooltip="status">status</mui.TableHeaderColumn>
+              </mui.TableRow>
+            </mui.TableHeader>
+            <mui.TableBody deselectOnClickaway={false}>{trustedBig}</mui.TableBody>
+          </mui.Table>
+        </MediaQuery>
+        <MediaQuery maxWidth={900}>
+          <mui.Table ref="table" selectable={true} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
+            <mui.TableHeader displaySelectAll={false}>
+              <mui.TableRow>
+                <mui.TableHeaderColumn tooltip="e-mail address">e-mail</mui.TableHeaderColumn>
+              </mui.TableRow>
+            </mui.TableHeader>
+            <mui.TableBody deselectOnClickaway={false}>{trustedSmall}</mui.TableBody>
+          </mui.Table>
+        </MediaQuery>
+      </div>
+    );
+
+    return content;
   }
 });

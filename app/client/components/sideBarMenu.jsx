@@ -1,15 +1,8 @@
-const {
-  List,
-  ListItem,
-  FontIcon
-} = mui;
 
-SideBarMenu = React.createClass({
-
+nqmTBX.SideBarMenu = React.createClass({
   propTypes: {
     onToggle: React.PropTypes.func
   },
-
   render: function() {
     let styles = {
       root: {
@@ -18,6 +11,12 @@ SideBarMenu = React.createClass({
         width: "100%",
         height: "100%",
         overflowY: "auto"
+      },
+      listItem: {
+        fontSize: "14px"
+      },
+      listItemInner: {
+        paddingLeft: 48
       }
     };
 
@@ -33,15 +32,27 @@ SideBarMenu = React.createClass({
     goHelp = function() {
       FlowRouter.go("/help");
     };
+    goIOT = function() {
 
-    let sideBarMenu = <List style={ styles.root } >
-      <ListItem primaryText="visualise" onClick={goVisualise} leftIcon={<FontIcon className="material-icons">dashboard</FontIcon>} />
-      <ListItem primaryText="sensor data" leftIcon={<FontIcon className="material-icons">input</FontIcon>} />
-      <ListItem primaryText="datasets" onClick={goDatasets} leftIcon={<FontIcon className="material-icons">data_usage</FontIcon>} />
-      <ListItem primaryText="groups" onClick={goDatasets} leftIcon={<FontIcon className="material-icons">group_work</FontIcon>} />
-      <ListItem primaryText="connections" onClick={goTrustedUsers} leftIcon={<FontIcon className="material-icons">supervisor_account</FontIcon>} />
-      <ListItem primaryText="help" onClick={goHelp} leftIcon={<FontIcon className="material-icons">help_outline</FontIcon>} />
- </List>;
+    };
+    goProcesses = function() {
+
+    };
+
+    let sideBarMenu = <mui.List style={ styles.root } >
+      <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="resources" onClick={goDatasets} leftIcon={<mui.FontIcon className="material-icons">local_library</mui.FontIcon>}
+                initiallyOpen={true}
+                nestedItems={[
+                  <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="datasets" onClick={goDatasets} leftIcon={<mui.FontIcon className="material-icons">data_usage</mui.FontIcon>} />,
+                  <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="iot feeds" onClick={goIOT} leftIcon={<mui.FontIcon className="material-icons">input</mui.FontIcon>} />,
+                  <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="visualisations" onClick={goVisualise} leftIcon={<mui.FontIcon className="material-icons">dashboard</mui.FontIcon>} />,
+                  <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="processes" onClick={goProcesses} leftIcon={<mui.FontIcon className="material-icons">developer_board</mui.FontIcon>} />
+                ]}
+        />
+      <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="groups" onClick={goDatasets} leftIcon={<mui.FontIcon className="material-icons">group_work</mui.FontIcon>} />
+      <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="connections" onClick={goTrustedUsers} leftIcon={<mui.FontIcon className="material-icons">supervisor_account</mui.FontIcon>} />
+      <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="help" onClick={goHelp} leftIcon={<mui.FontIcon className="material-icons">help_outline</mui.FontIcon>} />
+    </mui.List>;
 
     return sideBarMenu;
   }

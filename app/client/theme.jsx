@@ -42,6 +42,9 @@ componentThemes = {
   },
   textField: {
     hintColor: mui.Styles.Colors.grey500
+  },
+  listItem: {
+    nestedLevelDepth: 12
   }
 };
 

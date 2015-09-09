@@ -10,3 +10,4 @@
 export MONGO_URL=mongodb://dev-mint64:27017/nqmRead
 #export MONGO_OPLOG_URL=mongodb://oplogger:pwd@dev-mint64:27017/local?authSource=admin
 export ROOT_URL=http://localhost:3000
+export MAIL_URL="smtp://nqminds@gmail.com:nqmindsSecure@smtp.gmail.com:465/"

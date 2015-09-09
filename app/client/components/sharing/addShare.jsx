@@ -57,7 +57,7 @@ nqmTBX.AddShare = React.createClass({
       params.expires = -1;
     }
     if (params.expiry <= 0) {
-      params.expiry = moment().add(999,"years");
+      params.expiry = moment().add(999,"years").valueOf();
     }
 
     Meteor.call("/app/share/create", params, cb);

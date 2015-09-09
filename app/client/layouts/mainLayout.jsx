@@ -26,7 +26,7 @@ MainLayout = React.createClass({
   getContent: function(styles) {
     var sideBar;
     if (this.state.sidebarOpen) {
-      sideBar = <div className="Grid-cell" style={styles.sideBar}><SideBarMenu /></div>
+      sideBar = <div className="Grid-cell" style={styles.sideBar}><nqmTBX.SideBarMenu /></div>
     }
 
     return (

@@ -1,5 +1,6 @@
 {
   "public": {
+    "rootURL": "http://localhost:2222",
     "queryURL": "http://localhost:2222/api",
     "googleClientId": "1051724674890-6qk768hmaatgl2810lc4n9qbns08emqh.apps.googleusercontent.com"
   },
@@ -7,5 +8,6 @@
   "commandURL": "http://localhost:3102",
   "APIKey": "2snfDAfVHnZM",
   "authenticationTokenTimeout": 2,
-  "apiTokenTimeout": 10
+  "apiTokenTimeout": 10,
+  "emailFromAddress": "nqminds@gmail.com"
 }

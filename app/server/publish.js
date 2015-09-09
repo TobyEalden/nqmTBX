@@ -25,7 +25,7 @@ Meteor.publish("jwt", function(tokenString) {
 Meteor.publish("trustedUsers", function(opts) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.nqmId) {
-    return trustedUsers.find({owner: user.nqmId, userId: {$ne: getUserEmail(user) }});
+    return trustedUsers.find({owner: user.nqmId, userId: {$ne: nqmTBX.helpers.getUserEmail(user) }});
   } else {
     this.ready();
   }
@@ -105,26 +105,6 @@ Meteor.publish("feedData", function(opts) {
   }
 });
 
-var getIOTFeedPublisher = function(feedName) {
-  // Create a publish handler for the given feed.
-  return function(opts) {
-    if (feedDataCache.hasOwnProperty(feedName)) {
-      var lookup = {};
-      opts = opts || {};
-      if (opts.from) {
-        lookup["timestamp"] = { $gt: opts.from };
-      }
-      opts.limit = opts.limit || 1000;
-
-      var coll = feedDataCache[feedName].find(lookup,{ sort: { "timestamp": -1 }, limit: opts.limit });
-      return coll;
-    } else {
-      console.log("feed not found: %s",feedName);
-      this.stop();
-    }
-  };
-};
-
 Meteor.publish("datasetData", function(opts) {
   var lookup = { id: opts.id };
 
@@ -146,6 +126,26 @@ Meteor.publish("datasetData", function(opts) {
     return coll.find(lookup,{ sort: sort, limit: opts.limit });
   }
 });
+
+var getIOTFeedPublisher = function(feedName) {
+  // Create a publish handler for the given feed.
+  return function(opts) {
+    if (feedDataCache.hasOwnProperty(feedName)) {
+      var lookup = {};
+      opts = opts || {};
+      if (opts.from) {
+        lookup["timestamp"] = { $gt: opts.from };
+      }
+      opts.limit = opts.limit || 1000;
+
+      var coll = feedDataCache[feedName].find(lookup,{ sort: { "timestamp": -1 }, limit: opts.limit });
+      return coll;
+    } else {
+      console.log("feed not found: %s",feedName);
+      this.stop();
+    }
+  };
+};
 
 var getDatasetPublisher = function(datasetName) {
   // Create a publish handler for the given dataset.

@@ -137,7 +137,7 @@ var createUserAccount = function(name) {
 
         // Add a self-referencing trusted user.
         result.data = createTrustedUser({
-          userId: getUserEmail(),
+          userId: nqmTBX.helpers.getUserEmail(),
           serviceProvider: "google",
           issued: Date.now(),
           expires: (new Date(8640000000000000)).getTime(),
@@ -161,16 +161,56 @@ var createUserAccount = function(name) {
 
 var createTrustedUser = function(params) {
   try {
+    var connectToken;
+
     params.owner = Meteor.user().nqmId;
-    var result = HTTP.post(
-      Meteor.settings.commandURL + "/command/trustedUser/create",
-      { data: params }
-    );
+
+    if (!nqmTBX.helpers.isEmailValid(params.userId)) {
+      // Not a valid e-mail, assume it is a connect token.
+      connectToken = jwt.decode(params.userId, Meteor.settings.APIKey);
+      if (connectToken.aud !== nqmTBX.helpers.getUserEmail()) {
+        // This token wasn't intended for us.
+        throw new Error("token invalid");
+      }
+      // Got a valid zone connection token, containing details of a zone that
+      // trusts us.
+      params.userId = connectToken.sub;
+      params.server = connectToken.iss;
+
+      // Decide - are we adding as a 'trusting' or 'trusted' user, or both?
+
+    }
+
+    var existing = trustedUsers.findOne({ owner: params.owner, userId: params.userId, server: params.server, expires: {$gt: new Date() } });
+    if (existing) {
+      throw new Error("user '" + params.userId + "' is already trusted");
+    }
+    var result = HTTP.post(Meteor.settings.commandURL + "/command/trustedUser/create",{ data: params });
+    if (!connectToken && result.data && result.data.ok) {
+      // Send the target user an email with a token for reciprocating the trust.
+      connectToken = {
+        iss: nqmTBX.helpers.getUserURI(),
+        sub: nqmTBX.helpers.getUserEmail(),
+        aud: params.userId,
+        exp: moment().add(7,"days").valueOf()
+      };
+      Email.send({
+        to: params.userId,
+        from: Meteor.settings.emailFromAddress,
+        subject: "nquiringMinds zone connection",
+        html: "<h3>you are trusted!</h3>" +
+          "<p>" + params.owner + " has added you as a trusted connection.</p>" +
+          "<p>You don't have to do anything further in order to be able to access resources that " + params.owner + " shares with you.</p>" +
+          "<p>However if you would like to share some of your resources with " + params.owner + " you can make them a trusted connection by visiting the Connections page on your nquiringToolbox, clicking the 'add trusted connection' button and pasting the following code into the 'connect' field:</p>" +
+          "<p>" + jwt.encode(connectToken,Meteor.settings.APIKey) + "</p>" +
+          "<p>Note that none of you private data will be visible to " + params.owner + " unless you explicitly share resource(s) with them</p>"
+      });
+    }
     console.log("result is %j",result.data);
     return result.data;
   } catch (e) {
     console.log("create trusted user failed: %s", e.message);
-    return { ok: false, error: e.message };
+    throw new Meteor.Error("createTrustedUser",e.message);
   }
 };
 
@@ -305,7 +345,7 @@ var createApiToken = function(authToken) {
     }
 
     // Get the email address of the currently logged in user.
-    var email = getUserEmail();
+    var email = nqmTBX.helpers.getUserEmail();
 
     // Make sure the currently logged in user is trusted by the token issuer.
     var target = trustedUsers.findOne({ owner: jt.iss, userId: email, status: "trusted", expires: { $gt: new Date() } });
@@ -384,7 +424,7 @@ var requestAccess = function(authToken) {
     }
 
     // Get the email address of the currently logged in user.
-    var email = getUserEmail();
+    var email = nqmTBX.helpers.getUserEmail();
 
     // Make sure the currently logged in user is trusted by the token issuer.
     var trustedUser = trustedUsers.findOne({owner: jt.iss, userId: email, status: "trusted", expires: {$gt: new Date()} });

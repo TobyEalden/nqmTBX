@@ -59,7 +59,7 @@ FlowRouter.route("/visualise", {
 
 FlowRouter.route("/trusted", {
   action: function() {
-    ReactLayout.render(MainLayout, { content: function() { return <TrustedUserPage />; } });
+    ReactLayout.render(MainLayout, { content: function() { return <nqmTBX.pages.TrustedUser />; } });
   }
 });
 
