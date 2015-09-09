@@ -161,34 +161,26 @@ var createUserAccount = function(name) {
 
 var createTrustedUser = function(params) {
   try {
-    var connectToken;
-
+    if (!nqmTBX.helpers.isEmailValid(params.userId)) {
+      throw new Error("invalid arguments - bad email");
+    }
     params.owner = Meteor.user().nqmId;
 
-    if (!nqmTBX.helpers.isEmailValid(params.userId)) {
-      // Not a valid e-mail, assume it is a connect token.
-      connectToken = jwt.decode(params.userId, Meteor.settings.APIKey);
-      if (connectToken.aud !== nqmTBX.helpers.getUserEmail()) {
-        // This token wasn't intended for us.
-        throw new Error("token invalid");
-      }
-      // Got a valid zone connection token, containing details of a zone that
-      // trusts us.
-      params.userId = connectToken.sub;
-      params.server = connectToken.iss;
-
-      // Decide - are we adding as a 'trusting' or 'trusted' user, or both?
-
-    }
-
-    var existing = trustedUsers.findOne({ owner: params.owner, userId: params.userId, server: params.server, expires: {$gt: new Date() } });
+    // Find any existing trusts.
+    var existing = trustedUsers.findOne({ owner: params.owner, userId: params.userId, expires: {$gt: new Date() } });
+    var command = "create";
     if (existing) {
-      throw new Error("user '" + params.userId + "' is already trusted");
+      params.id = existing.id;
+      command = "update";
+    } else {
+      // No existing trusted user - set status defaults.
+      params.status = params.status || "pending";
+      params.remoteStatus = params.remoteStatus || "pending";
     }
-    var result = HTTP.post(Meteor.settings.commandURL + "/command/trustedUser/create",{ data: params });
-    if (!connectToken && result.data && result.data.ok) {
+    var result = HTTP.post(Meteor.settings.commandURL + "/command/trustedUser/" + command,{ data: params });
+    if ((!existing || existing.status !== "trusted") && params.status === "trusted" && result.data && result.data.ok) {
       // Send the target user an email with a token for reciprocating the trust.
-      connectToken = {
+      var connectToken = {
         iss: nqmTBX.helpers.getUserURI(),
         sub: nqmTBX.helpers.getUserEmail(),
         aud: params.userId,
@@ -336,9 +328,9 @@ var deleteShareToken = function(id) {
   }
 };
 
-var createApiToken = function(authToken) {
+var createApiToken = function(authenticateToken) {
   try {
-    var jt = jwt.decode(authToken, Meteor.settings.APIKey);
+    var jt = jwt.decode(authenticateToken, Meteor.settings.APIKey);
     if (jt.exp <= Date.now()) {
       // Token has expired.
       throw new Error("auth token expired");
@@ -365,10 +357,9 @@ var createApiToken = function(authToken) {
       //return result.data;
       var apiToken = jwt.encode({
         iss: jt.iss,
-        sub: target.id,
+        sub: email,
         exp: moment().add(Meteor.settings.apiTokenTimeout, "minutes").valueOf(),
-        ref: jt.ref,
-        subId: Meteor.user().username
+        ref: jt.ref
       }, Meteor.settings.APIKey);
       console.log("api token is %s",apiToken);
       return { ok: true, token: apiToken };
@@ -442,6 +433,27 @@ var requestAccess = function(authToken) {
   } catch (e) {
     console.log(e.message);
     throw new Meteor.Error("requestAccess", e.message);
+  }
+};
+
+var getJWToken = function(token) {
+  try {
+    if (Meteor.userId()) {
+      var jt = jwt.decode(token, Meteor.settings.APIKey);
+      if (jt.exp && jt.exp <= Date.now()) {
+        // Token has expired.
+        throw new Error("auth token expired");
+      }
+      if (jt.aud && jt.aud != Meteor.user().username && jt.aud != nqmTBX.helpers.getUserEmail()) {
+        throw new Error("permission denied - not subject");
+      }
+      return {ok: true, token: jt};
+    } else {
+      throw new Error("permission denied - not authenticated");
+    }
+  } catch (e) {
+    console.log("getJWToken failed: " + e.message);
+    throw new Meteor.Error("getJWToken",e.message);
   }
 };
 
@@ -534,5 +546,8 @@ Meteor.methods({
   "/app/share/request": function(authToken) {
     this.unblock();
     return requestAccess(authToken);
+  },
+  "/app/token/lookup": function(token) {
+    return getJWToken(token);
   }
 });

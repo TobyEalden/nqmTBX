@@ -69,7 +69,7 @@ MainLayout = React.createClass({
       contentCell: {
         position: "relative",
         overflowY: "auto",
-        padding: "20px",
+        padding: 0,
       },
       content: {
         display: "flex",

@@ -1,7 +1,8 @@
 
 nqmTBX.TrustedUserList = React.createClass({
   propTypes: {
-    trustedUsers: React.PropTypes.array.isRequired
+    trustedUsers: React.PropTypes.array.isRequired,
+    statusField: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
     return {
@@ -23,7 +24,7 @@ nqmTBX.TrustedUserList = React.createClass({
         <mui.TableRow key={sh.id}>
           <mui.TableRowColumn>{sh.userId}</mui.TableRowColumn>
           <mui.TableRowColumn>{expiry}</mui.TableRowColumn>
-          <mui.TableRowColumn>{sh.status}</mui.TableRowColumn>
+          <mui.TableRowColumn>{sh[this.props.statusField]}</mui.TableRowColumn>
         </mui.TableRow>
       );
     }, this);

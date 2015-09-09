@@ -15,10 +15,10 @@
 //};
 
 appPalette = {
-  primary1Color: mui.Styles.Colors.grey600,
+  primary1Color: mui.Styles.Colors.blueGrey500,
   primary2Color: mui.Styles.Colors.grey400,
   primary3Color: mui.Styles.Colors.grey200,
-  accent1Color: mui.Styles.Colors.deepPurple200, //amberA700,
+  accent1Color: mui.Styles.Colors.orangeA200,
   accent2Color: mui.Styles.Colors.pink800,
   accent3Color: mui.Styles.Colors.pink600,
   textColor: mui.Styles.Colors.grey900,
@@ -37,8 +37,8 @@ componentThemes = {
   raisedButton: {
     textColor: appPalette.primary3Color,
     color: appPalette.primary2Color,
-    primaryColor: mui.Styles.Colors.indigo200,
-    secondaryColor: mui.Styles.Colors.red200, //lightBlueA700
+    primaryColor: mui.Styles.Colors.pinkA200,
+    secondaryColor: mui.Styles.Colors.blue500, //lightBlueA700
   },
   textField: {
     hintColor: mui.Styles.Colors.grey500

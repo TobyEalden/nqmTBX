@@ -60,7 +60,7 @@ var getTokenDetails = function(request) {
       }
 
       // Find a trusted user.
-      var trusted = trustedUsers.findOne({ id: token.sub, owner: token.iss, status: "trusted", expires: { $gt: new Date() } });
+      var trusted = trustedUsers.findOne({ userId: token.sub, owner: token.iss, status: "trusted", expires: { $gt: new Date() } });
       if (!trusted) {
         throw new Error("no trusted user");
       }
@@ -113,13 +113,13 @@ var routeNotFound = function() {
   };
 };
 
-var createJWT = function(request, resource, authInfo) {
+var createAuthenticateToken = function(request, resource, authInfo) {
   var token =  {
     iss: resource.owner,
     sub: resource.name,
     subId: resource.id,
     exp: moment().add(Meteor.settings.authenticationTokenTimeout, "minutes").valueOf(),
-    ref: getClientIP(request),
+    ref: getClientIP(request)
   };
 
   if (authInfo) {
@@ -129,7 +129,7 @@ var createJWT = function(request, resource, authInfo) {
 };
 
 var routeAuthenticate = function(request, resource) {
-  var jt = createJWT(request, resource);
+  var jt = createAuthenticateToken(request, resource);
 
   var authURL = process.env.ROOT_URL + "authenticate/" + jt;
   var redirectURL = request.connection.encrypted ? "https" : "http" + '://' + request.headers.host + request.originalUrl;
@@ -148,7 +148,7 @@ var routeAuthenticate = function(request, resource) {
 };
 
 var routeRequestAccess = function(request, resource, authInfo) {
-  var jt = createJWT(request, resource, authInfo);
+  var jt = createAuthenticateToken(request, resource, authInfo);
 
   var authURL = process.env.ROOT_URL + "requestAccess/" + jt;
   var redirectURL = request.connection.encrypted ? "https" : "http" + '://' + request.headers.host + request.originalUrl;
@@ -185,7 +185,7 @@ function authorised(request, resource, accessRequired) {
     var authInfo = getTokenDetails(request);
     if (authInfo.userId) {
       // There is an authenticated user.
-      if (resource.owner === authInfo.token.subId) {
+      if (resource.owner === authInfo.token.iss) {
         // Owner of the resource is authenticated => PERMIT
         authorise.permit = true;
       } else if (resource.shareMode === "specific") {

@@ -11,6 +11,7 @@ Package.onUse(function(api) {
   
   api.addFiles("shared/index.js", ["client", "server"]);
   api.addFiles("client/index.js", ["client"]);
+  api.addFiles("server/index.js", ["server"]);
 
   api.export("nqmTBX");
 });

@@ -40,7 +40,7 @@ nqmTBX.SideBarMenu = React.createClass({
     };
 
     let sideBarMenu = <mui.List style={ styles.root } >
-      <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="resources" onClick={goDatasets} leftIcon={<mui.FontIcon className="material-icons">local_library</mui.FontIcon>}
+      <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="resources" leftIcon={<mui.FontIcon className="material-icons">local_library</mui.FontIcon>}
                 initiallyOpen={true}
                 nestedItems={[
                   <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="datasets" onClick={goDatasets} leftIcon={<mui.FontIcon className="material-icons">data_usage</mui.FontIcon>} />,
