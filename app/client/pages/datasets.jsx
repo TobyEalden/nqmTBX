@@ -11,11 +11,13 @@ DatasetsPage = React.createClass({
   getMeteorData() {
     var searchTerm = new RegExp(Session.get("nqm-search"),"gi");
     var dsSub = Meteor.subscribe("datasets");
+    var tzSub = Meteor.subscribe("localTrustZones");
 
     return {
-      ready: dsSub.ready(),
+      ready: dsSub.ready() && tzSub.ready(),
       currentUser: Meteor.user(),
-      datasets: datasets.find({ $or: [ {name: searchTerm}, {description: searchTerm }, {tags: searchTerm }]}).fetch()
+      datasets: datasets.find({ $or: [ {name: searchTerm}, {description: searchTerm }, {tags: searchTerm }]}).fetch(),
+      trustZones: trustedUsers.find({owner: Meteor.user().username})
     }
   },
   onCardExpanded: function(card) {

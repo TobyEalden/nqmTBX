@@ -32,6 +32,15 @@ Meteor.publish("trustedUsers", function(opts) {
   }
 });
 
+Meteor.publish("localTrustZones", function() {
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.username) {
+    trustedUsers.find({ owner: user.username, expires: {$gt: new Date() }, remoteStatus:"trusted" });
+  } else {
+    this.ready();
+  }
+});
+
 Meteor.publish("shareTokens", function(datasetId) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.nqmId) {
@@ -67,6 +76,7 @@ Meteor.publish("feeds", function(opts) {
 });
 
 Meteor.publish("datasets", function(opts) {
+  var self = this;
   var user = Meteor.users.findOne(this.userId);
   if (user && user.username) {
     if (opts && opts.id) {
@@ -75,6 +85,61 @@ Meteor.publish("datasets", function(opts) {
     } else {
       // Request all datasets.
       //
+
+      /************************************************************************
+       * custom publish attempt
+       *
+       * doesn't publish updates to share status.
+       *
+      var trustedOwnerMap = {};
+
+      var addZoneDatasets = function(zoneId) {
+        var zoneDS = datasets.find({ owner: zoneId, shareMode: "public" }).fetch();
+        _.each(zoneDS, function(ds) {
+          self.added("Dataset",ds.id,ds);
+        });
+      };
+      var removeZoneDatasets = function(zoneId) {
+        var zoneDS = datasets.find({ owner: zoneId, shareMode: "public" }).fetch();
+        _.each(zoneDS, function(ds) {
+          self.removed("Dataset",ds.id,ds);
+        });
+      };
+      var localTrustZonesCursor = trustedUsers.find({ userId: nqmTBX.helpers.getUserEmail(user), expires: {$gt: new Date() }, status:"trusted" });
+      localTrustZonesCursor.observeChanges({
+        added: function(id, fields) {
+          trustedOwnerMap[id] = fields.owner;
+          addZoneDatasets(fields.owner);
+        },
+        changed: function(id, fields) {
+          if (fields.status === "trusted") {
+            addZoneDatasets(fields.owner);
+          } else {
+            removeZoneDatasets(fields.owner);
+          }
+        },
+        removed: function(id) {
+          if (trustedOwnerMap.hasOwnProperty(id)) {
+            removeZoneDatasets(trustedOwnerMap[id]);
+          }
+        }
+      });
+
+      var ownedCursor = datasets.find({ owner: user.username });
+      ownedCursor.observeChanges({
+        added: function(id, fields) {
+          self.added("Dataset",id,fields);
+        },
+        changed: function(id, fields) {
+          self.changed("Dataset",id,fields);
+        },
+        removed: function(id) {
+          self.removed("Dataset",id);
+        }
+      });
+
+      self.ready();
+      *************************************************************************/
       // Find zones that trust this zone.
       var nonLocalTrustZones = trustedUsers.find({ owner: user.username, expires: {$gt: new Date() }, remoteStatus:"trusted" }).fetch();
       var localTrustZonesCursor = trustedUsers.find({ userId: nqmTBX.helpers.getUserEmail(user), expires: {$gt: new Date() }, status:"trusted" });
@@ -87,7 +152,7 @@ Meteor.publish("datasets", function(opts) {
       }, this);
 
       // TODO - implement filters.
-      return [datasets.find({$or: [{ owner: user.username },{ owner: { $in: trusts }, shareMode: "public" }]}), localTrustZonesCursor];
+      return datasets.find({$or: [{ owner: user.username },{ owner: { $in: trusts }, shareMode: "public" }]});
     }
   }
 });
