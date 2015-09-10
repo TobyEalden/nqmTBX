@@ -3,7 +3,7 @@ var url = Meteor.npmRequire("url");
 
 Meteor.publish("userData", function () {
   if (this.userId) {
-    return Meteor.users.find({_id: this.userId}, {fields: {'nqmId': 1} });
+    return Meteor.users.find({_id: this.userId}, {fields: {nqmId: 1, email: 1} });
   } else {
     this.ready();
   }
@@ -27,6 +27,15 @@ Meteor.publish("trustedUsers", function(opts) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.nqmId) {
     return trustedUsers.find({owner: user.nqmId, userId: {$ne: nqmTBX.helpers.getUserEmail(user) }});
+  } else {
+    this.ready();
+  }
+});
+
+Meteor.publish("zoneConnections", function(opts) {
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.username) {
+    return zoneConnections.find({$or: [{owner: user.username},{otherEmail: nqmTBX.helpers.getUserEmail(user)}]});
   } else {
     this.ready();
   }
@@ -57,7 +66,7 @@ Meteor.publish("widgets", function() {
 Meteor.publish("account", function(opts) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.nqmId) {
-    return accounts.find({id: user.nqmId});
+    return accounts.find({id: user.nqmId},{fields: {resources:0, authId: 0}});
   }
 });
 
@@ -140,6 +149,12 @@ Meteor.publish("datasets", function(opts) {
 
       self.ready();
       *************************************************************************/
+
+      /**********************************************************************
+       *
+       * Normalised attempt
+       *
+       *
       // Find zones that trust this zone.
       var nonLocalTrustZones = trustedUsers.find({ owner: user.username, expires: {$gt: new Date() }, remoteStatus:"trusted" }).fetch();
       var localTrustZonesCursor = trustedUsers.find({ userId: nqmTBX.helpers.getUserEmail(user), expires: {$gt: new Date() }, status:"trusted" });
@@ -153,6 +168,16 @@ Meteor.publish("datasets", function(opts) {
 
       // TODO - implement filters.
       return datasets.find({$or: [{ owner: user.username },{ owner: { $in: trusts }, shareMode: "public" }]});
+      ************************************************************************/
+
+      var account = accounts.findOne({id: user.username });
+      var datasetIds = [];
+      _.each(account.resources, function(v,k) {
+        datasetIds.push(k);
+      });
+
+      // TODO - remove owner:user.username clause -> not needed
+      return datasets.find({$or: [{owner: user.username},{ id: {$in: datasetIds}}]});
     }
   }
 });

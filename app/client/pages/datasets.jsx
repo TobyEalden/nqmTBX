@@ -10,14 +10,19 @@ DatasetsPage = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     var searchTerm = new RegExp(Session.get("nqm-search"),"gi");
-    var dsSub = Meteor.subscribe("datasets");
-    var tzSub = Meteor.subscribe("localTrustZones");
+    var dsSub = Meteor.subscribe("datasets", Session.get("force-dataset-sub"));
+    var accSub = Meteor.subscribe("account");
+
+    if (accSub.ready()) {
+      // This forces the dataset subscription to refresh when the account timestamp changes.
+      var account = accounts.findOne({});
+      if (account) {
+        Session.set("force-dataset-sub", { force: account.modified });
+      }
+    }
 
     return {
-      ready: dsSub.ready() && tzSub.ready(),
-      currentUser: Meteor.user(),
-      datasets: datasets.find({ $or: [ {name: searchTerm}, {description: searchTerm }, {tags: searchTerm }]}).fetch(),
-      trustZones: trustedUsers.find({owner: Meteor.user().username})
+      datasets: datasets.find({ $or: [ {name: searchTerm}, {description: searchTerm }, {tags: searchTerm }]}).fetch()
     }
   },
   onCardExpanded: function(card) {
@@ -35,7 +40,8 @@ DatasetsPage = React.createClass({
         right: "15px"
       }
     };
-    var cards = this.data.datasets.map(function(ds) {
+    var cards;
+    cards = this.data.datasets.map(function(ds) {
       return <DatasetSummary key={ds.id} ref={ds.id} dataset={ds} onSummaryExpanded={this.onCardExpanded} />;
     }, this);
 

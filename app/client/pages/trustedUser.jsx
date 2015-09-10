@@ -7,36 +7,26 @@ nqmTBX.pages.TrustedUser = React.createClass({
     }
   },
   getMeteorData: function() {
-    var trustedSub = Meteor.subscribe("trustedUsers");
+    var trustedSub = Meteor.subscribe("zoneConnections");
 
     return {
       ready: trustedSub.ready(),
       currentUser: Meteor.user(),
-      trustedUsers: trustedUsers.find({status: {$in: ["trusted","pending","expired"]}}).fetch(),
-      trustingUsers: trustedUsers.find({remoteStatus: {$in: ["trusted","pending","expired"]}}).fetch(),
+      trustedUsers: zoneConnections.find({owner: Meteor.user().username}).fetch(),
+      trustingUsers: zoneConnections.find({$or: [{other: Meteor.user().username},{otherEmail: Meteor.user().email }]}).fetch(),
     }
   },
-  _onCreateUser: function() {
+  _onCreateConnection: function() {
     var fields = this.refs.editTrustedUser.getData();
     if (!fields) {
       nqmTBX.ui.notification("please enter a valid e-mail address",6000);
     } else {
-      var valid = {
-        userId: fields.email,
-        issued: moment().valueOf(),
-        expires: nqmTBX.helpers.neverExpire.valueOf()
-      };
-      if (fields.server) {
-        valid.server = fields.server;
+      if (fields.response) {
+        Meteor.call("/app/zoneConnection/accept", fields.response, nqmTBX.helpers.methodCallback("updateZoneConnection"));
       }
-      if (fields.status) {
-        valid.status = fields.status;
+      if (fields.request) {
+        Meteor.call("/app/zoneConnection/create", fields.request, nqmTBX.helpers.methodCallback("createZoneConnection"));
       }
-      if (fields.remoteStatus) {
-        valid.remoteStatus = fields.remoteStatus;
-      }
-
-      Meteor.call("/app/trustedUser/create", valid, nqmTBX.helpers.methodCallback("trustedUser/create"));
       this.refs.addUserDialog.dismiss();
     }
   },
@@ -64,12 +54,14 @@ nqmTBX.pages.TrustedUser = React.createClass({
       _.each(sel, function(i) {
         var id = list[i].id;
         console.log("deleting share " + id);
-        Meteor.call("/app/trustedUser/delete",id,nqmTBX.helpers.methodCallback("trustedUser/delete"));
+        Meteor.call("/app/zoneConnection/delete",id,nqmTBX.helpers.methodCallback("zoneConnection/delete"));
       }, this);
     }
   },
   _onTabChange: function(value,e,tab) {
-    this.setState({activeTab: value });
+    if (tab) {
+      this.setState({activeTab: value });
+    }
   },
   render: function() {
     var styles = {
@@ -85,15 +77,15 @@ nqmTBX.pages.TrustedUser = React.createClass({
     if (this.data.ready) {
       let createUserActions = [
         { text: 'cancel' },
-        { text: 'add', onTouchTap: this._onCreateUser, ref: 'create' }
+        { text: 'add', onTouchTap: this._onCreateConnection, ref: 'create' }
       ];
       var createUserDialog = (
         <mui.Dialog ref="addUserDialog" title="add zone connection" modal={true} actions={createUserActions} actionFocus="create">
           <nqmTBX.EditTrustedUser ref="editTrustedUser" />
         </mui.Dialog>
       );
-      var trustedByMe = <nqmTBX.TrustedUserList ref="trustedByMeList" trustedUsers={this.data.trustedUsers} statusField="status" />;
-      var trustingMe = <nqmTBX.TrustedUserList ref="trustingMeList" trustedUsers={this.data.trustingUsers} statusField="remoteStatus" />;
+      var trustedByMe = <nqmTBX.TrustedUserList ref="trustedByMeList" trustedUsers={this.data.trustedUsers} emailField="otherEmail" />;
+      var trustingMe = <nqmTBX.TrustedUserList ref="trustingMeList" trustedUsers={this.data.trustingUsers} emailField="ownerEmail" />;
       var toolbar = (
         <mui.Toolbar style={styles.toolbar}>
           <mui.ToolbarGroup>

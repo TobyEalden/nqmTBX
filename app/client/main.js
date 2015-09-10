@@ -13,7 +13,7 @@ Meteor.startup(function() {
   // Helper/diagnostic function to notify when new data arrives.
   var notifyData = function(startingUp, msg) {
     if (true || !startingUp) {
-      nqmTBX.ui.notification(msg,250);
+      nqmTBX.ui.notification(msg,500);
     }
   };
 
@@ -57,13 +57,39 @@ Meteor.startup(function() {
 
       // Subscribe to the logged-in account.
       Meteor.subscribe("account", function() {
-        if (Meteor.user()) {
-          nqmTBX.ui.notification("account is " + Meteor.user().nqmId,500);
+        var account = accounts.findOne({});
+        if (account) {
+          nqmTBX.ui.notification("account is " + account.id,500);
         } else {
           nqmTBX.ui.notification("no account");
         }
       });
 
+      // Notify when new zone connections are made.
+      Meteor.subscribe("zoneConnections", function() {
+        zoneConnections.find({}).observe({
+          added: function(zone) {
+            if (zone.status !== "trusted" && zone.otherEmail === Meteor.user().email) {
+              nqmTBX.ui.notification("zone connection request from - " + zone.ownerEmail,10000);
+            }
+          },
+          changed: function(zone) {
+            if (zone.owner === Meteor.user().username) {
+              nqmTBX.ui.notification("zone connection " + zone.otherEmail + " is now " + zone.status,10000);
+            }
+          },
+          removed: function(zone) {
+            if (zone.owner === Meteor.user().username) {
+              nqmTBX.ui.notification("zone connection " + zone.ownerEmail + " removed",10000);
+            } else {
+              nqmTBX.ui.notification("zone connection " + zone.otherEmail + " removed",10000);
+            }
+          }
+        });
+      });
+
+      //
+      // THE FOLLOWING ARE DEBUG-ONLY
       //
       // TODO - don't subscribe until data is required (at template level?)
       //
@@ -118,31 +144,31 @@ Meteor.startup(function() {
         startingUp = false;
       });
 
-      //Meteor.subscribe("datasets", function() {
-      //  var startingUp = true;
-      //
-      //  datasets.find().observe({
-      //    added: function(dataset) {
-      //      console.log("adding dataset %s", dataset.store);
-      //      notifyData(startingUp, "new dataset - " + dataset.name);
-      //      datasetDataCache[dataset.store] = Mongo.Collection.get(dataset.store);
-      //      if (!datasetDataCache[dataset.store]) {
-      //        datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
-      //      }
-      //    },
-      //    changed: function(dataset) {
-      //      console.log("updated dataset %s", dataset.store);
-      //      notifyData(startingUp, "dataset update - " + dataset.name);
-      //    },
-      //    removed: function(dataset) {
-      //      console.log("removing dataset %s", dataset.store);
-      //      notifyData(startingUp, "removed dataset - " + dataset.name);
-      //      delete datasetDataCache[dataset.store];
-      //    }
-      //  });
-      //
-      //  startingUp = false;
-      //});
+      Meteor.subscribe("datasets", function() {
+        var startingUp = true;
+
+        datasets.find().observe({
+          added: function(dataset) {
+            console.log("adding dataset %s", dataset.store);
+            notifyData(startingUp, "new dataset - " + dataset.name);
+            datasetDataCache[dataset.store] = Mongo.Collection.get(dataset.store);
+            if (!datasetDataCache[dataset.store]) {
+              datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
+            }
+          },
+          changed: function(dataset) {
+            console.log("updated dataset %s", dataset.store);
+            notifyData(startingUp, "dataset update - " + dataset.name);
+          },
+          removed: function(dataset) {
+            console.log("removing dataset %s", dataset.store);
+            notifyData(startingUp, "removed dataset - " + dataset.name);
+            delete datasetDataCache[dataset.store];
+          }
+        });
+
+        startingUp = false;
+      });
     }
   });
 

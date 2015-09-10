@@ -4,15 +4,22 @@ nqmTBX.auth.Login = React.createClass({
     allowCreate: React.PropTypes.bool
   },
   getMeteorData: function() {
+    var accountSub = Meteor.subscribe("account");
+    var account;
+    if (accountSub.ready() && Meteor.userId()) {
+      account = accounts.findOne({ id: Meteor.user().username });
+    }
+
     return {
       user: Meteor.user(),
-      loggedIn: Meteor.userId() != null
+      loggedIn: Meteor.userId() != null,
+      account: account
     }
   },
   render: function () {
     var content;
     if (this.data.user) {
-      if (this.data.user.nqmId || !this.props.allowCreate) {
+      if (accounts.findOne({}) || this.data.account || !this.props.allowCreate) {
         // User is logged in with a valid nqm account (or account creation is disabled).
         // At this point the layout should re-render with authenticated account.
         content = (

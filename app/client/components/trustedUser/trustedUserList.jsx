@@ -2,7 +2,7 @@
 nqmTBX.TrustedUserList = React.createClass({
   propTypes: {
     trustedUsers: React.PropTypes.array.isRequired,
-    statusField: React.PropTypes.string.isRequired
+    emailField: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
     return {
@@ -18,16 +18,27 @@ nqmTBX.TrustedUserList = React.createClass({
   onSelection: function(selectedRows) {
     this.state.selection = selectedRows;
   },
+  onActionClick: function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  },
   render: function() {
     var styles = {
+      usernameColumn: {
+        width: "33%"
+      }
     };
     var trustedBig = this.props.trustedUsers.map(function (sh) {
-      var expiry = (nqmTBX.helpers.neverExpire.valueOf() == sh.expires.valueOf()) ? "never" : moment(sh.expires).format("YYYY-MM-DD");
+      var expiry = (nqmTBX.helpers.neverExpire.valueOf() === sh.expires.valueOf()) ? "never" : moment(sh.expires).format("YYYY-MM-DD");
       return (
         <mui.TableRow key={sh.id}>
-          <mui.TableRowColumn>{sh.userId}</mui.TableRowColumn>
+          <mui.TableRowColumn style={styles.usernameColumn}>{sh[this.props.emailField]}</mui.TableRowColumn>
           <mui.TableRowColumn>{expiry}</mui.TableRowColumn>
-          <mui.TableRowColumn>{sh[this.props.statusField]}</mui.TableRowColumn>
+          <mui.TableRowColumn>{sh.status}</mui.TableRowColumn>
+          <mui.TableRowColumn>
+            <mui.IconButton iconClassName="material-icons" onClick={this.onActionClick}>done</mui.IconButton>
+            <mui.IconButton iconClassName="material-icons" onClick={this.onActionClick}>clear</mui.IconButton>
+          </mui.TableRowColumn>
         </mui.TableRow>
       );
     }, this);
@@ -35,7 +46,7 @@ nqmTBX.TrustedUserList = React.createClass({
     var trustedSmall = this.props.trustedUsers.map(function (sh) {
       return (
         <mui.TableRow key={sh.id}>
-          <mui.TableRowColumn>{sh.userId}</mui.TableRowColumn>
+          <mui.TableRowColumn style={styles.usernameColumn}>{sh[this.props.emailField]}</mui.TableRowColumn>
         </mui.TableRow>
       );
     }, this);
@@ -48,9 +59,10 @@ nqmTBX.TrustedUserList = React.createClass({
           <mui.Table ref="table" selectable={true} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
             <mui.TableHeader displaySelectAll={false}>
               <mui.TableRow>
-                <mui.TableHeaderColumn tooltip="e-mail address">e-mail</mui.TableHeaderColumn>
-                <mui.TableHeaderColumn tooltip="expired">expires</mui.TableHeaderColumn>
-                <mui.TableHeaderColumn tooltip="status">status</mui.TableHeaderColumn>
+                <mui.TableHeaderColumn style={styles.usernameColumn}>e-mail</mui.TableHeaderColumn>
+                <mui.TableHeaderColumn>expires</mui.TableHeaderColumn>
+                <mui.TableHeaderColumn>status</mui.TableHeaderColumn>
+                <mui.TableHeaderColumn>action</mui.TableHeaderColumn>
               </mui.TableRow>
             </mui.TableHeader>
             <mui.TableBody deselectOnClickaway={false}>{trustedBig}</mui.TableBody>
@@ -60,7 +72,7 @@ nqmTBX.TrustedUserList = React.createClass({
           <mui.Table ref="table" selectable={true} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
             <mui.TableHeader displaySelectAll={false}>
               <mui.TableRow>
-                <mui.TableHeaderColumn tooltip="e-mail address">e-mail</mui.TableHeaderColumn>
+                <mui.TableHeaderColumn style={styles.usernameColumn}>e-mail</mui.TableHeaderColumn>
               </mui.TableRow>
             </mui.TableHeader>
             <mui.TableBody deselectOnClickaway={false}>{trustedSmall}</mui.TableBody>

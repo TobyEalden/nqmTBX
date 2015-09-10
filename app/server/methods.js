@@ -117,32 +117,16 @@ var createUserAccount = function(name) {
       // Replace spaces with period.
       name = name.replace(/ /g,".");
 
-      var existing = Meteor.users.findOne({username: name});
-      if (existing) {
+      var existing = accounts.findOne({id: name});
+      if (existing && existing.authId !== nqmTBX.helpers.getUserAuthId()) {
         throw new Error("user already exists with name: " + name);
       }
-      result = HTTP.post(
-        Meteor.settings.commandURL + "/command/account/create",
-        {
-          data: {
-            id: name,
-            authId: user.services.google.id
-          }
-        }
-      );
+      result = HTTP.post(Meteor.settings.commandURL + "/command/account/create", { data: { id: name, authId: user.services.google.id } });
 
       if (result.data && result.data.ok) {
         // Save the nqmId with the default meteor User document.
-        Meteor.users.update(user._id, { $set: { username: name, nqmId: name } });
-
-        // Add a self-referencing trusted user.
-        result.data = createTrustedUser({
-          userId: nqmTBX.helpers.getUserEmail(),
-          serviceProvider: "google",
-          issued: Date.now(),
-          expires: (new Date(8640000000000000)).getTime(),
-          status: "trusted"
-        });
+        // TODO - remove nqmId in favour of username.
+        Meteor.users.update(user._id, { $set: { username: name, nqmId: name, email: nqmTBX.helpers.getUserEmail() } });
       }
     } else {
       if (!user) {
@@ -156,6 +140,121 @@ var createUserAccount = function(name) {
   } catch (e) {
     console.log("failed to create user account: %s", e.message);
     return { ok: false, error: e.message };
+  }
+};
+
+var createZoneConnection = function(params) {
+  check(params,{
+    otherEmail: String,
+    expires: Match.Optional(Number)
+  });
+
+  try {
+    params.expires = params.expires || 3600;
+
+    var data = {
+      owner: Meteor.user().username,
+      ownerEmail: nqmTBX.helpers.getUserEmail(),
+      ownerServer: Meteor.settings.public.rootURL,
+      otherEmail: params.otherEmail,
+      issued: moment().valueOf(),
+      expires: moment().add(params.expires,"minutes").valueOf()
+    };
+
+    var existing = zoneConnections.findOne({owner: data.owner, otherEmail: data.otherEmail, expires: {$gt: new Date() }, status: {$ne: "revoked"}});
+    if (existing) {
+      // There is already a valid zone connection.
+      throw new Error("zone connection already exists");
+
+      // Might need to add self-referencing zone connection here for specific sharing.
+    }
+
+    // Send create command.
+    var result = HTTP.post(Meteor.settings.commandURL + "/command/zoneConnection/create",{ data: data });
+
+    // Send a notification e-mail to the newly trusted zone (TODO - make optional)
+    if (result.data && result.data.ok) {
+      // Send the target zone an email with a token for acknowledging/reciprocating the trust.
+      var connectToken = {
+        iss: result.data.result.id, // Issuer is the ID of the connection request.
+        sub: data.ownerEmail
+      };
+      var encodedToken = jwt.encode(connectToken,Meteor.settings.APIKey);
+      console.log("emailing token %s to %s", encodedToken, data.otherEmail);
+      Email.send({
+        to: data.otherEmail,
+        from: Meteor.settings.emailFromAddress,
+        subject: "nquiringMinds zone connection",
+        html: "<h3>you are trusted!</h3>" +
+        "<p>" + data.owner + " has added you as a trusted connection.</p>" +
+        "<p>You don't have to do anything further in order to be able to access resources that " + data.owner + " shares with you.</p>" +
+        "<p>However if you would like to share some of your resources with " + data.owner + " you can make them a trusted connection by visiting the Connections page on your nquiringToolbox, clicking the 'add trusted connection' button and pasting the following code into the 'connect' field:</p>" +
+        "<p>" + encodedToken + "</p>" +
+        "<p>Note that none of you private data will be visible to " + data.owner + " unless you explicitly share resource(s) with them</p>"
+      });
+    }
+    console.log("result is %j",result.data);
+    return result.data;
+
+  } catch (e) {
+    console.log("createZoneConnection failed: %s",e.message);
+    throw new Meteor.Error("createZoneConnection",e.message);
+  }
+};
+
+var acceptZoneConnection = function(params) {
+  check(params,{
+    id: String
+  });
+
+  try {
+    // Update the status of an existing zoneConnection.
+    var existing = zoneConnections.findOne({id: params.id});
+    if (!existing) {
+      throw new Error("zone connection not found: " + params.id);
+    }
+    if (existing.otherEmail !== nqmTBX.helpers.getUserEmail()) {
+      throw new Error("zone connection wrong target");
+    }
+    if (existing.expires <= new Date()) {
+      throw new Error("zone connection expired: " + params.id);
+    }
+    var data = {
+      id: params.id,
+      other: Meteor.user().username,
+      otherServer: Meteor.settings.public.rootURL
+    };
+
+    // Send accept command.
+    var result = HTTP.post(Meteor.settings.commandURL + "/command/zoneConnection/accept",{ data: data });
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("acceptZoneConnection failed: %s",e.message);
+    throw new Meteor.Error("acceptZoneConnection",e.message);
+  }
+};
+
+var removeZoneConnection = function(id) {
+  check(id,String);
+
+  try {
+    // Update the status of an existing zoneConnection.
+    var existing = zoneConnections.findOne({id: id});
+    if (!existing) {
+      throw new Error("zone connection not found: " + id);
+    }
+    if (existing.owner !== Meteor.user().username && existing.otherEmail !== Meteor.user().email) {
+      throw new Error("permission denied");
+    }
+
+    // Send delete command.
+    var result = HTTP.post(Meteor.settings.commandURL + "/command/zoneConnection/delete",{ data: { id: id } });
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("removeZoneConnection failed: %s",e.message);
+    throw new Meteor.Error("removeZoneConnection",e.message);
   }
 };
 
@@ -259,7 +358,7 @@ var deleteTrustedUser = function(id) {
     }
   } catch (e) {
     console.log("delete trusted user failed: %s", e.message);
-    return { ok: false, error: e.message };
+    throw new Meteor.Error("deleteTrustedUser",e.message);
   }
 };
 
@@ -568,5 +667,17 @@ Meteor.methods({
   },
   "/app/token/lookup": function(token) {
     return getJWToken(token);
+  },
+  "/app/zoneConnection/create": function(params) {
+    this.unblock();
+    return createZoneConnection(params);
+  },
+  "/app/zoneConnection/accept": function(params) {
+    this.unblock();
+    return acceptZoneConnection(params);
+  },
+  "/app/zoneConnection/delete": function(id) {
+    this.unblock();
+    return removeZoneConnection(id);
   }
 });

@@ -13,6 +13,7 @@ if (!nqmTBX.helpers) {
 nqmTBX.helpers.getUserEmail = function(userIn) {
   var user = userIn || Meteor.user();
   var email;
+  // TODO - add support for other authorization providers.
   if (user && user.services && user.services.google) {
     email = user.services.google.email;
   }
@@ -28,3 +29,12 @@ nqmTBX.helpers.getUserURI = function(userIn) {
   return uri;
 };
 
+nqmTBX.helpers.getUserAuthId = function(userIn) {
+  var user = userIn || Meteor.user();
+  var authId;
+  // TODO - add support for other authorization providers.
+  if (user && user.services && user.services.google) {
+    authId = user.services.google.id;
+  }
+  return authId;
+};

@@ -15,20 +15,20 @@ nqmTBX.EditTrustedUser = React.createClass({
     }
     var data = {};
     if (this.state.gotTokenDetails) {
-      // Details come from a token sent by another zone to indicate it trusts this zone.
-      // This zone can now access resources in the other zone (with appropriate share permissions).
-      data.remoteStatus = "trusted";        // This is implied -> the remote zone trusts us.
-      data.email = this.state.token.sub;    // The token subject is the email of the remote zone.
-      data.server = this.state.token.iss;   // The token issuer is the URI of the remote zone.
+      data.response = {
+        id: this.state.token.iss
+      };
       // The user may have indicated that it trusts the remote zone in return.
       if (this.refs.trustingCheck.isChecked()) {
-        data.status = "trusted";
+        data.request = {
+          otherEmail: this.state.token.sub
+        }
       }
     } else {
       // Details were entered manually.
-      data.email = this.refs.email.getValue();
-      // The trust status is implied -> this zone trusts the remote zone.
-      data.status = "trusted";
+      data.request = {
+        otherEmail: this.refs.email.getValue()
+      }
     }
     return data;
   },
