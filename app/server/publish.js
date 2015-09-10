@@ -1,4 +1,5 @@
 var jwt = Meteor.npmRequire("jwt-simple");
+var url = Meteor.npmRequire("url");
 
 Meteor.publish("userData", function () {
   if (this.userId) {
@@ -67,15 +68,26 @@ Meteor.publish("feeds", function(opts) {
 
 Meteor.publish("datasets", function(opts) {
   var user = Meteor.users.findOne(this.userId);
-  if (user && user.nqmId) {
+  if (user && user.username) {
     if (opts && opts.id) {
       // Requested specific dataset only.
-      return datasets.find({owner: user.nqmId, id: opts.id});
+      return datasets.find({owner: user.username, id: opts.id});
     } else {
       // Request all datasets.
-      // TODO - implement filters?
-      var shared = []; //["dataset-JDBLuT","ds001"];
-      return datasets.find({$or: [{ owner: user.nqmId },{ id: { $in: shared }}]});
+      //
+      // Find zones that trust this zone.
+      var nonLocalTrustZones = trustedUsers.find({ owner: user.username, expires: {$gt: new Date() }, remoteStatus:"trusted" }).fetch();
+      var localTrustZonesCursor = trustedUsers.find({ userId: nqmTBX.helpers.getUserEmail(user), expires: {$gt: new Date() }, status:"trusted" });
+      var localTrustZones = localTrustZonesCursor.fetch();
+      var trusts = [];
+
+      // TODO - add support for non-local trusts.
+      _.each(localTrustZones, function(z) {
+          trusts.push(z.owner);
+      }, this);
+
+      // TODO - implement filters.
+      return [datasets.find({$or: [{ owner: user.username },{ owner: { $in: trusts }, shareMode: "public" }]}), localTrustZonesCursor];
     }
   }
 });

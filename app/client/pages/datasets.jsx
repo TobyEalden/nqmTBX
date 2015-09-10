@@ -10,8 +10,10 @@ DatasetsPage = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     var searchTerm = new RegExp(Session.get("nqm-search"),"gi");
+    var dsSub = Meteor.subscribe("datasets");
 
     return {
+      ready: dsSub.ready(),
       currentUser: Meteor.user(),
       datasets: datasets.find({ $or: [ {name: searchTerm}, {description: searchTerm }, {tags: searchTerm }]}).fetch()
     }

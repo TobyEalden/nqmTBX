@@ -70,7 +70,7 @@ var saveDataset = function(opts) {
     return result.data;
   } catch (e) {
     console.log("dataset save failed: %s", e.message);
-    throw e;
+    throw new Meteor.Error("saveDataset",e.message);
   }
 };
 
@@ -161,10 +161,12 @@ var createUserAccount = function(name) {
 
 var createTrustedUser = function(params) {
   check(params,{
-    id: String,
     userId: String,
     issued: Number,
-    expires: Number
+    expires: Number,
+    server: Match.Optional(String),
+    status: Match.Optional(String),
+    remoteStatus: Match.Optional(String)
   });
 
   try {
@@ -176,9 +178,9 @@ var createTrustedUser = function(params) {
     params.owner = Meteor.user().nqmId;
 
     // Find any existing trusts.
-    var existing = trustedUsers.findOne({ owner: params.owner, userId: params.userId, expires: {$gt: new Date() } });
     var command = "create";
     var isLocal = false;
+    var existing = trustedUsers.findOne({ owner: params.owner, userId: params.userId, expires: {$gt: new Date() } });
     if (existing) {
       command = "update";
       params.id = existing.id;

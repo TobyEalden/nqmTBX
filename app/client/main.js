@@ -118,31 +118,31 @@ Meteor.startup(function() {
         startingUp = false;
       });
 
-      Meteor.subscribe("datasets", function() {
-        var startingUp = true;
-
-        datasets.find().observe({
-          added: function(dataset) {
-            console.log("adding dataset %s", dataset.store);
-            notifyData(startingUp, "new dataset - " + dataset.name);
-            datasetDataCache[dataset.store] = Mongo.Collection.get(dataset.store);
-            if (!datasetDataCache[dataset.store]) {
-              datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
-            }
-          },
-          changed: function(dataset) {
-            console.log("updated dataset %s", dataset.store);
-            notifyData(startingUp, "dataset update - " + dataset.name);
-          },
-          removed: function(dataset) {
-            console.log("removing dataset %s", dataset.store);
-            notifyData(startingUp, "removed dataset - " + dataset.name);
-            delete datasetDataCache[dataset.store];
-          }
-        });
-
-        startingUp = false;
-      });
+      //Meteor.subscribe("datasets", function() {
+      //  var startingUp = true;
+      //
+      //  datasets.find().observe({
+      //    added: function(dataset) {
+      //      console.log("adding dataset %s", dataset.store);
+      //      notifyData(startingUp, "new dataset - " + dataset.name);
+      //      datasetDataCache[dataset.store] = Mongo.Collection.get(dataset.store);
+      //      if (!datasetDataCache[dataset.store]) {
+      //        datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
+      //      }
+      //    },
+      //    changed: function(dataset) {
+      //      console.log("updated dataset %s", dataset.store);
+      //      notifyData(startingUp, "dataset update - " + dataset.name);
+      //    },
+      //    removed: function(dataset) {
+      //      console.log("removing dataset %s", dataset.store);
+      //      notifyData(startingUp, "removed dataset - " + dataset.name);
+      //      delete datasetDataCache[dataset.store];
+      //    }
+      //  });
+      //
+      //  startingUp = false;
+      //});
     }
   });
 

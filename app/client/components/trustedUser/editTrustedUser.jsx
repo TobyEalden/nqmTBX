@@ -76,7 +76,7 @@ nqmTBX.EditTrustedUser = React.createClass({
         trustedByCheck = <div><mui.Checkbox name="trusting" value="trusting" checked={true} disabled={true} label="This zone trusts me"/></div>;
       }
       if (this.state.haveValidEmail) {
-        trustingCheck = <div><mui.Checkbox ref="trustingCheck" name="trusted" value="trusted" disabled={!this.state.gotTokenDetails} checked={!this.state.gotTokenDetails} label="I trust this zone"/></div>;
+        trustingCheck = <div><mui.Checkbox ref="trustingCheck" name="trusted" value="trusted" disabled={!this.state.gotTokenDetails} defaultChecked={!this.state.gotTokenDetails} label="I trust this zone"/></div>;
       }
     }
     return (
