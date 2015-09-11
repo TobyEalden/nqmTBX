@@ -3,6 +3,7 @@
 /*****************************************************************************/
 
 var jwt = Meteor.npmRequire("jwt-simple");
+var util = Meteor.npmRequire("util");
 
 var saveIOTHub = function(isNew, opts) {
   try {
@@ -121,7 +122,7 @@ var createUserAccount = function(name) {
       if (existing && existing.authId !== nqmTBX.helpers.getUserAuthId()) {
         throw new Error("user already exists with name: " + name);
       }
-      result = HTTP.post(Meteor.settings.commandURL + "/command/account/create", { data: { id: name, authId: user.services.google.id } });
+      result = HTTP.post(Meteor.settings.commandURL + "/command/account/create", { data: { id: name, email: nqmTBX.helpers.getUserEmail(), authId: user.services.google.id } });
 
       if (result.data && result.data.ok) {
         // Save the nqmId with the default meteor User document.
@@ -366,33 +367,43 @@ var deleteTrustedUser = function(id) {
  * Creates a trusted share token.
  * The resource owner is the authenticated user.
  */
-var createTrustedShareToken = function(params) {
+var createTrustedShareToken = function(userId, scope, access, expiry) {
+  check(userId, String);
+  check(scope, String);
+  check(access, String);
+  check(expiry, Number);
+
   try {
+    if (!Meteor.user() || !Meteor.user().username) {
+      throw new Error("permission denied");
+    }
+
+    var opts = {};
+
     // The token owner is the authenticated user.
-    var opts = {}
     opts.owner = Meteor.user().username;
 
     // Make sure there is a valid trusted user.
-    var trustedUser = trustedUsers.findOne({ owner: opts.owner, userId: params.userId, status: "trusted" });
-    if (trustedUser) {
+    var trustedZone = zoneConnections.findOne({ owner: opts.owner, otherEmail: userId, status: "trusted", expires: {$gt: new Date()} });
+    if (trustedZone) {
       // Check to see if a share already exists.
-      var existing = shareTokens.findOne({ owner: opts.owner, userId: params.userId, scope: params.scope, "resources.resource": "access", "resources.actions": "read", expires: {$gt: new Date()}, status: "trusted"  });
+      var existing = shareTokens.findOne({ owner: opts.owner, userId: userId, scope: scope, "resources.resource": "access", "resources.actions": access, expires: {$gt: new Date()}, status: "trusted"  });
       if (existing) {
-        throw new Error("share already exists");
+        throw new Error(util.format("share exists between %s and %s for %s",opts.owner,userId,scope));
       }
 
       // The owner is authenticated and the target user is trusted.
       opts.status = "trusted";
-      opts.userId = params.userId;
-      opts.scope = params.scope;
-      opts.resources = [ { resource: "access", actions: [params.access] } ];
+      opts.userId = userId;
+      opts.scope = scope;
+      opts.resources = [ { resource: "access", actions: [access] } ];
       opts.issued = moment().valueOf();
-      opts.expires = moment().add(params.expires, "minutes").valueOf();
+      opts.expires = moment().add(expiry, "minutes").valueOf();
       var result = HTTP.post(Meteor.settings.commandURL + "/command/shareToken/create",{ data: opts });
       console.log("result is %j",result.data);
       return result.data;
     } else {
-      throw new Error("no trusted user");
+      throw new Error("trusted zone not found");
     }
   } catch (e) {
     console.log("createTrustedShareToken failed %s", e.message);
@@ -400,25 +411,39 @@ var createTrustedShareToken = function(params) {
   }
 };
 
-var createShareTokenRequest = function(params) {
+var createShareTokenRequest = function(authToken) {
+  check(authToken,String);
   try {
-    // Make sure there is a valid trusted user.
-    var trustedUser = trustedUsers.findOne({ owner: params.owner, userId: params.userId, status: "trusted" });
-    if (trustedUser) {
+    if (!Meteor.user() || !Meteor.user().username) {
+      throw new Error("permission denied");
+    }
+
+    var jt = jwt.decode(authToken, Meteor.settings.APIKey);
+    if (jt.exp <= Date.now()) {
+      // Token has expired.
+      throw new Error("share request auth token expired");
+    }
+
+    // Get the email address of the currently logged in user.
+    var email = nqmTBX.helpers.getUserEmail();
+
+    // Make sure the currently logged in user is trusted by the token issuer.
+    var trustedZone = zoneConnections.findOne({ owner: jt.iss, otherEmail: email, status: "trusted", expires: {$gt: new Date()} });
+    if (trustedZone) {
       var data = {
-        owner: params.owner,
-        userId: params.userId,
-        scope: params.resource,
-        resources: [ { resource: "access", actions: [params.access] } ],
+        owner: jt.iss,
+        userId: email,
+        scope: jt.subId,
+        resources: [ { resource: "access", actions: ["read"] } ],
         status: "pending",
         issued: moment().valueOf(),
-        expires: moment().add(params.expires, "minutes").valueOf()
+        expires: moment().add(Meteor.settings.shareTokenRequestExpiry, "minutes").valueOf()
       };
       var result = HTTP.post(Meteor.settings.commandURL + "/command/shareToken/create",{ data: data });
       console.log("result is %j",result.data);
       return result.data;
     } else {
-      throw new Error("no trusted user");
+      throw new Error("no trusted zone");
     }
   } catch (e) {
     console.log("createShareTokenRequest failed - %s", e.message);
@@ -524,36 +549,6 @@ var tokenLogin = function(provider, token) {
   }
 };
 
-var requestAccess = function(authToken) {
-  try {
-    var jt = jwt.decode(authToken, Meteor.settings.APIKey);
-    if (jt.exp <= Date.now()) {
-      // Token has expired.
-      throw new Error("auth token expired");
-    }
-
-    // Get the email address of the currently logged in user.
-    var email = nqmTBX.helpers.getUserEmail();
-
-    // Make sure the currently logged in user is trusted by the token issuer.
-    var trustedUser = trustedUsers.findOne({owner: jt.iss, userId: email, status: "trusted", expires: {$gt: new Date()} });
-    if (trustedUser) {
-      return createShareTokenRequest({
-        owner: jt.iss,
-        userId: email,
-        resource: jt.sub,
-        access: "read"
-      });
-    } else {
-      // Not trusted.
-      throw new Error("no trusted user");
-    }
-  } catch (e) {
-    console.log(e.message);
-    throw new Meteor.Error("requestAccess", e.message);
-  }
-};
-
 var getJWToken = function(token) {
   try {
     if (Meteor.userId()) {
@@ -645,9 +640,13 @@ Meteor.methods({
     this.unblock();
     return deleteTrustedUser(id);
   },
-  "/app/share/create": function(opts) {
+  "/app/share/create": function(email, scope, access, expiry) {
     this.unblock();
-    return createTrustedShareToken(opts);
+    return createTrustedShareToken(email, scope, access, expiry);
+  },
+  "/app/share/request": function(authToken) {
+    this.unblock();
+    return createShareTokenRequest(authToken);
   },
   "/app/share/delete": function(id) {
     this.unblock();
@@ -660,10 +659,6 @@ Meteor.methods({
   "/app/auth": function(provider, token) {
     this.unblock();
     return tokenLogin(provider, token);
-  },
-  "/app/share/request": function(authToken) {
-    this.unblock();
-    return requestAccess(authToken);
   },
   "/app/token/lookup": function(token) {
     return getJWToken(token);

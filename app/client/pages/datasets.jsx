@@ -17,6 +17,7 @@ DatasetsPage = React.createClass({
       // This forces the dataset subscription to refresh when the account timestamp changes.
       var account = accounts.findOne({});
       if (account) {
+        console.log("account updated - about to refresh datasets");
         Session.set("force-dataset-sub", { force: account.modified });
       }
     }

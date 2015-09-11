@@ -9,5 +9,6 @@
   "APIKey": "2snfDAfVHnZM",
   "authenticationTokenTimeout": 2,
   "apiTokenTimeout": 10,
+  "shareTokenRequestExpiry": 3600,
   "emailFromAddress": "nqminds@gmail.com"
 }

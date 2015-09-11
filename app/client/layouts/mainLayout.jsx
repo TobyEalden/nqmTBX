@@ -5,16 +5,9 @@ MainLayout = React.createClass({
     muiTheme: React.PropTypes.object
   },
   getMeteorData: function() {
-    var accountSub = Meteor.subscribe("account");
-    var account;
-    if (accountSub.ready() && Meteor.userId()) {
-      account = accounts.findOne({ id: Meteor.user().username });
-    }
-
     var data = {
       loggingIn: Meteor.loggingIn(),
-      loggedIn: ((Meteor.user() && Meteor.user().nqmId && account) ? true : false),
-      account: account
+      loggedIn: ((Meteor.user() && Meteor.user().nqmId && accounts.findOne()) ? true : false)
     };
 
     return data;

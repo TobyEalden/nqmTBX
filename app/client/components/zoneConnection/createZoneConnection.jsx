@@ -1,5 +1,5 @@
 
-nqmTBX.EditTrustedUser = React.createClass({
+nqmTBX.CreateZoneConnection = React.createClass({
   getInitialState: function() {
     return {
       showTokenInputs: false,

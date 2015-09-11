@@ -1,5 +1,5 @@
 
-nqmTBX.pages.TrustedUser = React.createClass({
+nqmTBX.pages.ZoneConnections = React.createClass({
   mixins: [ReactMeteorData],
   getInitialState: function() {
     return {
@@ -8,12 +8,10 @@ nqmTBX.pages.TrustedUser = React.createClass({
   },
   getMeteorData: function() {
     var trustedSub = Meteor.subscribe("zoneConnections");
-
     return {
       ready: trustedSub.ready(),
-      currentUser: Meteor.user(),
-      trustedUsers: zoneConnections.find({owner: Meteor.user().username}).fetch(),
-      trustingUsers: zoneConnections.find({$or: [{other: Meteor.user().username},{otherEmail: Meteor.user().email }]}).fetch(),
+      trustedZones: zoneConnections.find({owner: Meteor.user().username}).fetch(),
+      trustingZones: zoneConnections.find({$or: [{other: Meteor.user().username},{otherEmail: Meteor.user().email }]}).fetch(),
     }
   },
   _onCreateConnection: function() {
@@ -27,32 +25,44 @@ nqmTBX.pages.TrustedUser = React.createClass({
       if (fields.request) {
         Meteor.call("/app/zoneConnection/create", fields.request, nqmTBX.helpers.methodCallback("createZoneConnection"));
       }
-      this.refs.addUserDialog.dismiss();
+      this.refs.createDialog.dismiss();
     }
   },
   userInfo: function() {
-    nqmTBX.ui.notification("not implemented");
+    var sel = this._getSelections();
+    if (sel.selections.length === 0) {
+      nqmTBX.ui.notification("select an item");
+    } else {
+      this.refs.detailsDialog.show();
+    }
   },
   addUser: function() {
-    this.refs.addUserDialog.show();
+    this.refs.createDialog.show();
   },
-  deleteUser: function() {
+  _getSelections: function() {
     var sel;
     var list;
     if (this.state.activeTab === "trustedByMe") {
       sel = this.refs.trustedByMeList.getSelection();
-      this.refs.trustedByMeList.clearSelection();
-      list = this.data.trustedUsers;
+      list = this.data.trustedZones;
     } else {
       sel = this.refs.trustingMeList.getSelection();
-      this.refs.trustingMeList.clearSelection();
-      list = this.data.trustingUsers;
+      list = this.data.trustingZones;
     }
-    if (sel.length == 0) {
+    return {
+      selections: sel,
+      list: list
+    };
+  },
+  deleteUser: function() {
+    var sel = this._getSelections();
+    if (sel.selections.length == 0) {
       nqmTBX.ui.notification("select an item to delete",5000);
     } else {
-      _.each(sel, function(i) {
-        var id = list[i].id;
+      sel.list.clearSelection();
+
+      _.each(sel.selections, function(i) {
+        var id = sel.list[i].id;
         console.log("deleting share " + id);
         Meteor.call("/app/zoneConnection/delete",id,nqmTBX.helpers.methodCallback("zoneConnection/delete"));
       }, this);
@@ -75,17 +85,22 @@ nqmTBX.pages.TrustedUser = React.createClass({
     };
 
     if (this.data.ready) {
-      let createUserActions = [
+      let addCancelButtons = [
         { text: 'cancel' },
         { text: 'add', onTouchTap: this._onCreateConnection, ref: 'create' }
       ];
-      var createUserDialog = (
-        <mui.Dialog ref="addUserDialog" title="add zone connection" modal={true} actions={createUserActions} actionFocus="create">
-          <nqmTBX.EditTrustedUser ref="editTrustedUser" />
+      var createConnectionDialog = (
+        <mui.Dialog ref="createDialog" title="add zone connection" modal={true} actions={addCancelButtons} actionFocus="create">
+          <nqmTBX.CreateZoneConnection ref="editTrustedUser" />
         </mui.Dialog>
       );
-      var trustedByMe = <nqmTBX.TrustedUserList ref="trustedByMeList" trustedUsers={this.data.trustedUsers} emailField="otherEmail" />;
-      var trustingMe = <nqmTBX.TrustedUserList ref="trustingMeList" trustedUsers={this.data.trustingUsers} emailField="ownerEmail" />;
+      var detailsDialog = (
+        <mui.Dialog ref="detailsDialog" title="zone connection details" modal={true} actions={[{text:"ok"},{text:"cancel"}]} actionFocus="create">
+          <div>connection details</div>
+        </mui.Dialog>
+      );
+      var trustedByMe = <nqmTBX.ZoneConnectionList ref="trustedByMeList" trustedZones={this.data.trustedZones} emailField="otherEmail" />;
+      var trustingMe = <nqmTBX.ZoneConnectionList ref="trustingMeList" trustedZones={this.data.trustingZones} emailField="ownerEmail" />;
       var toolbar = (
         <mui.Toolbar style={styles.toolbar}>
           <mui.ToolbarGroup>
@@ -99,18 +114,20 @@ nqmTBX.pages.TrustedUser = React.createClass({
       ) ;
 
       return (
-        <mui.Tabs onChange={this._onTabChange}>
-          <mui.Tab value="trustedByMe" label="trusted by me">
-            {toolbar}
-            {trustedByMe}
-            {createUserDialog}
-          </mui.Tab>
-          <mui.Tab value="trustingMe" label="trusting me">
-            {toolbar}
-            {trustingMe}
-            {createUserDialog}
-          </mui.Tab>
-        </mui.Tabs>
+        <div>
+          <mui.Tabs onChange={this._onTabChange}>
+            <mui.Tab value="trustedByMe" label="trusted by me">
+              {toolbar}
+              {trustedByMe}
+            </mui.Tab>
+            <mui.Tab value="trustingMe" label="trusting me">
+              {toolbar}
+              {trustingMe}
+            </mui.Tab>
+          </mui.Tabs>
+          {createConnectionDialog}
+          {detailsDialog}
+        </div>
       );
     } else {
       return <mui.CircularProgress mode="indeterminate" />;

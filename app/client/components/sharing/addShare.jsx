@@ -25,7 +25,7 @@ nqmTBX.AddShare = React.createClass({
     var lookup = e.target.value;
     if (lookup.length > 0) {
       var searchTerm = new RegExp(lookup,"gi");
-      this.setState({ trustedMatch: trustedUsers.find({  userId: searchTerm, status: "trusted", expires: {$gt: new Date() }}).fetch()});
+      this.setState({ trustedMatch: zoneConnections.find({  otherEmail: searchTerm, status: {$in: ["trusted","issued"]}, expires: {$gt: new Date() }}).fetch()});
     } else {
       this.setState({ trustedMatch: []});
     }
@@ -38,29 +38,11 @@ nqmTBX.AddShare = React.createClass({
     this.setState({expiryValue: e.target.value});
   },
   addUser: function() {
-    var cb = function(err, result) {
-      if (err) {
-        nqmTBX.ui.notification("share failed: " + err.message);
-      }
-      if (result && result.ok) {
-        nqmTBX.ui.notification("command sent, " + result.result.id);
-      }
-    };
-    var params = {
-      userId: this.refs["search"].getValue(),
-      scope: this.props.resource.id,
-      access: "read"
-    };
-    if (this.refs.expiry) {
-      params.expires = this.state.expiryValue;
-    } else {
-      params.expires = -1;
-    }
-    if (params.expiry <= 0) {
-      params.expiry = moment().add(999,"years").valueOf();
-    }
-
-    Meteor.call("/app/share/create", params, cb);
+    var email = this.refs["search"].getValue();
+    var scope = this.props.resource.id;
+    var access = "read";
+    var expiry = parseInt(this.state.expiryValue);
+    Meteor.call("/app/share/create", email, scope, access, expiry, nqmTBX.helpers.methodCallback("share/create"));
     this.refs["search"].setValue("");
   },
   expiryOptions:  [
@@ -70,7 +52,7 @@ nqmTBX.AddShare = React.createClass({
     { payload: '10080', text: '1 week' },
     { payload: '43680', text: '1 month' },
     { payload: '524160', text: '1 year' },
-    { payload: '-1', text: 'never' }
+    { payload: '52416000', text: 'never' }
   ],
   render: function() {
     var styles = {
@@ -81,7 +63,7 @@ nqmTBX.AddShare = React.createClass({
       }
     };
     var trustedMatches = this.state.trustedMatch.map(function (tm) {
-      return <mui.ListItem key={tm.id} primaryText={tm.userId}
+      return <mui.ListItem key={tm.id} primaryText={tm.otherEmail}
                        onClick={this.onMatchSelected}/>
     }, this);
 

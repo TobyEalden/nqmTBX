@@ -34,6 +34,7 @@ nqmTBX.helpers.logout = function() {
 };
 
 nqmTBX.helpers.methodCallback = function(code) {
+  code = code || "";
   return function(err, result) {
     if (err) {
       nqmTBX.ui.notification(code + " failed: " + err.message);

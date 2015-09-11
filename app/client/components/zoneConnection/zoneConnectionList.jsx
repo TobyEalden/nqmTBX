@@ -1,8 +1,9 @@
 
-nqmTBX.TrustedUserList = React.createClass({
+nqmTBX.ZoneConnectionList = React.createClass({
   propTypes: {
-    trustedUsers: React.PropTypes.array.isRequired,
-    emailField: React.PropTypes.string.isRequired
+    trustedZones: React.PropTypes.array.isRequired,
+    emailField: React.PropTypes.string.isRequired,
+
   },
   getInitialState: function() {
     return {
@@ -18,9 +19,16 @@ nqmTBX.TrustedUserList = React.createClass({
   onSelection: function(selectedRows) {
     this.state.selection = selectedRows;
   },
-  onActionClick: function(e) {
-    e.preventDefault();
+  onAcceptClick: function(id,e) {
     e.stopPropagation();
+    nqmTBX.ui.notification("accepting " + id);
+  },
+  onDeclineClick: function(id,e) {
+    e.stopPropagation();
+    nqmTBX.ui.notification("declining " + id);
+  },
+  componentWillReceiveProps: function() {
+    this.clearSelection();
   },
   render: function() {
     var styles = {
@@ -28,7 +36,7 @@ nqmTBX.TrustedUserList = React.createClass({
         width: "33%"
       }
     };
-    var trustedBig = this.props.trustedUsers.map(function (sh) {
+    var trustedBig = this.props.trustedZones.map(function (sh) {
       var expiry = (nqmTBX.helpers.neverExpire.valueOf() === sh.expires.valueOf()) ? "never" : moment(sh.expires).format("YYYY-MM-DD");
       return (
         <mui.TableRow key={sh.id}>
@@ -36,17 +44,21 @@ nqmTBX.TrustedUserList = React.createClass({
           <mui.TableRowColumn>{expiry}</mui.TableRowColumn>
           <mui.TableRowColumn>{sh.status}</mui.TableRowColumn>
           <mui.TableRowColumn>
-            <mui.IconButton iconClassName="material-icons" onClick={this.onActionClick}>done</mui.IconButton>
-            <mui.IconButton iconClassName="material-icons" onClick={this.onActionClick}>clear</mui.IconButton>
+            <mui.IconButton iconClassName="material-icons" onClick={this.onAcceptClick.bind(this,sh.id)}>done</mui.IconButton>
+            <mui.IconButton iconClassName="material-icons" onClick={this.onDeclineClick.bind(this,sh.id)}>clear</mui.IconButton>
           </mui.TableRowColumn>
         </mui.TableRow>
       );
     }, this);
 
-    var trustedSmall = this.props.trustedUsers.map(function (sh) {
+    var trustedSmall = this.props.trustedZones.map(function (sh) {
       return (
         <mui.TableRow key={sh.id}>
-          <mui.TableRowColumn style={styles.usernameColumn}>{sh[this.props.emailField]}</mui.TableRowColumn>
+          <mui.TableRowColumn>{sh[this.props.emailField]}</mui.TableRowColumn>
+          <mui.TableRowColumn>
+            <mui.IconButton iconClassName="material-icons" onClick={this.onAcceptClick.bind(this,sh.id)}>done</mui.IconButton>
+            <mui.IconButton iconClassName="material-icons" onClick={this.onDeclineClick.bind(this,sh.id)}>clear</mui.IconButton>
+          </mui.TableRowColumn>
         </mui.TableRow>
       );
     }, this);
@@ -72,7 +84,8 @@ nqmTBX.TrustedUserList = React.createClass({
           <mui.Table ref="table" selectable={true} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
             <mui.TableHeader displaySelectAll={false}>
               <mui.TableRow>
-                <mui.TableHeaderColumn style={styles.usernameColumn}>e-mail</mui.TableHeaderColumn>
+                <mui.TableHeaderColumn>e-mail</mui.TableHeaderColumn>
+                <mui.TableHeaderColumn>action</mui.TableHeaderColumn>
               </mui.TableRow>
             </mui.TableHeader>
             <mui.TableBody deselectOnClickaway={false}>{trustedSmall}</mui.TableBody>

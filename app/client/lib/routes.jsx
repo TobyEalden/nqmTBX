@@ -57,9 +57,10 @@ FlowRouter.route("/visualise", {
   }
 });
 
-FlowRouter.route("/trusted", {
+FlowRouter.route("/connections", {
+  name: "connections",
   action: function() {
-    ReactLayout.render(MainLayout, { content: function() { return <nqmTBX.pages.TrustedUser />; } });
+    ReactLayout.render(MainLayout, { content: function() { return <nqmTBX.pages.ZoneConnections />; } });
   }
 });
 

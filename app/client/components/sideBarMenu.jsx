@@ -26,8 +26,8 @@ nqmTBX.SideBarMenu = React.createClass({
     goDatasets = function() {
       FlowRouter.go("/datasets");
     };
-    goTrustedUsers = function() {
-      FlowRouter.go("/trusted");
+    goConnections = function() {
+      FlowRouter.go("/connections");
     };
     goHelp = function() {
       FlowRouter.go("/help");
@@ -50,7 +50,7 @@ nqmTBX.SideBarMenu = React.createClass({
                 ]}
         />
       <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="groups" onClick={goDatasets} leftIcon={<mui.FontIcon className="material-icons">group_work</mui.FontIcon>} />
-      <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="connections" onClick={goTrustedUsers} leftIcon={<mui.FontIcon className="material-icons">supervisor_account</mui.FontIcon>} />
+      <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="connections" onClick={goConnections} leftIcon={<mui.FontIcon className="material-icons">supervisor_account</mui.FontIcon>} />
       <mui.ListItem style={styles.listItem} innerDivStyle={styles.listItemInner} primaryText="help" onClick={goHelp} leftIcon={<mui.FontIcon className="material-icons">help_outline</mui.FontIcon>} />
     </mui.List>;
 
