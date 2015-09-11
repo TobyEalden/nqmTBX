@@ -4,5 +4,3 @@
 
 hubs = new Mongo.Collection("IOTHub");
 feeds = new Mongo.Collection("IOTFeed");
-
-feedDataCache = {};

@@ -233,7 +233,12 @@ api.addRoute("datasets/:id/data", {
       return auth.response;
     }
     // Have permission to access dataset.
-    var data = datasetDataCache[ds.store];
-    return data.find().fetch();
+    var coll = Mongo.Collection.get(ds.store);
+    if (coll) {
+      return coll.find().fetch();
+    } else {
+      console.log("no data collection found for '%s' store %s",ds.name,ds.store);
+      return routeNotFound();
+    }
   }
 });

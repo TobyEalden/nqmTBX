@@ -97,10 +97,10 @@ Meteor.publish("feedData", function(opts) {
   // Find corresponding feed.
   var feed = feeds.findOne(lookup);
   if (feed) {
-    if (!feedDataCache.hasOwnProperty(feed.store)) {
-      feedDataCache[feed.store] = new Mongo.Collection(feed.store);
+    var coll = Mongo.Collection.get(feed.store);
+    if (!coll) {
+      coll = new Mongo.Collection(feed.store);
     }
-    var coll = feedDataCache[feed.store];
 
     lookup = {};
     if (opts.from) {
@@ -109,6 +109,8 @@ Meteor.publish("feedData", function(opts) {
     opts.limit = opts.limit || 1000;
 
     return coll.find(lookup,{ sort: { "timestamp": -1 }, limit: opts.limit });
+  } else {
+    this.ready();
   }
 });
 
@@ -118,10 +120,10 @@ Meteor.publish("datasetData", function(opts) {
   // Find corresponding dataset.
   var dataset = datasets.findOne(lookup);
   if (dataset) {
-    if (!datasetDataCache.hasOwnProperty(dataset.store)) {
-      datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
+    var coll = Mongo.Collection.get(dataset.store);
+    if (!coll) {
+      coll = new Mongo.Collection(dataset.store);
     }
-    var coll = datasetDataCache[dataset.store];
 
     // Todo - implement where and sort clauses.
     lookup = {};
@@ -131,43 +133,10 @@ Meteor.publish("datasetData", function(opts) {
     sort[dataset.uniqueIndex[0].asc ? dataset.uniqueIndex[0].asc : dataset.uniqueIndex[0].desc] = 1;
 
     return coll.find(lookup,{ sort: sort, limit: opts.limit });
+  } else {
+    this.ready();
   }
 });
-
-var getIOTFeedPublisher = function(feedName) {
-  // Create a publish handler for the given feed.
-  return function(opts) {
-    if (feedDataCache.hasOwnProperty(feedName)) {
-      var lookup = {};
-      opts = opts || {};
-      if (opts.from) {
-        lookup["timestamp"] = { $gt: opts.from };
-      }
-      opts.limit = opts.limit || 1000;
-
-      var coll = feedDataCache[feedName].find(lookup,{ sort: { "timestamp": -1 }, limit: opts.limit });
-      return coll;
-    } else {
-      console.log("feed not found: %s",feedName);
-      this.stop();
-    }
-  };
-};
-
-var getDatasetPublisher = function(datasetName) {
-  // Create a publish handler for the given dataset.
-  return function(opts) {
-    if (datasetDataCache.hasOwnProperty(datasetName)) {
-      var lookup = {};
-      opts.limit = opts.limit || 1000;
-
-      return datasetDataCache[datasetName].find(lookup,{ sort: { "timestamp": -1 }, limit: opts.limit });
-    } else {
-      console.log("feed not found: %s",datasetName);
-      this.stop();
-    }
-  };
-};
 
 var addWidgetTypes = function() {
   if (widgetTypes.find().count() === 0) {
@@ -179,31 +148,4 @@ var addWidgetTypes = function() {
 Meteor.startup(function() {
   // Add widget types if necessary.
   addWidgetTypes();
-
-  // Keep publications up-to-date as new feeds are added/removed.
-  feeds.find().observe({
-    added: function(feed) {
-      // A new feed has been added => create a publication for the feed data.
-      console.log("publishing feed %s",feed.store);
-      feedDataCache[feed.store] = new Mongo.Collection(feed.store);
-      Meteor.publish(feed.store, getIOTFeedPublisher(feed.store));
-    },
-    removed: function(feed) {
-      // A feed has been removed => remove from cache.
-      console.log("removing feed %s", feed.store);
-      delete feedDataCache[feed.store];
-    }
-  });
-
-  datasets.find().observe({
-    //added: function(ds) {
-    //  console.log("publishing dataset %s", ds.store);
-    //  datasetDataCache[ds.store] = new Mongo.Collection(ds.store);
-    //  Meteor.publish(ds.store, getDatasetPublisher(ds.store));
-    //},
-    removed: function(ds) {
-      console.log("removing dataset %s", ds.store);
-      delete datasetDataCache[ds.store];
-    }
-  });
 });

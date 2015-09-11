@@ -3,4 +3,3 @@
  */
 
 datasets = new Mongo.Collection("Dataset");
-datasetDataCache = {};

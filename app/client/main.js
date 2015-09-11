@@ -21,7 +21,7 @@ Meteor.startup(function() {
     var router = FlowRouter.current();
 
     // Check if the current route is the share authentication page.
-    if (router && router.route.name === "shareAuth") {
+    if (router && router.route && router.route.name === "shareAuth") {
       if (!Meteor.loggingIn() && Meteor.user()) {
         // A user has just authenticated to request sharing.
         console.log("share authentication: " + Meteor.user().username);
@@ -89,9 +89,9 @@ Meteor.startup(function() {
       });
 
       //
-      // THE FOLLOWING ARE DEBUG-ONLY
+      // THE FOLLOWING ARE FOR DEBUG ONLY
       //
-      // TODO - don't subscribe until data is required (at template level?)
+      // All subscriptions should be at component level
       //
 
       // Subscribe to the IOT hubs for this user.
@@ -125,9 +125,9 @@ Meteor.startup(function() {
           added: function(feed) {
             console.log("adding feed %s", feed.store);
             notifyData(startingUp, "new feed - " + feed.name);
-            feedDataCache[feed.store] = Mongo.Collection.get(feed.store);
-            if (!feedDataCache[feed.store]) {
-              feedDataCache[feed.store] = new Mongo.Collection(feed.store);
+            var coll = Mongo.Collection.get(feed.store);
+            if (!coll) {
+              coll = new Mongo.Collection(feed.store);
             }
           },
           changed: function(feed) {
@@ -137,7 +137,6 @@ Meteor.startup(function() {
           removed: function(feed) {
             console.log("removing feed %s", feed.store);
             notifyData(startingUp, "removed feed - " + feed.name);
-            delete feedDataCache[feed.store];
           }
         });
 
@@ -150,10 +149,10 @@ Meteor.startup(function() {
         datasets.find().observe({
           added: function(dataset) {
             console.log("adding dataset %s", dataset.store);
-            notifyData(startingUp, "new dataset - " + dataset.name);
-            datasetDataCache[dataset.store] = Mongo.Collection.get(dataset.store);
-            if (!datasetDataCache[dataset.store]) {
-              datasetDataCache[dataset.store] = new Mongo.Collection(dataset.store);
+            notifyData(startingUp, "loading dataset - " + dataset.name);
+            var coll = Mongo.Collection.get(dataset.store);
+            if (!coll) {
+              coll = new Mongo.Collection(dataset.store);
             }
           },
           changed: function(dataset) {
@@ -163,7 +162,6 @@ Meteor.startup(function() {
           removed: function(dataset) {
             console.log("removing dataset %s", dataset.store);
             notifyData(startingUp, "removed dataset - " + dataset.name);
-            delete datasetDataCache[dataset.store];
           }
         });
 
