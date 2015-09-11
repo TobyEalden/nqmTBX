@@ -1,15 +1,30 @@
 
 nqmTBX.pages.ZoneConnections = React.createClass({
   mixins: [ReactMeteorData],
+  childContextTypes: {
+    onAccept: React.PropTypes.func,
+    onRemove: React.PropTypes.func,
+    onInfo: React.PropTypes.func
+  },
   getInitialState: function() {
     return {
-      activeTab: "trustedByMe"
+      activeTab: "trustedByMe",
+      selectedConnection: null,
+      connectionButtons: []
     }
+  },
+  getChildContext: function() {
+    return {
+      onAccept: this._acceptConnection,
+      onRemove: this._deleteSingleConnection,
+      onInfo: this._showConnectionInfo
+    };
   },
   getMeteorData: function() {
     var trustedSub = Meteor.subscribe("zoneConnections");
     return {
       ready: trustedSub.ready(),
+      user: Meteor.user(),
       trustedZones: zoneConnections.find({owner: Meteor.user().username}).fetch(),
       trustingZones: zoneConnections.find({$or: [{other: Meteor.user().username},{otherEmail: Meteor.user().email }]}).fetch(),
     }
@@ -28,45 +43,36 @@ nqmTBX.pages.ZoneConnections = React.createClass({
       this.refs.createDialog.dismiss();
     }
   },
-  userInfo: function() {
-    var sel = this._getSelections();
-    if (sel.selections.length === 0) {
-      nqmTBX.ui.notification("select an item");
-    } else {
-      this.refs.detailsDialog.show();
-    }
+  _acceptConnection: function(conn) {
+    Meteor.call("/app/zoneConnection/accept", { id: conn.id }, nqmTBX.helpers.methodCallback("updateZoneConnection"));
   },
-  addUser: function() {
+  _trustBack: function(conn) {
+    Meteor.call("/app/zoneConnection/create", {otherEmail: conn.ownerEmail}, nqmTBX.helpers.methodCallback("createZoneConnection"));
+  },
+  _showConnectionInfo: function(selectedConnection) {
+    var buttons = [];
+    if (selectedConnection.owner !== this.data.user.username) {
+      if (!zoneConnections.findOne({ owner: this.data.user.username, otherEmail: selectedConnection.ownerEmail })) {
+        buttons.push({text: "trust back", onTouchTap: this._trustBack.bind(this,selectedConnection) });
+      }
+      if (selectedConnection.status !== "trusted") {
+        buttons.push({text: "accept", onTouchTap: this._acceptConnection.bind(this,selectedConnection) });
+      }
+    }
+    buttons.push({text: "remove", onTouchTap: this._deleteSingleConnection.bind(this,selectedConnection) });
+    buttons.push({text: "ok"});
+    this.setState({
+      connectionButtons: buttons,
+      selectedConnection: selectedConnection
+    });
+    this.refs.detailsDialog.show();
+  },
+  _deleteSingleConnection: function(conn) {
+    console.log("deleting connection " + conn.id);
+    Meteor.call("/app/zoneConnection/delete",conn.id,nqmTBX.helpers.methodCallback("zoneConnection/delete"));
+  },
+  _onAddUser: function() {
     this.refs.createDialog.show();
-  },
-  _getSelections: function() {
-    var sel;
-    var list;
-    if (this.state.activeTab === "trustedByMe") {
-      sel = this.refs.trustedByMeList.getSelection();
-      list = this.data.trustedZones;
-    } else {
-      sel = this.refs.trustingMeList.getSelection();
-      list = this.data.trustingZones;
-    }
-    return {
-      selections: sel,
-      list: list
-    };
-  },
-  deleteUser: function() {
-    var sel = this._getSelections();
-    if (sel.selections.length == 0) {
-      nqmTBX.ui.notification("select an item to delete",5000);
-    } else {
-      sel.list.clearSelection();
-
-      _.each(sel.selections, function(i) {
-        var id = sel.list[i].id;
-        console.log("deleting share " + id);
-        Meteor.call("/app/zoneConnection/delete",id,nqmTBX.helpers.methodCallback("zoneConnection/delete"));
-      }, this);
-    }
   },
   _onTabChange: function(value,e,tab) {
     if (tab) {
@@ -95,8 +101,8 @@ nqmTBX.pages.ZoneConnections = React.createClass({
         </mui.Dialog>
       );
       var detailsDialog = (
-        <mui.Dialog ref="detailsDialog" title="zone connection details" modal={true} actions={[{text:"ok"},{text:"cancel"}]} actionFocus="create">
-          <div>connection details</div>
+        <mui.Dialog ref="detailsDialog" title="zone connection details" modal={true} actions={this.state.connectionButtons} actionFocus="create">
+          <nqmTBX.ZoneConnectionDetails connection={this.state.selectedConnection} />
         </mui.Dialog>
       );
       var trustedByMe = <nqmTBX.ZoneConnectionList ref="trustedByMeList" trustedZones={this.data.trustedZones} emailField="otherEmail" />;
@@ -104,11 +110,7 @@ nqmTBX.pages.ZoneConnections = React.createClass({
       var toolbar = (
         <mui.Toolbar style={styles.toolbar}>
           <mui.ToolbarGroup>
-            <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this.addUser}>add</mui.FontIcon>
-            <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this.userInfo}>info</mui.FontIcon>
-          </mui.ToolbarGroup>
-          <mui.ToolbarGroup float="right">
-            <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this.deleteUser}>delete</mui.FontIcon>
+            <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this._onAddUser}>add</mui.FontIcon>
           </mui.ToolbarGroup>
         </mui.Toolbar>
       ) ;

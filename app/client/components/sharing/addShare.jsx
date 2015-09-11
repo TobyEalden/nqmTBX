@@ -15,17 +15,17 @@ nqmTBX.AddShare = React.createClass({
     }
   },
   getMeteorData: function() {
-    var trustedSub = Meteor.subscribe("trustedUsers");
+    var trustedSub = Meteor.subscribe("zoneConnections");
     return {
       ready: trustedSub.ready(),
-      currentUser: Meteor.user()
+      user: Meteor.user()
     }
   },
   findUser: function(e) {
     var lookup = e.target.value;
     if (lookup.length > 0) {
       var searchTerm = new RegExp(lookup,"gi");
-      this.setState({ trustedMatch: zoneConnections.find({  otherEmail: searchTerm, status: {$in: ["trusted","issued"]}, expires: {$gt: new Date() }}).fetch()});
+      this.setState({ trustedMatch: zoneConnections.find({ owner: this.data.user.username, otherEmail: searchTerm, status: {$in: ["trusted","issued"]}, expires: {$gt: new Date() }}).fetch()});
     } else {
       this.setState({ trustedMatch: []});
     }

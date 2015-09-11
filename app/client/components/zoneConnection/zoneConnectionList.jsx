@@ -1,9 +1,19 @@
 
 nqmTBX.ZoneConnectionList = React.createClass({
+  mixins: [ReactMeteorData],
   propTypes: {
     trustedZones: React.PropTypes.array.isRequired,
     emailField: React.PropTypes.string.isRequired,
-
+  },
+  contextTypes: {
+    onAccept: React.PropTypes.func,
+    onRemove: React.PropTypes.func,
+    onInfo: React.PropTypes.func
+  },
+  getMeteorData: function() {
+    return {
+      user: Meteor.user()
+    }
   },
   getInitialState: function() {
     return {
@@ -19,16 +29,29 @@ nqmTBX.ZoneConnectionList = React.createClass({
   onSelection: function(selectedRows) {
     this.state.selection = selectedRows;
   },
-  onAcceptClick: function(id,e) {
+  onInfoClick: function(conn,e) {
     e.stopPropagation();
-    nqmTBX.ui.notification("accepting " + id);
+    this.context.onInfo(conn);
   },
-  onDeclineClick: function(id,e) {
+  onAcceptClick: function(conn,e) {
     e.stopPropagation();
-    nqmTBX.ui.notification("declining " + id);
+    this.context.onAccept(conn);
+  },
+  onRemoveClick: function(conn,e) {
+    e.stopPropagation();
+    this.context.onRemove(conn);
   },
   componentWillReceiveProps: function() {
     this.clearSelection();
+  },
+  _getRowButtons: function(conn) {
+    var buttons = [];
+    if (conn.status !== "trusted" && conn.owner !== this.data.user.username) {
+      buttons.push(<mui.IconButton key={0} iconClassName="material-icons" onClick={this.onAcceptClick.bind(this,conn)}>done</mui.IconButton>);
+    }
+    buttons.push(<mui.IconButton key={1} iconClassName="material-icons" onClick={this.onInfoClick.bind(this,conn)}>info_outline</mui.IconButton>);
+    buttons.push(<mui.IconButton key={2} iconClassName="material-icons" onClick={this.onRemoveClick.bind(this,conn)}>clear</mui.IconButton>);
+    return buttons;
   },
   render: function() {
     var styles = {
@@ -36,28 +59,28 @@ nqmTBX.ZoneConnectionList = React.createClass({
         width: "33%"
       }
     };
-    var trustedBig = this.props.trustedZones.map(function (sh) {
-      var expiry = (nqmTBX.helpers.neverExpire.valueOf() === sh.expires.valueOf()) ? "never" : moment(sh.expires).format("YYYY-MM-DD");
+    var trustedBig = this.props.trustedZones.map(function (conn) {
+      var expiry = (nqmTBX.helpers.neverExpire.valueOf() === conn.expires.valueOf()) ? "never" : moment(conn.expires).format("YYYY-MM-DD");
+      var buttons = this._getRowButtons(conn);
       return (
-        <mui.TableRow key={sh.id}>
-          <mui.TableRowColumn style={styles.usernameColumn}>{sh[this.props.emailField]}</mui.TableRowColumn>
+        <mui.TableRow key={conn.id}>
+          <mui.TableRowColumn style={styles.usernameColumn}>{conn[this.props.emailField]}</mui.TableRowColumn>
           <mui.TableRowColumn>{expiry}</mui.TableRowColumn>
-          <mui.TableRowColumn>{sh.status}</mui.TableRowColumn>
+          <mui.TableRowColumn>{conn.status}</mui.TableRowColumn>
           <mui.TableRowColumn>
-            <mui.IconButton iconClassName="material-icons" onClick={this.onAcceptClick.bind(this,sh.id)}>done</mui.IconButton>
-            <mui.IconButton iconClassName="material-icons" onClick={this.onDeclineClick.bind(this,sh.id)}>clear</mui.IconButton>
+            {buttons}
           </mui.TableRowColumn>
         </mui.TableRow>
       );
     }, this);
 
-    var trustedSmall = this.props.trustedZones.map(function (sh) {
+    var trustedSmall = this.props.trustedZones.map(function (conn) {
+      var buttons = this._getRowButtons(conn);
       return (
-        <mui.TableRow key={sh.id}>
-          <mui.TableRowColumn>{sh[this.props.emailField]}</mui.TableRowColumn>
+        <mui.TableRow key={conn.id}>
+          <mui.TableRowColumn>{conn[this.props.emailField]}</mui.TableRowColumn>
           <mui.TableRowColumn>
-            <mui.IconButton iconClassName="material-icons" onClick={this.onAcceptClick.bind(this,sh.id)}>done</mui.IconButton>
-            <mui.IconButton iconClassName="material-icons" onClick={this.onDeclineClick.bind(this,sh.id)}>clear</mui.IconButton>
+            {buttons}
           </mui.TableRowColumn>
         </mui.TableRow>
       );
@@ -68,7 +91,7 @@ nqmTBX.ZoneConnectionList = React.createClass({
     var content = (
       <div>
         <MediaQuery minWidth={900}>
-          <mui.Table ref="table" selectable={true} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
+          <mui.Table ref="table" selectable={false} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
             <mui.TableHeader displaySelectAll={false}>
               <mui.TableRow>
                 <mui.TableHeaderColumn style={styles.usernameColumn}>e-mail</mui.TableHeaderColumn>
@@ -77,7 +100,7 @@ nqmTBX.ZoneConnectionList = React.createClass({
                 <mui.TableHeaderColumn>action</mui.TableHeaderColumn>
               </mui.TableRow>
             </mui.TableHeader>
-            <mui.TableBody deselectOnClickaway={false}>{trustedBig}</mui.TableBody>
+            <mui.TableBody deselectOnClickaway={false} displayRowCheckbox={false}>{trustedBig}</mui.TableBody>
           </mui.Table>
         </MediaQuery>
         <MediaQuery maxWidth={900}>
@@ -88,7 +111,7 @@ nqmTBX.ZoneConnectionList = React.createClass({
                 <mui.TableHeaderColumn>action</mui.TableHeaderColumn>
               </mui.TableRow>
             </mui.TableHeader>
-            <mui.TableBody deselectOnClickaway={false}>{trustedSmall}</mui.TableBody>
+            <mui.TableBody deselectOnClickaway={false} displayRowCheckbox={false}>{trustedSmall}</mui.TableBody>
           </mui.Table>
         </MediaQuery>
       </div>
