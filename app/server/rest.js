@@ -59,13 +59,13 @@ var getTokenDetails = function(request) {
         throw new Error("bad referer");
       }
 
-      // Find a trusted user.
-      var trusted = trustedUsers.findOne({ userId: token.sub, owner: token.iss, status: "trusted", expires: { $gt: new Date() } });
+      // Find a trusted zone.
+      var trusted = zoneConnections.findOne({ otherEmail: token.sub, owner: token.iss, status: "trusted", expires: { $gt: new Date() } });
       if (!trusted) {
-        throw new Error("no trusted user");
+        throw new Error("no trusted zone");
       }
 
-      userInfo.userId = trusted.userId;
+      userInfo.userId = trusted.otherEmail;
       userInfo.token = token;
 
     } catch (e) {

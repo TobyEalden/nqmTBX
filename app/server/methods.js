@@ -186,11 +186,9 @@ var createZoneConnection = function(params) {
         to: data.otherEmail,
         from: Meteor.settings.emailFromAddress,
         subject: "nquiringMinds zone connection",
-        html: "<h3>you are trusted!</h3>" +
+        html:
         "<p>" + data.owner + " has added you as a trusted connection.</p>" +
-        "<p>You don't have to do anything further in order to be able to access resources that " + data.owner + " shares with you.</p>" +
-        "<p>However if you would like to share some of your resources with " + data.owner + " you can make them a trusted connection by visiting the Connections page on your nquiringToolbox, clicking the 'add trusted connection' button and pasting the following code into the 'connect' field:</p>" +
-        "<p>" + encodedToken + "</p>" +
+        "<p>In order to be able to access any resources that " + data.owner + " shares with you go to the nquireToolbox connections page, click on the 'trusting me' tab and accept the connection.</p>" +
         "<p>Note that none of you private data will be visible to " + data.owner + " unless you explicitly share resource(s) with them</p>"
       });
     }
@@ -483,7 +481,7 @@ var createApiToken = function(authenticateToken) {
     var email = nqmTBX.helpers.getUserEmail();
 
     // Make sure the currently logged in user is trusted by the token issuer.
-    var target = trustedUsers.findOne({ owner: jt.iss, userId: email, status: "trusted", expires: { $gt: new Date() } });
+    var target = zoneConnections.findOne({ owner: jt.iss, otherEmail: email, status: "trusted", expires: { $gt: new Date() } });
     if (target) {
       //var result = HTTP.post(
       //  Meteor.settings.commandURL + "/command/apiToken/create",

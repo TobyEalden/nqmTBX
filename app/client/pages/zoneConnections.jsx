@@ -47,16 +47,29 @@ nqmTBX.pages.ZoneConnections = React.createClass({
     Meteor.call("/app/zoneConnection/accept", { id: conn.id }, nqmTBX.helpers.methodCallback("updateZoneConnection"));
   },
   _trustBack: function(conn) {
+    Meteor.call("/app/zoneConnection/accept", { id: conn.id }, nqmTBX.helpers.methodCallback("updateZoneConnection"));
     Meteor.call("/app/zoneConnection/create", {otherEmail: conn.ownerEmail}, nqmTBX.helpers.methodCallback("createZoneConnection"));
   },
   _showConnectionInfo: function(selectedConnection) {
+    // TODO - figure out why RaisedButton doesn't work.
+    //var buttons = [];
+    //if (selectedConnection.owner !== this.data.user.username) {
+    //  if (selectedConnection.status !== "trusted") {
+    //    buttons.push(<mui.RaisedButton key={0} label="accept" primary={true} onClick={this._acceptConnection.bind(this,selectedConnection)} />);
+    //  }
+    //  if (!zoneConnections.findOne({ owner: this.data.user.username, otherEmail: selectedConnection.ownerEmail })) {
+    //    buttons.push(<mui.RaisedButton key={1} label="accept and trust back" primary={true} onClick={this._trustBack.bind(this,selectedConnection)} />);
+    //  }
+    //}
+    //buttons.push(<mui.RaisedButton key={2} label="remove" onClick={this._deleteSingleConnection.bind(this,selectedConnection)} />);
+    //buttons.push(<mui.RaisedButton key={3} label="ok" />);
     var buttons = [];
     if (selectedConnection.owner !== this.data.user.username) {
-      if (!zoneConnections.findOne({ owner: this.data.user.username, otherEmail: selectedConnection.ownerEmail })) {
-        buttons.push({text: "trust back", onTouchTap: this._trustBack.bind(this,selectedConnection) });
-      }
       if (selectedConnection.status !== "trusted") {
         buttons.push({text: "accept", onTouchTap: this._acceptConnection.bind(this,selectedConnection) });
+      }
+      if (!zoneConnections.findOne({ owner: this.data.user.username, otherEmail: selectedConnection.ownerEmail })) {
+        buttons.push({text: "accept and trust back", onTouchTap: this._trustBack.bind(this,selectedConnection) });
       }
     }
     buttons.push({text: "remove", onTouchTap: this._deleteSingleConnection.bind(this,selectedConnection) });
@@ -118,11 +131,11 @@ nqmTBX.pages.ZoneConnections = React.createClass({
       return (
         <div>
           <mui.Tabs onChange={this._onTabChange}>
-            <mui.Tab value="trustedByMe" label="trusted by me">
+            <mui.Tab value="trustedByMe" label="zones you trust">
               {toolbar}
               {trustedByMe}
             </mui.Tab>
-            <mui.Tab value="trustingMe" label="trusting me">
+            <mui.Tab value="trustingMe" label="zones that trust you">
               {toolbar}
               {trustingMe}
             </mui.Tab>
