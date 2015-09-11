@@ -6,3 +6,4 @@ mui.MenuDivider = require('material-ui/lib/menus/menu-divider');
 
 injectTapEventPlugin = require('react-tap-event-plugin');
 MediaQuery = require("react-responsive");
+Griddle = require("griddle-react");

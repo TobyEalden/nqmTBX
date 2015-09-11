@@ -51,6 +51,13 @@ FlowRouter.route("/dataset/share/:id", {
   }
 });
 
+FlowRouter.route("/dataset/view/:id", {
+  name: "datasetView",
+  action: function(params) {
+    ReactLayout.render(MainLayout, { content: function() { return <nqmTBX.pages.DatasetViewPage datasetId={params.id} /> } });
+  }
+});
+
 FlowRouter.route("/visualise", {
   action: function () {
     ReactLayout.render(MainLayout, { content: function() { return <VisualisePage />; } });

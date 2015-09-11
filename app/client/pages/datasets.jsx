@@ -26,30 +26,55 @@ DatasetsPage = React.createClass({
       datasets: datasets.find({ $or: [ {name: searchTerm}, {description: searchTerm }, {tags: searchTerm }]}).fetch()
     }
   },
-  onCardExpanded: function(card) {
+  _onCardExpanded: function(card) {
     for (var ds in this.refs) {
       if (this.refs[ds] !== card) {
         this.refs[ds].expand(false);
       }
     }
   },
+  _onAddDataset: function() {
+    FlowRouter.go("datasetCreate");
+  },
   render: function() {
     var styles = {
+      root: {
+      },
+      datasetList: {
+        paddingTop: 60
+      },
       actionButton: {
         position: "fixed",
         bottom: "15px",
         right: "15px"
+      },
+      toolbar: {
+        paddingLeft: "4px",
+        position: "fixed"
+      },
+      iconButton: {
+        color: "white",
+        hoverColor: "white"
       }
     };
+    var toolbar = (
+      <mui.Toolbar style={styles.toolbar} zDepth={2}>
+        <mui.ToolbarGroup>
+          <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this._onAddDataset} >add</mui.FontIcon>
+        </mui.ToolbarGroup>
+      </mui.Toolbar>
+    ) ;
     var cards;
     cards = this.data.datasets.map(function(ds) {
-      return <DatasetSummary key={ds.id} ref={ds.id} dataset={ds} onSummaryExpanded={this.onCardExpanded} />;
+      return <nqmTBX.DatasetSummary key={ds.id} ref={ds.id} dataset={ds} onSummaryExpanded={this._onCardExpanded} />;
     }, this);
 
     return (
-      <div className="">
-        {cards}
-        <FloatingActionButton style={styles.actionButton} linkButton={true} href="/dataset/create" tooltip="new dataset"><FontIcon className="material-icons">add</FontIcon></FloatingActionButton>
+      <div style={styles.root}>
+        {toolbar}
+        <div style={styles.datasetList}>
+          {cards}
+        </div>
       </div>
     );
   }

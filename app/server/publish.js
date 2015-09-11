@@ -9,6 +9,7 @@ Meteor.publish("userData", function () {
   }
 });
 
+// TODO - retire, use /app/token/lookup method.
 Meteor.publish("jwt", function(tokenString) {
   if (this.userId) {
     try {
@@ -67,7 +68,6 @@ Meteor.publish("feeds", function(opts) {
 });
 
 Meteor.publish("datasets", function(opts) {
-  var self = this;
   var user = Meteor.users.findOne(this.userId);
   if (user && user.username) {
     if (opts && opts.id) {
@@ -196,11 +196,11 @@ Meteor.startup(function() {
   });
 
   datasets.find().observe({
-    added: function(ds) {
-      console.log("publishing dataset %s", ds.store);
-      datasetDataCache[ds.store] = new Mongo.Collection(ds.store);
-      Meteor.publish(ds.store, getDatasetPublisher(ds.store));
-    },
+    //added: function(ds) {
+    //  console.log("publishing dataset %s", ds.store);
+    //  datasetDataCache[ds.store] = new Mongo.Collection(ds.store);
+    //  Meteor.publish(ds.store, getDatasetPublisher(ds.store));
+    //},
     removed: function(ds) {
       console.log("removing dataset %s", ds.store);
       delete datasetDataCache[ds.store];

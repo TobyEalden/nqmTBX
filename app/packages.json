@@ -3,6 +3,7 @@
   "externalify": "0.1.0",
   "react-tap-event-plugin": "0.1.7",
   "react-responsive": "0.0.8",
+  "griddle-react": "0.2.14",
   "cookies": "0.5.0",
   "jwt-simple": "0.3.1"
 }

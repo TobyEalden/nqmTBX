@@ -36,9 +36,9 @@ componentThemes = {
   },
   raisedButton: {
     textColor: appPalette.primary3Color,
-    color: appPalette.primary2Color,
-    primaryColor: mui.Styles.Colors.pinkA200,
-    secondaryColor: mui.Styles.Colors.blue500, //lightBlueA700
+    color: mui.Styles.Colors.blueGrey400,
+    primaryColor: mui.Styles.Colors.amber800,
+    secondaryColor: mui.Styles.Colors.orange300
   },
   textField: {
     hintColor: mui.Styles.Colors.grey500

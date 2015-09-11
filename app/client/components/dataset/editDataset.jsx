@@ -97,7 +97,8 @@ EditDataset = React.createClass({
     });
 
     return (
-      <form>
+      <div>
+        <h4>dataset details</h4>
         <FormRow>
           <TextField style={styles.textInput} ref="name" hintText="dataset name" floatingLabelText="name" defaultValue={this.props.dataset.name} />
         </FormRow>
@@ -117,7 +118,7 @@ EditDataset = React.createClass({
           <RaisedButton label="save" primary={true} onClick={this.save} />
           <RaisedButton label="cancel" onClick={this.cancel} style={{float: "right"}} />
         </FormRow>
-      </form>
+      </div>
     );
   }
 });

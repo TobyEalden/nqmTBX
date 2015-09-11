@@ -10,7 +10,7 @@ const {
   RadioButtonGroup
   } = mui;
 
-DatasetSummary = React.createClass({
+nqmTBX.DatasetSummary = React.createClass({
   propTypes: {
     dataset: React.PropTypes.object,
     onSummaryExpanded: React.PropTypes.func
