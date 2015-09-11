@@ -185,7 +185,7 @@ function authorised(request, resource, accessRequired) {
     var authInfo = getTokenDetails(request);
     if (authInfo.userId) {
       // There is an authenticated user.
-      if (resource.owner === authInfo.token.iss) {
+      if (resource.owner === authInfo.token.subId) {
         // Owner of the resource is authenticated => PERMIT
         authorise.permit = true;
       } else if (resource.shareMode === "specific") {

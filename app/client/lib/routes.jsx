@@ -64,12 +64,6 @@ FlowRouter.route("/connections", {
   }
 });
 
-FlowRouter.route("/createTrustedUser", {
-  action: function() {
-    ReactLayout.render(ModalLayout, { content: function() { return <EditTrustedUserPage />; } });
-  }
-});
-
 var authExit = function(context, redirect) {
   //debugger;
 };
@@ -87,13 +81,6 @@ FlowRouter.route("/requestAccess/:jwt", {
   name: "requestAccess",
   action: function(params) {
     ReactLayout.render(UnauthLayout, { content: function() { return <nqmTBX.pages.RequestAccessPage jwt={params.jwt} />; } });
-  }
-});
-
-FlowRouter.route("/trustedBy/:jwt", {
-  name: "trustedBy",
-  action: function() {
-    ReactLayout.render(UnauthLayout, { content: function() { return <nqmTBX.pages.TrustedByPage />; } });
   }
 });
 

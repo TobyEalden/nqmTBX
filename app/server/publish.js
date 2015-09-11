@@ -23,28 +23,10 @@ Meteor.publish("jwt", function(tokenString) {
   }
 });
 
-Meteor.publish("trustedUsers", function(opts) {
-  var user = Meteor.users.findOne(this.userId);
-  if (user && user.nqmId) {
-    return trustedUsers.find({owner: user.nqmId, userId: {$ne: nqmTBX.helpers.getUserEmail(user) }});
-  } else {
-    this.ready();
-  }
-});
-
 Meteor.publish("zoneConnections", function(opts) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.username) {
     return zoneConnections.find({$or: [{owner: user.username},{otherEmail: nqmTBX.helpers.getUserEmail(user)}]});
-  } else {
-    this.ready();
-  }
-});
-
-Meteor.publish("localTrustZones", function() {
-  var user = Meteor.users.findOne(this.userId);
-  if (user && user.username) {
-    trustedUsers.find({ owner: user.username, expires: {$gt: new Date() }, remoteStatus:"trusted" });
   } else {
     this.ready();
   }
@@ -93,83 +75,6 @@ Meteor.publish("datasets", function(opts) {
       return datasets.find({owner: user.username, id: opts.id});
     } else {
       // Request all datasets.
-      //
-
-      /************************************************************************
-       * custom publish attempt
-       *
-       * doesn't publish updates to share status.
-       *
-      var trustedOwnerMap = {};
-
-      var addZoneDatasets = function(zoneId) {
-        var zoneDS = datasets.find({ owner: zoneId, shareMode: "public" }).fetch();
-        _.each(zoneDS, function(ds) {
-          self.added("Dataset",ds.id,ds);
-        });
-      };
-      var removeZoneDatasets = function(zoneId) {
-        var zoneDS = datasets.find({ owner: zoneId, shareMode: "public" }).fetch();
-        _.each(zoneDS, function(ds) {
-          self.removed("Dataset",ds.id,ds);
-        });
-      };
-      var localTrustZonesCursor = trustedUsers.find({ userId: nqmTBX.helpers.getUserEmail(user), expires: {$gt: new Date() }, status:"trusted" });
-      localTrustZonesCursor.observeChanges({
-        added: function(id, fields) {
-          trustedOwnerMap[id] = fields.owner;
-          addZoneDatasets(fields.owner);
-        },
-        changed: function(id, fields) {
-          if (fields.status === "trusted") {
-            addZoneDatasets(fields.owner);
-          } else {
-            removeZoneDatasets(fields.owner);
-          }
-        },
-        removed: function(id) {
-          if (trustedOwnerMap.hasOwnProperty(id)) {
-            removeZoneDatasets(trustedOwnerMap[id]);
-          }
-        }
-      });
-
-      var ownedCursor = datasets.find({ owner: user.username });
-      ownedCursor.observeChanges({
-        added: function(id, fields) {
-          self.added("Dataset",id,fields);
-        },
-        changed: function(id, fields) {
-          self.changed("Dataset",id,fields);
-        },
-        removed: function(id) {
-          self.removed("Dataset",id);
-        }
-      });
-
-      self.ready();
-      *************************************************************************/
-
-      /**********************************************************************
-       *
-       * Normalised attempt
-       *
-       *
-      // Find zones that trust this zone.
-      var nonLocalTrustZones = trustedUsers.find({ owner: user.username, expires: {$gt: new Date() }, remoteStatus:"trusted" }).fetch();
-      var localTrustZonesCursor = trustedUsers.find({ userId: nqmTBX.helpers.getUserEmail(user), expires: {$gt: new Date() }, status:"trusted" });
-      var localTrustZones = localTrustZonesCursor.fetch();
-      var trusts = [];
-
-      // TODO - add support for non-local trusts.
-      _.each(localTrustZones, function(z) {
-          trusts.push(z.owner);
-      }, this);
-
-      // TODO - implement filters.
-      return datasets.find({$or: [{ owner: user.username },{ owner: { $in: trusts }, shareMode: "public" }]});
-      ************************************************************************/
-
       var account = accounts.findOne({id: user.username });
       var datasetIds = [];
       _.each(account.resources, function(v,k) {

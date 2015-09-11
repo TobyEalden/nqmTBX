@@ -257,110 +257,6 @@ var removeZoneConnection = function(id) {
   }
 };
 
-var createTrustedUser = function(params) {
-  check(params,{
-    userId: String,
-    issued: Number,
-    expires: Number,
-    server: Match.Optional(String),
-    status: Match.Optional(String),
-    remoteStatus: Match.Optional(String)
-  });
-
-  try {
-    if (!nqmTBX.helpers.isEmailValid(params.userId)) {
-      throw new Error("invalid arguments - bad email");
-    }
-
-    // The owner is the currently authenticated user.
-    params.owner = Meteor.user().nqmId;
-
-    // Find any existing trusts.
-    var command = "create";
-    var isLocal = false;
-    var existing = trustedUsers.findOne({ owner: params.owner, userId: params.userId, expires: {$gt: new Date() } });
-    if (existing) {
-      command = "update";
-      params.id = existing.id;
-      isLocal = existing.server && existing.server.indexOf(Meteor.settings.public.rootURL) === 0;
-    } else {
-      // No existing trusted user - set status defaults.
-      params.status = params.status || "pending";
-      params.remoteStatus = params.remoteStatus || "pending";
-    }
-
-    // Send create or update command.
-    var result = HTTP.post(Meteor.settings.commandURL + "/command/trustedUser/" + command,{ data: params });
-
-    // Do we need to send a notification e-mail to the newly trusted zone?
-    if (result.data && result.data.ok && params.status === "trusted" && (!existing || existing.status !== "trusted")) {
-      // Send the target zone an email with a token for acknowledging/reciprocating the trust.
-      var connectToken = {
-        iss: nqmTBX.helpers.getUserURI(),       // Issuer is the URI of the authenticated zone.
-        sub: nqmTBX.helpers.getUserEmail(),     // Subject is the e-mail of the authenticated zone.
-        aud: params.userId,                     // Audience is the e-mail of the target zone.
-        exp: moment().add(7,"days").valueOf()   // TODO - parameterise.
-      };
-      var encodedToken = jwt.encode(connectToken,Meteor.settings.APIKey);
-      console.log("emailing token %s to %s",encodedToken,params.userId);
-      Email.send({
-        to: params.userId,
-        from: Meteor.settings.emailFromAddress,
-        subject: "nquiringMinds zone connection",
-        html: "<h3>you are trusted!</h3>" +
-          "<p>" + params.owner + " has added you as a trusted connection.</p>" +
-          "<p>You don't have to do anything further in order to be able to access resources that " + params.owner + " shares with you.</p>" +
-          "<p>However if you would like to share some of your resources with " + params.owner + " you can make them a trusted connection by visiting the Connections page on your nquiringToolbox, clicking the 'add trusted connection' button and pasting the following code into the 'connect' field:</p>" +
-          "<p>" + encodedToken + "</p>" +
-          "<p>Note that none of you private data will be visible to " + params.owner + " unless you explicitly share resource(s) with them</p>"
-      });
-    }
-    console.log("result is %j",result.data);
-    return result.data;
-  } catch (e) {
-    console.log("create trusted user failed: %s", e.message);
-    throw new Meteor.Error("createTrustedUser",e.message);
-  }
-};
-
-var setTrustedStatus = function(id, status) {
-  try {
-    var target = trustedUsers.findOne({ id: id });
-    if (target && target.owner === Meteor.user().nqmId) {
-      var result = HTTP.post(
-        Meteor.settings.commandURL + "/command/trustedUser/setStatus",
-        { data: { id: id, status: status } }
-      );
-      console.log("result is %j",result.data);
-      return result.data;
-    } else {
-      throw new Error("id not found: " + id);
-    }
-  } catch (e) {
-    console.log("set trusted status failed: %s", e.message);
-    return { ok: false, error: e.message };
-  }
-};
-
-var deleteTrustedUser = function(id) {
-  try {
-    var target = trustedUsers.findOne({ id: id });
-    if (target && target.owner === Meteor.user().nqmId) {
-      var result = HTTP.post(
-        Meteor.settings.commandURL + "/command/trustedUser/delete",
-        { data: { id: id } }
-      );
-      console.log("result is %j",result.data);
-      return result.data;
-    } else {
-      throw new Error("id not found: " + id);
-    }
-  } catch (e) {
-    console.log("delete trusted user failed: %s", e.message);
-    throw new Meteor.Error("deleteTrustedUser",e.message);
-  }
-};
-
 /*
  * Creates a trusted share token.
  * The resource owner is the authenticated user.
@@ -499,6 +395,7 @@ var createApiToken = function(authenticateToken) {
       var apiToken = jwt.encode({
         iss: jt.iss,
         sub: email,
+        subId: nqmTBX.helpers.getUserId(),
         exp: moment().add(Meteor.settings.apiTokenTimeout, "minutes").valueOf(),
         ref: jt.ref
       }, Meteor.settings.APIKey);
@@ -625,18 +522,6 @@ Meteor.methods({
   "/app/account/create": function(name) {
     this.unblock();
     return createUserAccount(name);
-  },
-  "/app/trustedUser/create": function(opts) {
-    this.unblock();
-    return createTrustedUser(opts);
-  },
-  "/app/trustedUser/setStatus": function(id,status) {
-    this.unblock();
-    return setTrustedStatus(id, status);
-  },
-  "/app/trustedUser/delete": function(id) {
-    this.unblock();
-    return deleteTrustedUser(id);
   },
   "/app/share/create": function(email, scope, access, expiry) {
     this.unblock();

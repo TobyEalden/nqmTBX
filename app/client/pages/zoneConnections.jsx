@@ -30,7 +30,7 @@ nqmTBX.pages.ZoneConnections = React.createClass({
     }
   },
   _onCreateConnection: function() {
-    var fields = this.refs.editTrustedUser.getData();
+    var fields = this.refs.createZoneConnection.getData();
     if (!fields) {
       nqmTBX.ui.notification("please enter a valid e-mail address",6000);
     } else {
@@ -110,7 +110,7 @@ nqmTBX.pages.ZoneConnections = React.createClass({
       ];
       var createConnectionDialog = (
         <mui.Dialog ref="createDialog" title="add zone connection" modal={true} actions={addCancelButtons} actionFocus="create">
-          <nqmTBX.CreateZoneConnection ref="editTrustedUser" />
+          <nqmTBX.CreateZoneConnection ref="createZoneConnection" />
         </mui.Dialog>
       );
       var detailsDialog = (

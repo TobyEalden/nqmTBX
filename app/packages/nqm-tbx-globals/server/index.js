@@ -10,6 +10,15 @@ if (!nqmTBX.helpers) {
   nqmTBX.helpers = {};
 }
 
+nqmTBX.helpers.getUserId = function(userIn) {
+  var user = userIn || Meteor.user();
+  var id;
+  if (user) {
+    id = user.username;
+  }
+  return id;
+};
+
 nqmTBX.helpers.getUserEmail = function(userIn) {
   var user = userIn || Meteor.user();
   var email;

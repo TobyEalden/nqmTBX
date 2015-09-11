@@ -57,10 +57,10 @@ nqmTBX.pages.DatasetSharePage = React.createClass({
           self.setState({initialDataRender: true});
         }
       },250);
-      var trustedUsers, summary;
+      var trustedZones, trustedZonesSummary;
       if (this.state.sharingTrusted) {
-        trustedUsers = <nqmTBX.AddShare resource={this.data.dataset} showExpiry={false} />;
-        summary = <nqmTBX.SharedWithSummary resource={this.data.dataset} />;
+        trustedZones = <nqmTBX.AddShare resource={this.data.dataset} showExpiry={false} />;
+        trustedZonesSummary = <nqmTBX.SharedWithSummary resource={this.data.dataset} />;
       }
 
       return (
@@ -78,9 +78,9 @@ nqmTBX.pages.DatasetSharePage = React.createClass({
                            value="specific"
                            label="trusted - only people you trust can access"/>
             </mui.RadioButtonGroup>
-            {summary}
+            {trustedZonesSummary}
           </mui.Paper>
-          {trustedUsers}
+          {trustedZones}
         </div>
       )
     } else {
