@@ -9,6 +9,10 @@ Meteor.publish("userData", function () {
   }
 });
 
+Meteor.publish("widgetTypes", function() {
+  return widgetTypes.find();
+});
+
 // TODO - retire, use /app/token/lookup method.
 Meteor.publish("jwt", function(tokenString) {
   if (this.userId) {
@@ -27,6 +31,7 @@ Meteor.publish("jwt", function(tokenString) {
 Meteor.publish("zoneConnections", function(opts) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.username) {
+    // Return all zone connections that the user participates in (either truster or trustee).
     return zoneConnections.find({$or: [{owner: user.username},{otherEmail: nqmTBX.helpers.getUserEmail(user)}]});
   } else {
     this.ready();
@@ -35,8 +40,8 @@ Meteor.publish("zoneConnections", function(opts) {
 
 Meteor.publish("shareTokens", function(datasetId) {
   var user = Meteor.users.findOne(this.userId);
-  if (user && user.nqmId) {
-    return shareTokens.find({owner: user.nqmId, scope: datasetId});
+  if (user && user.username) {
+    return shareTokens.find({owner: user.username, scope: datasetId});
   } else {
     this.ready();
   }
@@ -46,28 +51,34 @@ Meteor.publish("widgets", function() {
   return widgets.find();
 });
 
-Meteor.publish("account", function(opts) {
+Meteor.publish("account", function() {
   var user = Meteor.users.findOne(this.userId);
-  if (user && user.nqmId) {
-    return accounts.find({id: user.nqmId},{fields: {resources:0, authId: 0}});
+  if (user && user.username) {
+    return accounts.find({id: user.username},{fields: {resources:0, authId: 0}});
   }
 });
 
-Meteor.publish("hubs", function(opts) {
+Meteor.publish("hubs", function() {
   var user = Meteor.users.findOne(this.userId);
-  if (user && user.nqmId) {
-    return hubs.find({ owner: user.nqmId });
+  if (user && user.username) {
+    return hubs.find({ owner: user.username });
   }
 });
 
-Meteor.publish("feeds", function(opts) {
+Meteor.publish("feeds", function() {
   var user = Meteor.users.findOne(this.userId);
-  if (user && user.nqmId) {
-    return feeds.find({ owner: user.nqmId });
+  if (user && user.username) {
+    return feeds.find({ owner: user.username });
   }
 });
 
 Meteor.publish("datasets", function(opts) {
+
+  // DEBUG
+  this.onStop(function() {
+    console.log("*** stopping datasets publication");
+  });
+
   var user = Meteor.users.findOne(this.userId);
   if (user && user.username) {
     if (opts && opts.id) {
@@ -82,60 +93,84 @@ Meteor.publish("datasets", function(opts) {
       });
 
       // TODO - remove owner:user.username clause -> not needed
-      return datasets.find({$or: [{owner: user.username},{ id: {$in: datasetIds}}]});
+      return datasets.find({ id: {$in: datasetIds}});
     }
   }
-});
 
-Meteor.publish("widgetTypes", function() {
-  return widgetTypes.find();
+  this.ready();
 });
 
 Meteor.publish("feedData", function(opts) {
-  var lookup = { hubId: opts.hubId, id: opts.id };
 
-  // Find corresponding feed.
-  var feed = feeds.findOne(lookup);
-  if (feed) {
-    var coll = Mongo.Collection.get(feed.store);
-    if (!coll) {
-      coll = new Mongo.Collection(feed.store);
+  // DEBUG
+  this.onStop(function() {
+    console.log("*** stopping feedData publication");
+  });
+
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.username) {
+    // TODO - proper permissioning (see datasetData)
+    var lookup = {owner: user.username, hubId: opts.hubId, id: opts.id};
+
+    // Find corresponding feed.
+    var feed = feeds.findOne(lookup);
+    if (feed) {
+      var coll = Mongo.Collection.get(feed.store);
+      if (!coll) {
+        coll = new Mongo.Collection(feed.store);
+      }
+
+      lookup = {};
+      if (opts.from) {
+        lookup["timestamp"] = {$gt: opts.from};
+      }
+      opts.limit = opts.limit || 1000;
+
+      return coll.find(lookup, {sort: {"timestamp": -1}, limit: opts.limit});
     }
-
-    lookup = {};
-    if (opts.from) {
-      lookup["timestamp"] = { $gt: opts.from };
-    }
-    opts.limit = opts.limit || 1000;
-
-    return coll.find(lookup,{ sort: { "timestamp": -1 }, limit: opts.limit });
-  } else {
-    this.ready();
   }
+
+  this.ready();
 });
 
 Meteor.publish("datasetData", function(opts) {
   var lookup = { id: opts.id };
 
-  // Find corresponding dataset.
-  var dataset = datasets.findOne(lookup);
-  if (dataset) {
-    var coll = Mongo.Collection.get(dataset.store);
-    if (!coll) {
-      coll = new Mongo.Collection(dataset.store);
+  // DEBUG
+  this.onStop(function() {
+    console.log("*** stopping datasetData publication");
+  });
+
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.username) {
+    // Get account.
+    var accountLookup = {
+      id: user.username
+    };
+    accountLookup["resources." + opts.id + ".access"] = "read";
+    var account = accounts.findOne(accountLookup);
+    if (account) {
+      // Account has permission -> find corresponding dataset.
+      var dataset = datasets.findOne(lookup);
+      if (dataset) {
+        var coll = Mongo.Collection.get(dataset.store);
+        if (!coll) {
+          coll = new Mongo.Collection(dataset.store);
+        }
+
+        // Todo - implement where and sort clauses.
+        lookup = {};
+        opts.limit = opts.limit || 1000;
+
+        var sort = {};
+        sort[dataset.uniqueIndex[0].asc ? dataset.uniqueIndex[0].asc : dataset.uniqueIndex[0].desc] = 1;
+
+        return coll.find(lookup, {sort: sort, limit: opts.limit});
+      }
     }
-
-    // Todo - implement where and sort clauses.
-    lookup = {};
-    opts.limit = opts.limit || 1000;
-
-    var sort = {};
-    sort[dataset.uniqueIndex[0].asc ? dataset.uniqueIndex[0].asc : dataset.uniqueIndex[0].desc] = 1;
-
-    return coll.find(lookup,{ sort: sort, limit: opts.limit });
-  } else {
-    this.ready();
   }
+
+  this.ready();
 });
 
 var addWidgetTypes = function() {
