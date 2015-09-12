@@ -143,30 +143,30 @@ Meteor.startup(function() {
         startingUp = false;
       });
 
-      Meteor.subscribe("datasets", function() {
-        var startingUp = true;
-
-        datasets.find().observe({
-          added: function(dataset) {
-            console.log("adding dataset %s", dataset.store);
-            notifyData(startingUp, "loading dataset - " + dataset.name);
-            var coll = Mongo.Collection.get(dataset.store);
-            if (!coll) {
-              coll = new Mongo.Collection(dataset.store);
-            }
-          },
-          changed: function(dataset) {
-            console.log("updated dataset %s", dataset.store);
-            notifyData(startingUp, "dataset update - " + dataset.name);
-          },
-          removed: function(dataset) {
-            console.log("removing dataset %s", dataset.store);
-            notifyData(startingUp, "removed dataset - " + dataset.name);
-          }
-        });
-
-        startingUp = false;
-      });
+      //Meteor.subscribe("datasets", function() {
+      //  var startingUp = true;
+      //
+      //  datasets.find().observe({
+      //    added: function(dataset) {
+      //      console.log("adding dataset %s", dataset.store);
+      //      notifyData(startingUp, "loading dataset - " + dataset.name);
+      //      var coll = Mongo.Collection.get(dataset.store);
+      //      if (!coll) {
+      //        coll = new Mongo.Collection(dataset.store);
+      //      }
+      //    },
+      //    changed: function(dataset) {
+      //      console.log("updated dataset %s", dataset.store);
+      //      notifyData(startingUp, "dataset update - " + dataset.name);
+      //    },
+      //    removed: function(dataset) {
+      //      console.log("removing dataset %s", dataset.store);
+      //      notifyData(startingUp, "removed dataset - " + dataset.name);
+      //    }
+      //  });
+      //
+      //  startingUp = false;
+      //});
     }
   });
 

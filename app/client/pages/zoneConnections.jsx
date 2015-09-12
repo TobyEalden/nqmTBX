@@ -45,10 +45,12 @@ nqmTBX.pages.ZoneConnections = React.createClass({
   },
   _acceptConnection: function(conn) {
     Meteor.call("/app/zoneConnection/accept", { id: conn.id }, nqmTBX.helpers.methodCallback("updateZoneConnection"));
+    this.refs.detailsDialog.dismiss();
   },
   _trustBack: function(conn) {
     Meteor.call("/app/zoneConnection/accept", { id: conn.id }, nqmTBX.helpers.methodCallback("updateZoneConnection"));
     Meteor.call("/app/zoneConnection/create", {otherEmail: conn.ownerEmail}, nqmTBX.helpers.methodCallback("createZoneConnection"));
+    this.refs.detailsDialog.dismiss();
   },
   _showConnectionInfo: function(selectedConnection) {
     // TODO - figure out why RaisedButton doesn't work.
@@ -83,6 +85,7 @@ nqmTBX.pages.ZoneConnections = React.createClass({
   _deleteSingleConnection: function(conn) {
     console.log("deleting connection " + conn.id);
     Meteor.call("/app/zoneConnection/delete",conn.id,nqmTBX.helpers.methodCallback("zoneConnection/delete"));
+    this.refs.detailsDialog.dismiss();
   },
   _onAddUser: function() {
     this.refs.createDialog.show();

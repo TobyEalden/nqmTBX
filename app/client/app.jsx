@@ -6,5 +6,18 @@ nqmTBX.helpers.neverExpire = moment().year(270000).startOf("year");
 
 Meteor.startup(function() {
   injectTapEventPlugin();
-  //React.render(<App />, document.getElementById("container"));
 });
+
+nqmTBX.subscribeDatasetData = function(dataset) {
+  var dsDataSub;
+
+  if (dataset) {
+    var coll = Mongo.Collection.get(dataset.store);
+    if (!coll) {
+      coll = new Mongo.Collection(dataset.store);
+    }
+    dsDataSub = Meteor.subscribe("datasetData", {id: dataset.id});
+  }
+
+  return dsDataSub;
+};

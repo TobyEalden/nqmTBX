@@ -5,7 +5,7 @@ nqmTBX.pages.DatasetViewPage = React.createClass({
     datasetId: React.PropTypes.string.isRequired
   },
   getMeteorData: function() {
-    var dsSub = Meteor.subscribe("datasets",this.props.datasetId);
+    var dsSub = Meteor.subscribe("datasets",{id: this.props.datasetId });
     return {
       ready: dsSub.ready(),
       dataset: datasets.findOne({id: this.props.datasetId})

@@ -54,7 +54,7 @@ Meteor.publish("widgets", function() {
 Meteor.publish("account", function() {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.username) {
-    return accounts.find({id: user.username},{fields: {resources:0, authId: 0}});
+    return accounts.find({id: user.username},{fields: {authId: 0}});
   }
 });
 
@@ -81,18 +81,24 @@ Meteor.publish("datasets", function(opts) {
 
   var user = Meteor.users.findOne(this.userId);
   if (user && user.username) {
-    if (opts && opts.id) {
-      // Requested specific dataset only.
-      return datasets.find({owner: user.username, id: opts.id});
-    } else {
-      // Request all datasets.
-      var account = accounts.findOne({id: user.username });
-      var datasetIds = [];
-      _.each(account.resources, function(v,k) {
-        datasetIds.push(k);
-      });
+    var account = accounts.findOne({id: user.username});
 
-      return datasets.find({ id: {$in: datasetIds}});
+    // Sanitize dataset ids.
+    if (typeof opts.id === "object") {
+      var sanitized = [];
+      _.each(opts.id.$in, function(id) {
+        if (account.resources.hasOwnProperty(id)) {
+          sanitized.push(id);
+        } else {
+          console.log("datasets pub - permisssion denied to access dataset %s",id);
+        }
+      });
+      opts.id.$in = sanitized;
+      return datasets.find(opts);
+    } else {
+      if (account.resources.hasOwnProperty(opts.id)) {
+        return datasets.find(opts);
+      }
     }
   }
 
@@ -109,7 +115,7 @@ Meteor.publish("datasetList", function(opts) {
       _.each(acc.resources, function(v,k) {
         var dataset = datasets.findOne({id: k});
         if (dataset) {
-          self.added("Dataset",dataset._id,dataset);
+          self.added("DatasetList",dataset._id,dataset);
         } else {
           console.log("failed to load dataset %s",k);
         }
@@ -123,7 +129,7 @@ Meteor.publish("datasetList", function(opts) {
           // This is a new resource.
           var dataset = datasets.findOne({id: k});
           if (dataset) {
-            self.added("Dataset", dataset._id, dataset);
+            self.added("DatasetList", dataset._id, dataset);
           }
         }
       });
@@ -133,7 +139,7 @@ Meteor.publish("datasetList", function(opts) {
           // This resource was deleted.
           var dataset = datasets.findOne({id: k});
           if (dataset) {
-            self.removed("Dataset", dataset._id, dataset);
+            self.removed("DatasetList", dataset._id, dataset);
           }
         }
       });

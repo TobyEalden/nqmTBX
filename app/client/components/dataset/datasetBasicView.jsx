@@ -6,9 +6,10 @@ nqmTBX.DatasetBasicView = React.createClass({
   },
   getMeteorData: function() {
     var dsDataSub, datasetData, columns = [];
-    if (this.props.dataset) {
-      dsDataSub = Meteor.subscribe("datasetData", { id: this.props.dataset.id });
-    }
+    dsDataSub = nqmTBX.subscribeDatasetData(this.props.dataset);
+    //if (this.props.dataset) {
+    //  dsDataSub = Meteor.subscribe("datasetData", { id: this.props.dataset.id });
+    //}
     if (dsDataSub && dsDataSub.ready()) {
       var dataCollection = Mongo.Collection.get(this.props.dataset.store);
       if (dataCollection) {

@@ -9,22 +9,19 @@ const {
 DatasetsPage = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
-    var searchTerm = new RegExp(Session.get("nqm-search"),"gi");
-    //var dsSub = Meteor.subscribe("datasets", Session.get("force-dataset-sub"));
-    //var accSub = Meteor.subscribe("account");
-    //
-    //if (accSub.ready()) {
-    //  // This forces the dataset subscription to refresh when the account timestamp changes.
-    //  var account = accounts.findOne({});
-    //  if (account) {
-    //    console.log("account updated - about to refresh datasets");
-    //    Session.set("force-dataset-sub", { force: account.modified });
-    //  }
-    //}
-    var dsSub = Meteor.subscribe("datasets");
-
+    var searchTerm = Session.get("nqm-search") || "";
+    var accountSub = Meteor.subscribe("account");
+    var dsSub, account, accountIds = [];
+    if (accountSub.ready()) {
+      account = accounts.findOne();
+      _.each(account.resources, function(v,k) {
+        accountIds.push(k);
+      });
+      dsSub = Meteor.subscribe("datasets", { id: {$in: accountIds}, $or: [ {name: {$regex: searchTerm}}, {description: {$regex: searchTerm} }, {tags: {$regex: searchTerm}}]});
+    }
     return {
-      datasets: datasets.find({ $or: [ {name: searchTerm}, {description: searchTerm }, {tags: searchTerm }]}).fetch()
+      ready: accountSub.ready() && dsSub && dsSub.ready(),
+      datasets: datasets.find({ id: {$in: accountIds}, $or: [ {name: {$regex: searchTerm}}, {description: {$regex: searchTerm}}, {tags: {$regex: searchTerm}}]}, {sort: {name: 1}}).fetch()
     }
   },
   _onCardExpanded: function(card) {
@@ -65,10 +62,15 @@ DatasetsPage = React.createClass({
         </mui.ToolbarGroup>
       </mui.Toolbar>
     ) ;
-    var cards;
-    cards = this.data.datasets.map(function(ds) {
-      return <nqmTBX.DatasetSummary key={ds.id} ref={ds.id} dataset={ds} onSummaryExpanded={this._onCardExpanded} />;
-    }, this);
+    var cards = [];
+    if (true || this.data.ready) {
+      _.each(this.data.datasets, function(ds) {
+        var card = <nqmTBX.DatasetSummary key={ds.id} ref={ds.id} dataset={ds} onSummaryExpanded={this._onCardExpanded} />;
+        cards.push(card);
+      }, this);
+    } else {
+      cards = <mui.CircularProgress mode="indeterminate" />;
+    }
 
     return (
       <div style={styles.root}>
