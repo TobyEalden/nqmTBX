@@ -11,7 +11,7 @@ nqmTBX.pages.DatasetSharePage = React.createClass({
     }
   },
   getMeteorData: function() {
-    var dsSub = Meteor.subscribe("datasets");
+    var dsSub = Meteor.subscribe("datasets", { id: this.props.datasetId });
     return {
       ready: dsSub.ready(),
       currentUser: Meteor.user(),

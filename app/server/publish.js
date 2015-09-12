@@ -92,8 +92,77 @@ Meteor.publish("datasets", function(opts) {
         datasetIds.push(k);
       });
 
-      // TODO - remove owner:user.username clause -> not needed
       return datasets.find({ id: {$in: datasetIds}});
+    }
+  }
+
+  this.ready();
+});
+
+Meteor.publish("datasetList", function(opts) {
+  var self = this;
+
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.username) {
+
+    var addAccountDatasets = function(acc) {
+      _.each(acc.resources, function(v,k) {
+        var dataset = datasets.findOne({id: k});
+        if (dataset) {
+          self.added("Dataset",dataset._id,dataset);
+        } else {
+          console.log("failed to load dataset %s",k);
+        }
+      });
+    };
+
+    var changeAccountDatasets = function(newAcc, oldAcc) {
+      // Loop thru new account resources looking for ids not in oldAcc.
+      _.each(newAcc.resources, function(v,k) {
+        if (!oldAcc.resources.hasOwnProperty(k)) {
+          // This is a new resource.
+          var dataset = datasets.findOne({id: k});
+          if (dataset) {
+            self.added("Dataset", dataset._id, dataset);
+          }
+        }
+      });
+      // Loop thru oldAcc
+      _.each(oldAcc.resources, function(v,k) {
+        if (!newAcc.resources.hasOwnProperty(k)) {
+          // This resource was deleted.
+          var dataset = datasets.findOne({id: k});
+          if (dataset) {
+            self.removed("Dataset", dataset._id, dataset);
+          }
+        }
+      });
+    };
+
+    var accountCursor = accounts.find({id: user.username });
+    if (opts && opts.id) {
+      // Single dataset subscription.
+      var account = accountCursor.fetch();
+      if (account.length === 1 && account[0].resources.hasOwnProperty(opts.id)) {
+        return datasets.find({id: opts.id});
+      }
+    } else {
+      var liveQuery = accountCursor.observe({
+        added: function(acc) {
+          addAccountDatasets(acc);
+        },
+        changed: function(newAcc,oldAcc) {
+          console.log("account changed: %j",newAcc);
+          changeAccountDatasets(newAcc, oldAcc);
+        },
+        removed: function(acc) {
+          console.log("account removed!? - %s",acc.id);
+        }
+      });
+
+      this.onStop(function() {
+        liveQuery.stop();
+      })
     }
   }
 

@@ -59,7 +59,7 @@ timeSeriesBase.startSubscriptions = function() {
           debugOut.call(self,"finished find");
 
           // Listen for changes to the collection.
-          cursor.observe({
+          var liveQuery = cursor.observe({
             added: function(d) {
               self.props.config.collection.push(d);
               doVisualisationRender.call(self);
@@ -69,6 +69,11 @@ timeSeriesBase.startSubscriptions = function() {
               doVisualisationRender.call(self);
             }
           });
+
+          this.onStop(function() {
+            liveQuery.stop();
+          });
+
           debugOut.call(self,"data loaded");
 
           // Perform initial render.
