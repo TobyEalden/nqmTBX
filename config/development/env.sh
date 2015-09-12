@@ -7,7 +7,8 @@
 # export ROOT_URL="http://localhost:3000"
 
 #export MONGO_URL=mongodb://apiRW:ub1ub1@dev.nqminds.com:27017/nqmHub
-export MONGO_URL=mongodb://dev-mint64:27017/nqmRead
+#export MONGO_URL=mongodb://dev-mint64:27017/nqmRestore
+export MONGO_URL=mongodb://localhost:27017/nqmRestore
 #export MONGO_OPLOG_URL=mongodb://oplogger:pwd@dev-mint64:27017/local?authSource=admin
-export ROOT_URL=http://localhost:3000
+export ROOT_URL=http://localhost:2222
 export MAIL_URL="smtp://nqminds@gmail.com:nqmindsSecure@smtp.gmail.com:465/"

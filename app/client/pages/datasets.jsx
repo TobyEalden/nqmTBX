@@ -27,7 +27,7 @@ DatasetsPage = React.createClass({
   },
   getInitialState: function() {
     return {
-      hoveredRow: -1,
+      activeDataset: Session.get("nqm-active-dataset"),
       hoveredDataset: null
     }
   },
@@ -35,38 +35,48 @@ DatasetsPage = React.createClass({
     FlowRouter.go("datasetCreate");
   },
   _onShareClick: function(dataset, e) {
-
+    e.stopPropagation();
+    FlowRouter.go("datasetShare", {id: dataset.id});
   },
   _onEditClick: function(dataset, e) {
-
+    e.stopPropagation();
+    FlowRouter.go("datasetEdit", {id: dataset.id});
+  },
+  _onViewClick: function(dataset, e) {
+    e.stopPropagation();
+    FlowRouter.go("datasetView", {id: dataset.id});
   },
   _onDeleteClick: function(dataset, e) {
-
+    e.stopPropagation();
+    nqmTBX.ui.notification("deleting " + dataset.id);
   },
-  _onSelection: function(selectedRows) {
-    nqmTBX.ui.notification("selected!");
+  _onRowSelection: function(ds) {
+    if (ds.id === this.state.activeDataset) {
+      this.setState({ activeDataset: null });
+      Session.set("nqm-active-dataset",null);
+    } else {
+      this.setState({ activeDataset: ds.id });      
+      Session.set("nqm-active-dataset",ds.id);
+    }
   },
-  _rowHoverTimer: 0,
-  _onRowHover: function(rowNumber) {
-    console.log("hovered entry: " + rowNumber);
-    this.setState({ hoveredDataset: this.data.datasets[rowNumber].id });
-  },
-  _onRowHoverExit: function() {
-    console.log("hovered exit");
-    clearTimeout(this._rowHoverTimer);
-    this.setState({ hoveredDataset: null });
+  _onRowHover: function(ds) {
+    this.setState({ hoveredDataset: ds.id });
   },
   _getRowButtons: function(dataset) {
     var buttons = [];
     var buttonStyle = {
-      float: "right"
+      float: "right",
+    };
+    var iconStyle = {
+      color: appPalette.nqmTBXListIconColor
     };
     if (this.state.hoveredDataset === dataset.id) {
-      buttons.push(<mui.IconButton key={3} style={buttonStyle} iconClassName="material-icons" onClick={this._onEditClick.bind(this,dataset)}>more_vert</mui.IconButton>);
-      buttons.push(<mui.IconButton key={2} style={buttonStyle} iconClassName="material-icons" onClick={this._onDeleteClick.bind(this,dataset)}>delete</mui.IconButton>);
-      buttons.push(<mui.IconButton key={1} style={buttonStyle} iconClassName="material-icons" onClick={this._onEditClick.bind(this,dataset)}>edit</mui.IconButton>);
+      buttons.push(<mui.IconButton key={4} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onEditClick.bind(this,dataset)}>more_vert</mui.IconButton>);
+      buttons.push(<mui.IconButton key={3} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onDeleteClick.bind(this,dataset)}>delete</mui.IconButton>);
+      buttons.push(<mui.IconButton key={2} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onEditClick.bind(this,dataset)}>edit</mui.IconButton>);
+      buttons.push(<mui.IconButton key={1} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onViewClick.bind(this,dataset)}>pageview</mui.IconButton>);
       if (dataset.owner === this.data.user.username) {
-        buttons.push(<mui.IconButton key={0} style={buttonStyle} iconClassName="material-icons" onClick={this._onShareClick.bind(this,dataset)}>share</mui.IconButton>);
+        buttons.push(<mui.IconButton key={0} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onShareClick.bind(this,dataset)}>share</mui.IconButton>);
       }
     }
     return buttons;
@@ -76,11 +86,10 @@ DatasetsPage = React.createClass({
       root: {
       },
       datasetPanel: {
-        paddingTop: 60,
+        marginTop: 60,
       },
       datasetList: {
-        //height: "100%",
-        //width: "100%",
+        margin: 10,
       },
       actionButton: {
         position: "fixed",
@@ -89,14 +98,56 @@ DatasetsPage = React.createClass({
       },
       toolbar: {
         paddingLeft: "4px",
-        position: "fixed"
+        position: "fixed",
+        zIndex: 1
       },
       iconButton: {
         color: "white",
         hoverColor: "white"
       },
+      headerRow: {
+        padding: 4
+      },
+      row: {
+        height: "50px",
+        lineHeight: "50px",
+        margin: 0,
+        verticalAlign: "middle",
+        borderWidth: 0,
+        borderTopWidth: 1,
+        borderColor: appPalette.primary2Color,
+        borderStyle: "solid",
+        padding: "4px 4px 0px 4px",
+        color: appPalette.nqmTBXListTextColor,
+        backgroundColor: appPalette.nqmTBXListBackground,
+      },
+      activeRow: {
+        margin: 0,
+        verticalAlign: "middle",
+        borderWidth: 0,
+        borderTopWidth: 1,
+        borderColor: appPalette.primary2Color,
+        borderStyle: "solid",
+        padding: "4px 4px 0px 4px",
+        color: appPalette.nqmTBXListTextColor,
+        backgroundColor: appPalette.nqmTBXListBackground,
+        minHeight: 120
+      },
+      nameColumnInner: {
+        borderWidth: 0,
+        borderLeftColor: "transparent",
+        borderLeftWidth: 2,
+        borderStyle: "solid",
+      },
+      nameColumnInnerActive: {
+        borderWidth: 0,
+        borderLeftColor: appPalette.accent3Color,
+        borderLeftWidth: 2,
+        borderStyle: "solid",
+      },
       nameColumn: {
-        width: "33%",
+        width: "50%!important",
+        flex: "none!important",
         textAlign: "left"
       },
       ownerColumn: {
@@ -106,12 +157,15 @@ DatasetsPage = React.createClass({
         textAlign: "left"
       },
       actionColumn: {
-        width: 192,
+        minWidth: 245,
         textAlign: "right"
+      },
+      avatar: {
+        verticalAlign: "middle"
       }
     };
     var toolbar = (
-      <mui.Toolbar style={styles.toolbar} zDepth={2}>
+      <mui.Toolbar style={styles.toolbar}>
         <mui.ToolbarGroup>
           <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this._onAddDataset} >add</mui.FontIcon>
         </mui.ToolbarGroup>
@@ -123,42 +177,42 @@ DatasetsPage = React.createClass({
       _.each(this.data.datasets, function(ds) {
         var buttons = this._getRowButtons(ds);
         var row = (
-          <mui.TableRow key={ds.id}>
-            <mui.TableRowColumn style={styles.nameColumn}>{ds.name}</mui.TableRowColumn>
-            <mui.TableRowColumn style={styles.ownerColumn}>{ds.owner}</mui.TableRowColumn>
-            <mui.TableRowColumn style={styles.modifiedColumn}>{}</mui.TableRowColumn>
-            <mui.TableRowColumn style={styles.actionColumn}>{buttons}</mui.TableRowColumn>
-          </mui.TableRow>
+          <div key={ds.id} className="Grid" style={this.state.activeDataset === ds.id ? styles.activeRow : styles.row} key={ds.id} onMouseOver={this._onRowHover.bind(this,ds)} onClick={this._onRowSelection.bind(this,ds)}>
+            <div className="Grid-cell .Grid--1of2" style={styles.nameColumn}>
+              <div style={this.state.activeDataset === ds.id ? styles.nameColumnInnerActive : styles.nameColumnInner}>
+                <mui.FontIcon style={styles.avatar} className="material-icons">view_headline</mui.FontIcon> {ds.name}
+              </div>
+            </div>
+            <div className="Grid-cell" style={styles.ownerColumn}>{ds.owner}</div>            
+            <div className="Grid-cell"  style={styles.actionColumn}>{buttons}</div>
+          </div>
         );
         datasetList.push(row);
       }, this);
 
       content = (
-        <mui.Table ref="table" selectable={true} fixedHeader={true} onRowSelection={this._onSelection} onRowHover={this._onRowHover} onRowHoverExit={this._onRowHoverExit}>
-          <mui.TableHeader displaySelectAll={false} adjustForCheckbox={false}>
-            <mui.TableRow>
-              <mui.TableHeaderColumn style={styles.nameColumn}>name</mui.TableHeaderColumn>
-              <mui.TableHeaderColumn style={styles.ownerColumn}>owner</mui.TableHeaderColumn>
-              <mui.TableHeaderColumn style={styles.modifiedColumn}>modified</mui.TableHeaderColumn>
-              <mui.TableHeaderColumn style={styles.actionColumn}>actions</mui.TableHeaderColumn>
-            </mui.TableRow>
-          </mui.TableHeader>
-          <mui.TableBody deselectOnClickaway={false} displayRowCheckbox={false} showRowHover={true}>
+        <div className="" style={styles.datasetPanel}>
+          <div className="Grid" style={styles.headerRow}>
+            <div className="Grid-cell" style={styles.nameColumn}>name</div>
+            <div className="Grid-cell" style={styles.ownerColumn}>owner</div>
+            <div className="Grid-cell" style={styles.actionColumn}>actions</div>
+          </div>
+          <mui.Paper style={styles.datasetList}>
             {datasetList}
-          </mui.TableBody>
-        </mui.Table>
+          </mui.Paper>
+        </div>
       );
     } else {
       content = <mui.CircularProgress mode="indeterminate" />;
     }
 
     return (
-      <div style={styles.root}>
-        {toolbar}
-        <div style={styles.datasetPanel}>
-          <div style={styles.datasetList}>
-            {content}
-          </div>
+      <div>
+        <div style={styles.root}>
+          {toolbar}
+        </div>
+        <div style={styles.root}>
+          {content}
         </div>
       </div>
     );

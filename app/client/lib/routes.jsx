@@ -2,6 +2,12 @@
  * Created by toby on 25/08/15.
  */
 
+var globalEnterRoute = function(context) {
+  Session.set("nqm-current-route",context.route.name);
+};
+
+FlowRouter.triggers.enter([globalEnterRoute]);
+
 FlowRouter.route("/error/:statusCode", {
   name: "error",
   action: function(params) {
@@ -25,6 +31,7 @@ FlowRouter.route("/logout", {
 });
 
 FlowRouter.route("/datasets", {
+  name: "datasets",
   action: function() {
    ReactLayout.render(MainLayout, { content: function() { return <DatasetsPage />; } });
   }
@@ -54,11 +61,12 @@ FlowRouter.route("/dataset/share/:id", {
 FlowRouter.route("/dataset/view/:id", {
   name: "datasetView",
   action: function(params) {
-    ReactLayout.render(MainLayout, { content: function() { return <nqmTBX.pages.DatasetViewPage datasetId={params.id} /> } });
+    ReactLayout.render(ModalLayout, { content: function() { return <nqmTBX.pages.DatasetViewPage datasetId={params.id} /> } });
   }
 });
 
 FlowRouter.route("/visualise", {
+  name: "visualise",
   action: function () {
     ReactLayout.render(MainLayout, { content: function() { return <VisualisePage />; } });
   }

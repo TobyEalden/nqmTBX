@@ -109,7 +109,7 @@ nqmTBX.TitleBar = React.createClass({
       searchGroup = (
         <mui.ToolbarGroup key={2} float="left" style={styles.title}>
           <mui.FontIcon style={styles.fontIcon} className="material-icons">search</mui.FontIcon>
-          <mui.TextField inputStyle={styles.fontIcon} underlineFocusStyle={{borderColor:mui.Styles.Colors.pink500}} hintText="search" onChange={this.searchTextChanged} />
+          <mui.TextField inputStyle={styles.fontIcon} underlineFocusStyle={{borderColor:mui.Styles.Colors.pink500}} defaultValue={Session.get("nqm-search")} hintText="search" onChange={this.searchTextChanged} />
         </mui.ToolbarGroup>
       );
     }

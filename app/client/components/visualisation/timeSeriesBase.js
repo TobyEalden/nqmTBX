@@ -70,9 +70,10 @@ timeSeriesBase.startSubscriptions = function() {
             }
           });
 
-          this.onStop(function() {
-            liveQuery.stop();
-          });
+          // TODO - when to call this? Hook into componentWillUnmount?
+          // self.onStop(function() {
+          //   liveQuery.stop();
+          // });
 
           debugOut.call(self,"data loaded");
 

@@ -18,12 +18,16 @@ appPalette = {
   primary1Color: mui.Styles.Colors.blueGrey500,
   primary2Color: mui.Styles.Colors.grey400,
   primary3Color: mui.Styles.Colors.grey200,
-  accent1Color: mui.Styles.Colors.orangeA200,
+  accent1Color: mui.Styles.Colors.blueGrey200,
   accent2Color: mui.Styles.Colors.pink800,
-  accent3Color: mui.Styles.Colors.pink600,
+  accent3Color: mui.Styles.Colors.orangeA400,
   textColor: mui.Styles.Colors.grey900,
   canvasColor: mui.Styles.Colors.grey200,
   borderColor: mui.Styles.Colors.grey300,
+
+  nqmTBXListBackground: mui.Styles.Colors.white,
+  nqmTBXListTextColor: mui.Styles.Colors.grey900,
+  nqmTBXListIconColor: mui.Styles.Colors.grey600
 //  disabledColor: mui.Styles.ColorManipulator.fade(mui.Styles.Colors.darkBlack, 0.3)
 };
 

@@ -221,10 +221,11 @@ Meteor.publish("datasetData", function(opts) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.username) {
     // Get account.
+    var resourceLookup = "resources." + opts.id + ".access";
     var accountLookup = {
       id: user.username
     };
-    accountLookup["resources." + opts.id + ".access"] = "read";
+    accountLookup[resourceLookup] = {$in: ["read","write"]};
     var account = accounts.findOne(accountLookup);
     if (account) {
       // Account has permission -> find corresponding dataset.
