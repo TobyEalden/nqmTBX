@@ -67,9 +67,7 @@ nqmTBX.ZoneConnectionList = React.createClass({
           <mui.TableRowColumn style={styles.usernameColumn}>{conn[this.props.emailField]}</mui.TableRowColumn>
           <mui.TableRowColumn>{expiry}</mui.TableRowColumn>
           <mui.TableRowColumn>{conn.status}</mui.TableRowColumn>
-          <mui.TableRowColumn>
-            {buttons}
-          </mui.TableRowColumn>
+          <mui.TableRowColumn>{buttons}</mui.TableRowColumn>
         </mui.TableRow>
       );
     }, this);
@@ -79,9 +77,7 @@ nqmTBX.ZoneConnectionList = React.createClass({
       return (
         <mui.TableRow key={conn.id} onClick={this.onInfoClick.bind(this,conn)}>
           <mui.TableRowColumn>{conn[this.props.emailField]}</mui.TableRowColumn>
-          <mui.TableRowColumn>
-            {buttons}
-          </mui.TableRowColumn>
+          <mui.TableRowColumn>{buttons}</mui.TableRowColumn>
         </mui.TableRow>
       );
     }, this);

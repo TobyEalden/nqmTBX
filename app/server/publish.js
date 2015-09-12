@@ -93,8 +93,10 @@ Meteor.publish("datasets", function(opts) {
           console.log("datasets pub - permisssion denied to access dataset %s",id);
         }
       });
-      opts.id.$in = sanitized;
-      return datasets.find(opts);
+      if (sanitized.length > 0) {
+        opts.id.$in = sanitized;
+        return datasets.find(opts);
+      }
     } else {
       if (account.resources.hasOwnProperty(opts.id)) {
         return datasets.find(opts);
@@ -209,7 +211,7 @@ Meteor.publish("feedData", function(opts) {
 });
 
 Meteor.publish("datasetData", function(opts) {
-  var lookup = { id: opts.id };
+  check(opts.id, String);
 
   // DEBUG
   this.onStop(function() {
@@ -226,7 +228,7 @@ Meteor.publish("datasetData", function(opts) {
     var account = accounts.findOne(accountLookup);
     if (account) {
       // Account has permission -> find corresponding dataset.
-      var dataset = datasets.findOne(lookup);
+      var dataset = datasets.findOne({ id: opts.id });
       if (dataset) {
         var coll = Mongo.Collection.get(dataset.store);
         if (!coll) {
@@ -234,13 +236,13 @@ Meteor.publish("datasetData", function(opts) {
         }
 
         // Todo - implement where and sort clauses.
-        lookup = {};
-        opts.limit = opts.limit || 1000;
+        var lookup = {};
+        var limit = opts.limit || 1000;
 
         var sort = {};
         sort[dataset.uniqueIndex[0].asc ? dataset.uniqueIndex[0].asc : dataset.uniqueIndex[0].desc] = 1;
 
-        return coll.find(lookup, {sort: sort, limit: opts.limit});
+        return coll.find(lookup, {sort: sort, limit: limit});
       }
     }
   }

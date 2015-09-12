@@ -60,7 +60,8 @@ nqmTBX.pages.DatasetSharePage = React.createClass({
       var trustedZones, trustedZonesSummary;
       if (this.state.sharingTrusted) {
         trustedZones = <nqmTBX.AddShare resource={this.data.dataset} showExpiry={false} />;
-        trustedZonesSummary = <nqmTBX.SharedWithSummary resource={this.data.dataset} />;
+//        trustedZonesSummary = <nqmTBX.SharedWithSummary resource={this.data.dataset} />;
+        trustedZonesSummary = <nqmTBX.SharedWith resource={this.data.dataset} />;
       }
 
       return (

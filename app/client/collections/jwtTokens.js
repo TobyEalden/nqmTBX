@@ -7,4 +7,3 @@
  */
 
 JWTokens = new Mongo.Collection("JWTokens");
-datasetList = new Mongo.Collection("DatasetList");
