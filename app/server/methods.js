@@ -278,7 +278,7 @@ var createTrustedShareToken = function(userId, scope, access, expiry) {
     opts.owner = Meteor.user().username;
 
     // Make sure there is a valid trusted user.
-    var trustedZone = zoneConnections.findOne({ owner: opts.owner, otherEmail: userId, status: "trusted", expires: {$gt: new Date()} });
+    var trustedZone = zoneConnections.findOne({ owner: opts.owner, otherEmail: userId, status: {$in: ["trusted","issued"]}, expires: {$gt: new Date()} });
     if (trustedZone) {
       // Check to see if a share already exists.
       var existing = shareTokens.findOne({ owner: opts.owner, userId: userId, scope: scope, "resources.resource": "access", "resources.actions": access, expires: {$gt: new Date()}, status: "trusted"  });

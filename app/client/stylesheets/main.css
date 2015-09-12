@@ -19,6 +19,15 @@ h4 {
     text-transform: uppercase;
 }
 
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 /*
 ::-webkit-scrollbar{width:9px;height:9px;}
 ::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;background-color:transparent;}

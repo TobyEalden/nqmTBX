@@ -27,10 +27,14 @@ nqmTBX.ZoneConnectionList = React.createClass({
     this.setState({selection:[]});
   },
   onSelection: function(selectedRows) {
-    this.state.selection = selectedRows;
+    if (selectedRows.length > 0) {
+      this.onInfoClick(this.props.trustedZones[selectedRows[0]]);      
+    }
   },
   onInfoClick: function(conn,e) {
-    e.stopPropagation();
+    if (e) {
+      e.stopPropagation();
+    }
     this.context.onInfo(conn);
   },
   onAcceptClick: function(conn,e) {
@@ -87,8 +91,8 @@ nqmTBX.ZoneConnectionList = React.createClass({
     var content = (
       <div>
         <MediaQuery minWidth={900}>
-          <mui.Table ref="table" selectable={false} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
-            <mui.TableHeader displaySelectAll={false}>
+          <mui.Table ref="table" selectable={true} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
+            <mui.TableHeader displaySelectAll={false} adjustForCheckbox={false}>
               <mui.TableRow>
                 <mui.TableHeaderColumn style={styles.usernameColumn}>e-mail</mui.TableHeaderColumn>
                 <mui.TableHeaderColumn>expires</mui.TableHeaderColumn>
@@ -101,7 +105,7 @@ nqmTBX.ZoneConnectionList = React.createClass({
         </MediaQuery>
         <MediaQuery maxWidth={900}>
           <mui.Table ref="table" selectable={true} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
-            <mui.TableHeader displaySelectAll={false}>
+            <mui.TableHeader displaySelectAll={false} adjustForCheckbox={false}>
               <mui.TableRow>
                 <mui.TableHeaderColumn>e-mail</mui.TableHeaderColumn>
                 <mui.TableHeaderColumn>action</mui.TableHeaderColumn>

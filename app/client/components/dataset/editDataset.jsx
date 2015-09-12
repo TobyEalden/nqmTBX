@@ -103,7 +103,7 @@ EditDataset = React.createClass({
           <TextField style={styles.textInput} ref="name" hintText="dataset name" floatingLabelText="name" defaultValue={this.props.dataset.name} />
         </FormRow>
         <FormRow>
-          <TextField style={styles.textInput} ref="description" hintText="dataset description" floatingLabelText="description" defaultValue={this.props.dataset.description} />
+          <TextField style={styles.textInput} ref="description" hintText="dataset description"  multiLine={true} floatingLabelText="description" defaultValue={this.props.dataset.description} />
         </FormRow>
         <FormRow>
           <TextField style={styles.textInput} ref="tags" hintText="tags" floatingLabelText="tags" defaultValue={this.props.dataset.tags} />

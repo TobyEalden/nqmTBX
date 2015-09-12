@@ -29,7 +29,8 @@ nqmTBX.SideBarMenu = React.createClass({
         position: "absolute",
         width: "100%",
         height: "100%",
-        overflowY: "auto"
+        overflowY: "auto",
+        borderRight: "1px solid " + appPalette.borderColor
       },
       listItem: {
         fontSize: "14px"
@@ -62,7 +63,7 @@ nqmTBX.SideBarMenu = React.createClass({
           {
             text: "visualisations",
             route: "visualise",
-            icon: "dashboard",
+            icon: "widgets",
           },
           {
             text: "processes",

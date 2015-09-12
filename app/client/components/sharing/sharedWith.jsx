@@ -27,8 +27,6 @@ nqmTBX.SharedWithSummary = React.createClass({
         pointer: "hand"
       },
       anchor: {
-        color: appPalette.textColor,
-        textDecoration: "none"
       }
     };
     var content;

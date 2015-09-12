@@ -50,6 +50,9 @@ DatasetsPage = React.createClass({
     e.stopPropagation();
     nqmTBX.ui.notification("deleting " + dataset.id);
   },
+  _onMoreClick: function(e) {
+    e.stopPropagation();
+  },
   _onRowSelection: function(ds) {
     if (ds.id === this.state.activeDataset) {
       this.setState({ activeDataset: null });
@@ -66,72 +69,134 @@ DatasetsPage = React.createClass({
     var buttons = [];
     var buttonStyle = {
       float: "right",
-    };
+    };    
     var iconStyle = {
       color: appPalette.nqmTBXListIconColor
     };
     if (this.state.hoveredDataset === dataset.id) {
-      buttons.push(<mui.IconButton key={4} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onEditClick.bind(this,dataset)}>more_vert</mui.IconButton>);
-      buttons.push(<mui.IconButton key={3} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onDeleteClick.bind(this,dataset)}>delete</mui.IconButton>);
+      var iconMenu = (
+        <mui.IconMenu openDirection="bottom-left" key={4} style={buttonStyle} iconButtonElement={<mui.IconButton key={5} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onMoreClick}>more_vert</mui.IconButton>}>
+          <mui.MenuItem key={0} primaryText="delete" onClick={this._onDeleteClick.bind(this,dataset)} />
+          <mui.MenuItem key={1} primaryText="send feedback" />
+          <mui.MenuItem key={2} primaryText="settings" />
+          <mui.MenuItem key={3} primaryText="help" />
+        </mui.IconMenu>
+      );
+      buttons.push(iconMenu);
+      // buttons.push(<mui.IconButton key={3} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onDeleteClick.bind(this,dataset)}>delete</mui.IconButton>);
       buttons.push(<mui.IconButton key={2} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onEditClick.bind(this,dataset)}>edit</mui.IconButton>);
       buttons.push(<mui.IconButton key={1} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onViewClick.bind(this,dataset)}>pageview</mui.IconButton>);
       if (dataset.owner === this.data.user.username) {
-        buttons.push(<mui.IconButton key={0} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onShareClick.bind(this,dataset)}>share</mui.IconButton>);
+        buttons.push(<mui.IconButton key={0} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onShareClick.bind(this,dataset)}>person_add</mui.IconButton>);
       }
     }
     return buttons;
   },
   render: function() {
-    var styles = {
-      root: {
-      },
+    var styles = this._getStyles();
+    var toolbar = (
+      <mui.Toolbar style={styles.toolbar}>
+        <mui.ToolbarGroup>
+          <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this._onAddDataset} >add</mui.FontIcon>
+        </mui.ToolbarGroup>
+      </mui.Toolbar>
+    ) ;
+    var content;
+    if (this.data.ready || this.data.datasets.length > 0) {
+      var datasetList = [];
+      _.each(this.data.datasets, function(ds) {
+        var row;
+        var buttons = this._getRowButtons(ds);
+        var keyDataRow = (
+          <div key={ds.id} className="Grid" style={styles.row} key={ds.id} onMouseOver={this._onRowHover.bind(this,ds)} onClick={this._onRowSelection.bind(this,ds)}>
+            <div className="Grid-cell" style={styles.nameColumn}>
+              <div style={this.state.activeDataset === ds.id ? styles.nameColumnInnerActive : styles.nameColumnInner}>
+                <mui.FontIcon style={styles.avatar} className="material-icons">blur_on</mui.FontIcon> {ds.name}
+              </div>
+            </div>
+            <MediaQuery minWidth={900}>
+              <div className="Grid-cell" style={styles.ownerColumn}>{ds.owner}</div>            
+            </MediaQuery>
+            <div className="Grid-cell"  style={styles.actionColumn}>{buttons}</div>
+          </div>
+        );          
+
+        if (this.state.activeDataset === ds.id && ds.description && ds.description.length > 0) {
+          row = (
+            <div>
+              {keyDataRow}
+              <div key={ds.id+"-active"} className="Grid" style={styles.description} onMouseOver={this._onRowHover.bind(this,ds)} onClick={this._onRowSelection.bind(this,ds)}>
+                <div class="Grid-cell">
+                  {ds.description}
+                  <br /><br />
+                  <nqmTBX.SharedWithSummary resource={ds} />
+                </div>
+              </div>
+            </div>
+          );
+        } else {
+          row = keyDataRow;
+        }
+        datasetList.push(row);
+      }, this);
+
+      content = (
+        <div className="" style={styles.datasetPanel}>
+          <div className="Grid" style={styles.headerRow}>
+            <div className="Grid-cell" style={{paddingLeft:30}}>name</div>
+            <MediaQuery minWidth={900}>
+              <div className="Grid-cell" style={styles.ownerColumn}>owner</div>
+            </MediaQuery>
+            <div className="Grid-cell" style={styles.actionColumn}>actions</div>
+          </div>
+          <mui.Paper style={styles.datasetList}>
+            {datasetList}
+          </mui.Paper>
+        </div>
+      );
+    } else {
+      content = <mui.CircularProgress mode="indeterminate" />;
+    }
+
+    return (
+      <div>
+        {toolbar}
+        {content}
+      </div>
+    );
+  },
+  _getStyles: function() {
+    return styles = {
       datasetPanel: {
         marginTop: 60,
       },
       datasetList: {
         margin: 10,
       },
-      actionButton: {
-        position: "fixed",
-        bottom: "15px",
-        right: "15px"
-      },
       toolbar: {
         paddingLeft: "4px",
         position: "fixed",
         zIndex: 1
       },
-      iconButton: {
-        color: "white",
-        hoverColor: "white"
-      },
       headerRow: {
-        padding: 4
+        padding: "4px 10px 4px 10px"
       },
       row: {
         height: "50px",
         lineHeight: "50px",
-        margin: 0,
         verticalAlign: "middle",
         borderWidth: 0,
         borderTopWidth: 1,
         borderColor: appPalette.primary2Color,
         borderStyle: "solid",
-        padding: "4px 4px 0px 4px",
+        padding: "4px 4px 4px 0px",
         color: appPalette.nqmTBXListTextColor,
         backgroundColor: appPalette.nqmTBXListBackground,
       },
-      activeRow: {
-        margin: 0,
-        verticalAlign: "middle",
-        borderWidth: 0,
-        borderTopWidth: 1,
-        borderColor: appPalette.primary2Color,
-        borderStyle: "solid",
-        padding: "4px 4px 0px 4px",
+      description: {
+        padding: "4px 4px 4px 26px",
         color: appPalette.nqmTBXListTextColor,
-        backgroundColor: appPalette.nqmTBXListBackground,
-        minHeight: 120
+        backgroundColor: appPalette.nqmTBXListBackground
       },
       nameColumnInner: {
         borderWidth: 0,
@@ -148,73 +213,15 @@ DatasetsPage = React.createClass({
       nameColumn: {
         width: "50%!important",
         flex: "none!important",
-        textAlign: "left"
-      },
-      ownerColumn: {
-        textAlign: "left"
-      },
-      modifiedColumn: {
-        textAlign: "left"
       },
       actionColumn: {
         minWidth: 245,
         textAlign: "right"
       },
       avatar: {
-        verticalAlign: "middle"
+        verticalAlign: "middle",
+        color: appPalette.accent1Color
       }
     };
-    var toolbar = (
-      <mui.Toolbar style={styles.toolbar}>
-        <mui.ToolbarGroup>
-          <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this._onAddDataset} >add</mui.FontIcon>
-        </mui.ToolbarGroup>
-      </mui.Toolbar>
-    ) ;
-    var content;
-    if (this.data.ready || this.data.datasets.length > 0) {
-      var datasetList = [];
-      _.each(this.data.datasets, function(ds) {
-        var buttons = this._getRowButtons(ds);
-        var row = (
-          <div key={ds.id} className="Grid" style={this.state.activeDataset === ds.id ? styles.activeRow : styles.row} key={ds.id} onMouseOver={this._onRowHover.bind(this,ds)} onClick={this._onRowSelection.bind(this,ds)}>
-            <div className="Grid-cell .Grid--1of2" style={styles.nameColumn}>
-              <div style={this.state.activeDataset === ds.id ? styles.nameColumnInnerActive : styles.nameColumnInner}>
-                <mui.FontIcon style={styles.avatar} className="material-icons">view_headline</mui.FontIcon> {ds.name}
-              </div>
-            </div>
-            <div className="Grid-cell" style={styles.ownerColumn}>{ds.owner}</div>            
-            <div className="Grid-cell"  style={styles.actionColumn}>{buttons}</div>
-          </div>
-        );
-        datasetList.push(row);
-      }, this);
-
-      content = (
-        <div className="" style={styles.datasetPanel}>
-          <div className="Grid" style={styles.headerRow}>
-            <div className="Grid-cell" style={styles.nameColumn}>name</div>
-            <div className="Grid-cell" style={styles.ownerColumn}>owner</div>
-            <div className="Grid-cell" style={styles.actionColumn}>actions</div>
-          </div>
-          <mui.Paper style={styles.datasetList}>
-            {datasetList}
-          </mui.Paper>
-        </div>
-      );
-    } else {
-      content = <mui.CircularProgress mode="indeterminate" />;
-    }
-
-    return (
-      <div>
-        <div style={styles.root}>
-          {toolbar}
-        </div>
-        <div style={styles.root}>
-          {content}
-        </div>
-      </div>
-    );
   }
 });

@@ -1,19 +1,4 @@
 
-//appPalette = {
-//  primary1Color: mui.Styles.Colors.blueGrey400,
-//  primary2Color: mui.Styles.Colors.blueGrey700,
-//  primary3Color: mui.Styles.Colors.blueGrey100,
-//  //accent1Color: mui.Styles.Colors.white,
-//  accent2Color: mui.Styles.Colors.white,
-//  //accent3Color: mui.Styles.Colors.blueGrey500
-//  canvasColor: mui.Styles.Colors.blueGrey700,
-//  disabledTextColor: mui.Styles.Colors.grey600,
-//
-//  textColor: "#222"
-//
-//// rest of the palette is set from Theme Manager
-//};
-
 appPalette = {
   primary1Color: mui.Styles.Colors.blueGrey500,
   primary2Color: mui.Styles.Colors.grey400,
@@ -26,7 +11,7 @@ appPalette = {
   borderColor: mui.Styles.Colors.grey300,
 
   nqmTBXListBackground: mui.Styles.Colors.white,
-  nqmTBXListTextColor: mui.Styles.Colors.grey900,
+  nqmTBXListTextColor: mui.Styles.Colors.grey700,
   nqmTBXListIconColor: mui.Styles.Colors.grey600
 //  disabledColor: mui.Styles.ColorManipulator.fade(mui.Styles.Colors.darkBlack, 0.3)
 };
@@ -55,5 +40,6 @@ componentThemes = {
 ThemeManager = new mui.Styles.ThemeManager();
 ThemeManager.setPalette(appPalette);
 ThemeManager.setComponentThemes(componentThemes);
-//ThemeManager.setTheme(ThemeManager.types.DARK);
+// appPalette = ThemeManager.palette;
+// ThemeManager.setTheme(ThemeManager.types.DARK);
 
