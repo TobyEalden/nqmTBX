@@ -133,7 +133,7 @@ nqmTBX.pages.ZoneConnections = React.createClass({
 
       return (
         <div>
-          <mui.Tabs onChange={this._onTabChange}>
+          <mui.Tabs onChange={this._onTabChange} style={{zIndex:10}}>
             <mui.Tab value="trustedByMe" label="zones you trust">
               {toolbar}
               {trustedByMe}

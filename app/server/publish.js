@@ -241,7 +241,9 @@ Meteor.publish("datasetData", function(opts) {
         var limit = opts.limit || 1000;
 
         var sort = {};
-        sort[dataset.uniqueIndex[0].asc ? dataset.uniqueIndex[0].asc : dataset.uniqueIndex[0].desc] = 1;
+        if (dataset.uniqueIndex && dataset.uniqueIndex.length > 0) {
+          sort[dataset.uniqueIndex[0].asc ? dataset.uniqueIndex[0].asc : dataset.uniqueIndex[0].desc] = 1;          
+        }
 
         return coll.find(lookup, {sort: sort, limit: limit});
       }

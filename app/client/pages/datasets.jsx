@@ -17,11 +17,11 @@ DatasetsPage = React.createClass({
       _.each(account.resources, function(v,k) {
         accountIds.push(k);
       });
-      dsSub = Meteor.subscribe("datasets", { id: {$in: accountIds}, $or: [ {name: {$regex: searchTerm}}, {description: {$regex: searchTerm} }, {tags: {$regex: searchTerm}}]});
+      dsSub = Meteor.subscribe("datasets", { id: {$in: accountIds}, $or: [ {name: {$regex: searchTerm, $options: "i"}}, {description: {$regex: searchTerm, $options: "i"} }, {tags: {$regex: searchTerm, $options: "i"}}]});
     }
     return {
       ready: accountSub.ready() && dsSub && dsSub.ready(),
-      datasets: datasets.find({ id: {$in: accountIds}, $or: [ {name: {$regex: searchTerm}}, {description: {$regex: searchTerm}}, {tags: {$regex: searchTerm}}]}, {sort: {name: 1}}).fetch(),
+      datasets: datasets.find({ id: {$in: accountIds}, $or: [ {name: {$regex: searchTerm, $options: "i"}}, {description: {$regex: searchTerm, $options: "i"}}, {tags: {$regex: searchTerm, $options: "i"}}]}, {sort: {name: 1}}).fetch(),
       user: Meteor.user()
     }
   },
@@ -75,19 +75,18 @@ DatasetsPage = React.createClass({
     };
     if (this.state.hoveredDataset === dataset.id) {
       var iconMenu = (
-        <mui.IconMenu openDirection="bottom-left" key={4} style={buttonStyle} iconButtonElement={<mui.IconButton key={5} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onMoreClick}>more_vert</mui.IconButton>}>
+        <mui.IconMenu openDirection="bottom-left" key={4} style={buttonStyle} iconButtonElement={<mui.IconButton key={5} tooltip="more" style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onMoreClick}>more_vert</mui.IconButton>}>
+          <mui.MenuItem key={1} primaryText="quick view" onClick={this._onViewClick.bind(this,dataset)} />
           <mui.MenuItem key={0} primaryText="delete" onClick={this._onDeleteClick.bind(this,dataset)} />
-          <mui.MenuItem key={1} primaryText="send feedback" />
           <mui.MenuItem key={2} primaryText="settings" />
-          <mui.MenuItem key={3} primaryText="help" />
         </mui.IconMenu>
       );
       buttons.push(iconMenu);
       // buttons.push(<mui.IconButton key={3} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onDeleteClick.bind(this,dataset)}>delete</mui.IconButton>);
-      buttons.push(<mui.IconButton key={2} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onEditClick.bind(this,dataset)}>edit</mui.IconButton>);
-      buttons.push(<mui.IconButton key={1} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onViewClick.bind(this,dataset)}>pageview</mui.IconButton>);
+      buttons.push(<mui.IconButton key={2} tooltip="edit" style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onEditClick.bind(this,dataset)}>edit</mui.IconButton>);
+      // buttons.push(<mui.IconButton key={1} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onViewClick.bind(this,dataset)}>pageview</mui.IconButton>);
       if (dataset.owner === this.data.user.username) {
-        buttons.push(<mui.IconButton key={0} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onShareClick.bind(this,dataset)}>person_add</mui.IconButton>);
+        buttons.push(<mui.IconButton key={0} tooltip="share" style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onShareClick.bind(this,dataset)}>person_add</mui.IconButton>);
       }
     }
     return buttons;
@@ -121,15 +120,14 @@ DatasetsPage = React.createClass({
           </div>
         );          
 
-        if (this.state.activeDataset === ds.id && ds.description && ds.description.length > 0) {
+        if (this.state.activeDataset === ds.id) {
           row = (
             <div>
               {keyDataRow}
               <div key={ds.id+"-active"} className="Grid" style={styles.description} onMouseOver={this._onRowHover.bind(this,ds)} onClick={this._onRowSelection.bind(this,ds)}>
-                <div class="Grid-cell">
+                <div className="Grid-cell">
                   {ds.description}
-                  <br /><br />
-                  <nqmTBX.SharedWithSummary resource={ds} />
+                  <div style={styles.shareSummary}><nqmTBX.SharedWithSummary resource={ds} onClick={this._onShareClick.bind(this,ds)} /></div>
                 </div>
               </div>
             </div>
@@ -176,7 +174,7 @@ DatasetsPage = React.createClass({
       toolbar: {
         paddingLeft: "4px",
         position: "fixed",
-        zIndex: 1
+        zIndex: 10
       },
       headerRow: {
         padding: "4px 10px 4px 10px"
@@ -194,7 +192,7 @@ DatasetsPage = React.createClass({
         backgroundColor: appPalette.nqmTBXListBackground,
       },
       description: {
-        padding: "4px 4px 4px 26px",
+        padding: "4px 4px 8px 26px",
         color: appPalette.nqmTBXListTextColor,
         backgroundColor: appPalette.nqmTBXListBackground
       },
@@ -221,6 +219,9 @@ DatasetsPage = React.createClass({
       avatar: {
         verticalAlign: "middle",
         color: appPalette.accent1Color
+      },
+      shareSummary: {
+        paddingTop: 10
       }
     };
   }

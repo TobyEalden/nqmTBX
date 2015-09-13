@@ -3,6 +3,7 @@ nqmTBX.SharedWithSummary = React.createClass({
   mixins: [ReactMeteorData],
   propTypes: {
     resource: React.PropTypes.object.isRequired,
+    onClick: React.PropTypes.func,
     displayLimit: React.PropTypes.number
   },
   getDefaultPropTypes: function() {
@@ -12,13 +13,17 @@ nqmTBX.SharedWithSummary = React.createClass({
     var shareSub = Meteor.subscribe("shareTokens",this.props.resource.id);
     var data = {
       ready: shareSub.ready(),
+      user: Meteor.user(),
       shares: shareTokens.find({ scope: this.props.resource.id, status: "trusted", expires: { $gt: new Date() }, owner: Meteor.user().username }).fetch()
     };
     return data;
   },
   onClick: function(e) {
+    e.stopPropagation();
     e.preventDefault();
-    nqmTBX.ui.notification("clicked!",10000);
+    if (this.props.onClick) {
+      this.props.onClick(e);
+    }
   },
   render: function() {
     var styles = {
@@ -26,26 +31,35 @@ nqmTBX.SharedWithSummary = React.createClass({
         paddingTop: "5px",
         pointer: "hand"
       },
-      anchor: {
-      }
     };
     var content;
     if (this.data.ready) {
-      if (this.data.shares.length > 0) {
-        shares = "Shared with ";
-        shares += this.data.shares[0].userId;
-        if (this.data.shares.length > 1) {
-          shares += ", " + this.data.shares[1].userId;
-          if (this.data.shares.length > 2) {
-            shares += " and " + (this.data.shares.length-2) + " other" + ((this.data.shares.length-2) > 1 ? "s." : ".");
-          }
-        }
-        content = <a style={styles.anchor} href="#" onClick={this.onClick}>{shares}</a>;
+      if (this.props.resource.owner !== this.data.user.username) {
+        content = <span>{"Shared with you by " + this.props.resource.owner}</span>;
       } else {
-        content = <span>Shared with no one.</span>;
+        var shareSummary;
+        if (this.props.resource.shareMode === "public") {
+          shareSummary = "This resource is public and accessible to anybody who has the link.";
+        } else if (this.props.resource.shareMode === "private") {
+          shareSummary = "This resource is private and not accessible by anybody except you.";
+        } else {
+          if (this.data.shares.length > 0) {
+            shareSummary = "Shared with ";
+            shareSummary += this.data.shares[0].userId;
+            if (this.data.shares.length > 1) {
+              shareSummary += ", " + this.data.shares[1].userId;
+              if (this.data.shares.length > 2) {
+                shareSummary += " and " + (this.data.shares.length-2) + " other" + ((this.data.shares.length-2) > 1 ? "s." : ".");
+              }
+            }
+          } else {
+            shareSummary = "Shared with no one.";
+          }        
+        }        
+        content = <a href="#" title="change share settings" onClick={this.onClick}>{shareSummary}</a>;
       }
     } else {
-      content = <span>loading</span>;
+      content = <span>loading...</span>;
     }
     return <div style={styles.root} onClick={this.onClick}>{content}</div>;
   }

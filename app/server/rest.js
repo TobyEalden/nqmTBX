@@ -2,7 +2,6 @@
  * Created by toby on 31/08/15.
  */
 
-var Cookies = Meteor.npmRequire("cookies");
 var jwt = Meteor.npmRequire("jwt-simple");
 
 var ALLOW_HEADERS = [
@@ -18,6 +17,7 @@ var ALLOW_HEADERS = [
 
 // HACK - bug in restivus doesn't return correct remote address.
 // https://github.com/kahmali/meteor-restivus/issues/74
+// TODO - fix use of x-forwarded-for
 var getClientIP = function(request) {
   var ip = request.connection.remoteAddress;
   if (request.headers["x-forwarded-for"]) {
@@ -215,6 +215,34 @@ function authorised(request, resource, accessRequired) {
 
   return authorise;
 }
+
+// api.addRoute("datasets", {
+//   get: function() {
+//     var authInfo = getTokenDetails(this.request);
+
+//     if (authInfo.userId) {
+//       var datasetList = [];
+
+//       // For the trusted zone, find all public datasets.
+//       var publicDatasets = datasets.find({ owner: authInfo.token.iss, shareMode: "public"}).fetch();
+//       datasetList = _.union(datasetList,publicDatasets);
+
+//       // For the trusted zone, find all datasets for which there is a share token.
+//       var tokens = shareTokens.find({ userId: authInfo.userId, owner: authInfo.token.iss, status: "trusted", expires: { $gt: new Date() }, "resources.resource": "access", "resources.actions": "read" }).fetch();
+//       _.each(tokens, function(token) {
+//         var ds = datasets.findOne({id: token.scope, shareMode: "specific"});
+//         if (ds) {
+//           datasetList.push(ds);
+//         }
+//       }, this);
+
+//       return datasetList;
+//     } else {
+//       // Not authenticated => DENY and re-direct.
+//       return routeAuthenticate(request, resource);
+//     }
+//   }
+// });
 
 api.addRoute("datasets/:id", {
   get: function() {

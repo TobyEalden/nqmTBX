@@ -81,7 +81,7 @@ nqmTBX.vis.SheetView = React.createClass({
     console.log("saving widget position: " + id);
     Meteor.call("/app/widget/updatePosition",{ _id: id, position: pos}, function(err) {
       if (err) {
-        console.log("failed to save widget position: " + err.message);
+        nqmTBX.ui.notification("failed to save widget position: " + err.message);
         cb();
       } else {
         console.log("saved widget position: " + id);
@@ -92,10 +92,10 @@ nqmTBX.vis.SheetView = React.createClass({
   save: function() {
     _.each(this.state.dirtyItems, function(item,k) {
       var widgetId = item.el.data().widgetId;
-      var current = widgets.findOne({_id: widgetId});
+      var current = widgets.findOne({_id: new Meteor.Collection.ObjectID(widgetId)});
       if (!current.position || current.position.x != item.x || current.position.y != item.y || current.position.w != item.width || current.position.h != item.height) {
         this.saveWidgetPosition(widgetId,{ x: item.x, y: item.y, w: item.width, h: item.height }, function() {
-          console.log("saved " + widgetId);
+          nqmTBX.ui.notification("saved " + widgetId);
         });
       }
     }, this);
