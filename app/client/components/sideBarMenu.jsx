@@ -30,14 +30,14 @@ nqmTBX.SideBarMenu = React.createClass({
         width: "100%",
         height: "100%",
         overflowY: "auto",
-        borderRight: "1px solid " + appPalette.borderColor
+        //borderRight: "1px solid " + appPalette.borderColor
       },
       listItem: {
         fontSize: "14px"
       },
       listItemActive: {
         fontSize: 14,
-        backgroundColor: appPalette.accent1Color
+        backgroundColor: appPalette.accent2Color
       },     
       listItemInner: {
         paddingLeft: 48

@@ -53,6 +53,9 @@ DatasetsPage = React.createClass({
   _onMoreClick: function(e) {
     e.stopPropagation();
   },
+  _onAPIClick: function(e) {
+    e.stopPropagation();    
+  },
   _onRowSelection: function(ds) {
     if (ds.id === this.state.activeDataset) {
       this.setState({ activeDataset: null });
@@ -86,10 +89,29 @@ DatasetsPage = React.createClass({
       buttons.push(<mui.IconButton key={2} tooltip="edit" style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onEditClick.bind(this,dataset)}>edit</mui.IconButton>);
       // buttons.push(<mui.IconButton key={1} style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onViewClick.bind(this,dataset)}>pageview</mui.IconButton>);
       if (dataset.owner === this.data.user.username) {
-        buttons.push(<mui.IconButton key={0} tooltip="share" style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onShareClick.bind(this,dataset)}>person_add</mui.IconButton>);
+        buttons.push(<mui.IconButton key={0} tooltip="share" style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onShareClick.bind(this,dataset)}>share</mui.IconButton>);
       }
     }
     return buttons;
+  },
+  _getAvatar: function(styles,dataset) {
+    var avIcon;
+    switch (dataset.shareMode) {
+      case "public":
+        avIcon = "public";
+        break;
+      case "specific":
+        if (dataset.owner === this.data.user.username) {
+          avIcon = "person_add";
+        } else {
+          avIcon = "person_outline";
+        }        
+        break;
+      default: 
+        avIcon = "lock_outline";
+        break;
+    }
+    return <mui.FontIcon style={styles.avatar} className="material-icons">{avIcon}</mui.FontIcon>;
   },
   render: function() {
     var styles = this._getStyles();
@@ -106,11 +128,12 @@ DatasetsPage = React.createClass({
       _.each(this.data.datasets, function(ds) {
         var row;
         var buttons = this._getRowButtons(ds);
+        var avatar = this._getAvatar(styles,ds);
         var keyDataRow = (
           <div key={ds.id} className="Grid" style={styles.row} key={ds.id} onMouseOver={this._onRowHover.bind(this,ds)} onClick={this._onRowSelection.bind(this,ds)}>
             <div className="Grid-cell" style={styles.nameColumn}>
               <div style={this.state.activeDataset === ds.id ? styles.nameColumnInnerActive : styles.nameColumnInner}>
-                <mui.FontIcon style={styles.avatar} className="material-icons">blur_on</mui.FontIcon> {ds.name}
+                {avatar} {ds.name}
               </div>
             </div>
             <MediaQuery minWidth={900}>
@@ -128,6 +151,11 @@ DatasetsPage = React.createClass({
                 <div className="Grid-cell">
                   {ds.description}
                   <div style={styles.shareSummary}><nqmTBX.SharedWithSummary resource={ds} onClick={this._onShareClick.bind(this,ds)} /></div>
+                </div>
+              </div>
+              <div className="Grid" style={styles.apiLink}>
+                <div className="Grid-cell">
+                  <mui.FontIcon style={styles.apiLinkIcon} className="material-icons">link</mui.FontIcon> <a href={"/api/datasets/" + ds.id} target="_blank" onClick={this._onAPIClick}>{"API Link"}</a>
                 </div>
               </div>
             </div>
@@ -174,7 +202,8 @@ DatasetsPage = React.createClass({
       toolbar: {
         paddingLeft: "4px",
         position: "fixed",
-        backgroundColor: appPalette.primary3Color
+        backgroundColor: appPalette.primary3Color,
+        zIndex: 1
       },
       headerRow: {
         padding: "4px 10px 4px 10px"
@@ -192,7 +221,7 @@ DatasetsPage = React.createClass({
         backgroundColor: appPalette.nqmTBXListBackground,
       },
       description: {
-        padding: "4px 4px 8px 26px",
+        padding: "4px 4px 8px 34px",
         color: appPalette.nqmTBXListTextColor,
         backgroundColor: appPalette.nqmTBXListBackground
       },
@@ -218,10 +247,25 @@ DatasetsPage = React.createClass({
       },
       avatar: {
         verticalAlign: "middle",
-        color: appPalette.accent1Color
+        color: appPalette.accent1Color,
+        paddingLeft: 5,
+        paddingRight: 5,
+        fontSize: "20px"
       },
       shareSummary: {
         paddingTop: 10
+      },
+      apiLink: {
+        padding: "4px 4px 4px 0px",
+        color: appPalette.nqmTBXListTextColor,
+        backgroundColor: appPalette.nqmTBXListBackground,
+      },
+      apiLinkIcon: {
+        color: appPalette.nqmTBXListIconColor,
+        paddingLeft: 5,
+        paddingRight: 5,
+        fontSize: "20px",
+        verticalAlign: "middle"
       }
     };
   }
