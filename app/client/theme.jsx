@@ -2,7 +2,7 @@
 appPalette = {
   primary1Color: mui.Styles.Colors.blueGrey500,
   primary2Color: mui.Styles.Colors.grey400,
-  primary3Color: mui.Styles.Colors.grey200,
+  primary3Color: mui.Styles.Colors.blueGrey300,
   accent1Color: mui.Styles.Colors.blueGrey200,
   accent2Color: mui.Styles.Colors.pink800,
   accent3Color: mui.Styles.Colors.orangeA400,
@@ -21,7 +21,7 @@ componentThemes = {
     backgroundColor: appPalette.primary1Color
   },
   paper: {
-    backgroundColor: appPalette.primary3Color
+    backgroundColor: appPalette.canvasColor
   },
   raisedButton: {
     textColor: appPalette.primary3Color,

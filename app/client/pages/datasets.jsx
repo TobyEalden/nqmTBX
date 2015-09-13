@@ -174,7 +174,7 @@ DatasetsPage = React.createClass({
       toolbar: {
         paddingLeft: "4px",
         position: "fixed",
-        zIndex: 10
+        backgroundColor: appPalette.primary3Color
       },
       headerRow: {
         padding: "4px 10px 4px 10px"

@@ -98,11 +98,15 @@ nqmTBX.pages.ZoneConnections = React.createClass({
   render: function() {
     var styles = {
       toolbar: {
-        paddingLeft: "4px"
+        paddingLeft: "4px",
+        backgroundColor: appPalette.primary3Color
       },
       iconButton: {
         color: "white",
         hoverColor: "white"
+      },
+      tabs: {
+        backgroundColor: appPalette.primary3Color        
       }
     };
 
@@ -133,12 +137,12 @@ nqmTBX.pages.ZoneConnections = React.createClass({
 
       return (
         <div>
-          <mui.Tabs onChange={this._onTabChange} style={{zIndex:10}}>
-            <mui.Tab value="trustedByMe" label="zones you trust">
+          <mui.Tabs onChange={this._onTabChange}>
+            <mui.Tab value="trustedByMe" label="zones you trust" style={styles.tabs}>
               {toolbar}
               {trustedByMe}
             </mui.Tab>
-            <mui.Tab value="trustingMe" label="zones that trust you">
+            <mui.Tab value="trustingMe" label="zones that trust you" style={styles.tabs}>
               {toolbar}
               {trustingMe}
             </mui.Tab>
