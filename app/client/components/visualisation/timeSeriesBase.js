@@ -25,27 +25,43 @@ var debugOut = function(msg) {
   }
 };
 
+timeSeriesBase.destroy = function() {
+  console.log("timeSeriesBase.destroy");
+  if (this._liveQuery) {
+    this._liveQuery.stop();
+    delete this._liveQuery;
+  }
+};
+
 timeSeriesBase.startSubscriptions = function() {
   var self = this;
-  var feedSub;
   self.props.config.collection = [];
 
   // Debug timing.
   debugStart.call(self);
   debugOut.call(self,"starting subscription for: " + self.props.config.name);
 
-  var feed = feeds.findOne({hubId: self.props.config.hubId, id: self.props.config.feedId });
-  if (feed) {
-    // Subscribe to data for last 24 hours.
-    var sinceDate = new Date(Date.now() - 24*60*60*1000);
-//  feedSub = Meteor.subscribe(feed.store, { from: sinceDate.getTime() });
-    feedSub = Meteor.subscribe("feedData",{hubId: feed.hubId, id: feed.id});
+  var dsSub = Meteor.subscribe("datasets", {id:self.props.config.feedId}, function() {
+    var feed = datasets.findOne({ id: self.props.config.feedId });
+    if (feed) {
+      self.setState({gotDataset: true});
+      var collection = Mongo.Collection.get(feed.store);
+      if (!collection) {
+        collection = new Mongo.Collection(feed.store);
+      }
+    
+      // Subscribe to data for last 24 hours.
+      var sinceDate = new Date(Date.now() - 24*60*60*1000);
 
-    // Get notified when the subscription is ready.
-    Tracker.autorun(function() {
-      if (feedSub.ready()) {
-        var collection = Mongo.Collection.get(feed.store);
-        if (collection) {
+      var opts = {
+        id: feed.id,
+        from: {$gt: sinceDate}
+      };
+      var feedSub = Meteor.subscribe("datasetData", opts);
+
+      // Get notified when the subscription is ready.
+      Tracker.autorun(function() {
+        if (feedSub.ready()) {
           debugOut.call(self,"starting data find");
 
           // Build the projection based on the visualisation configuration.
@@ -59,9 +75,10 @@ timeSeriesBase.startSubscriptions = function() {
           debugOut.call(self,"finished find");
 
           // Listen for changes to the collection.
-          var liveQuery = cursor.observe({
+          self._liveQuery = cursor.observe({
             added: function(d) {
               self.props.config.collection.push(d);
+              self.setState({gotData: true});
               doVisualisationRender.call(self);
             },
             removedAt: function(d,i) {
@@ -70,32 +87,25 @@ timeSeriesBase.startSubscriptions = function() {
             }
           });
 
-          // TODO - when to call this? Hook into componentWillUnmount?
-          // self.onStop(function() {
-          //   liveQuery.stop();
-          // });
-
           debugOut.call(self,"data loaded");
 
           // Perform initial render.
           doVisualisationRender.call(self);
-        } else {
-          console.log("data collection not found for feed: " + feed.name);
         }
-      }
-    });
+      });
 
-    Tracker.autorun(function() {
-      if (Session.get("nqm-vis-grid-update-" + self.props.config._id) === true) {
-        Session.set("nqm-vis-grid-update-" + self.props.config._id,undefined);
-        if (self._visualisation) {
-          self._visualisation.checkSize();
+      Tracker.autorun(function() {
+        if (Session.get("nqm-vis-grid-update-" + self.props.config._id) === true) {
+          Session.set("nqm-vis-grid-update-" + self.props.config._id,undefined);
+          if (self._visualisation) {
+            self._visualisation.checkSize();
+          }
         }
-      }
-    });
-  } else {
-    // Failed to find/load/access dataset.
-  }
+      });
+    } else {
+      // Failed to find/load/access dataset.
 
-  return feedSub;
+    }
+  });
+  return dsSub;
 };

@@ -136,6 +136,10 @@ SeriesBase = (function() {
   };
 
   SeriesBase.prototype.checkSize = function() {
+    if (!this._svgElement) {
+      return
+    }
+
     // Get parent card.
     var card = d3.select("#nqm-vis-card-" + this._ctrl.props.config._id);
     // Get parent card content.

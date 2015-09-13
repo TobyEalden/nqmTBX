@@ -185,7 +185,7 @@ DatasetsPage = React.createClass({
         verticalAlign: "middle",
         borderWidth: 0,
         borderTopWidth: 1,
-        borderColor: appPalette.primary2Color,
+        borderColor: appPalette.borderColor,
         borderStyle: "solid",
         padding: "4px 4px 4px 0px",
         color: appPalette.nqmTBXListTextColor,

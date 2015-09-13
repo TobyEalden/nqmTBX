@@ -65,13 +65,6 @@ Meteor.publish("hubs", function() {
   }
 });
 
-Meteor.publish("feeds", function() {
-  var user = Meteor.users.findOne(this.userId);
-  if (user && user.username) {
-    return feeds.find({ owner: user.username });
-  }
-});
-
 Meteor.publish("datasets", function(opts) {
 
   // DEBUG
@@ -171,39 +164,6 @@ Meteor.publish("datasetList", function(opts) {
       this.onStop(function() {
         liveQuery.stop();
       })
-    }
-  }
-
-  this.ready();
-});
-
-Meteor.publish("feedData", function(opts) {
-
-  // DEBUG
-  this.onStop(function() {
-    console.log("*** stopping feedData publication");
-  });
-
-  var user = Meteor.users.findOne(this.userId);
-  if (user && user.username) {
-    // TODO - proper permissioning (see datasetData)
-    var lookup = {owner: user.username, hubId: opts.hubId, id: opts.id};
-
-    // Find corresponding feed.
-    var feed = feeds.findOne(lookup);
-    if (feed) {
-      var coll = Mongo.Collection.get(feed.store);
-      if (!coll) {
-        coll = new Mongo.Collection(feed.store);
-      }
-
-      lookup = {};
-      if (opts.from) {
-        lookup["timestamp"] = {$gt: opts.from};
-      }
-      opts.limit = opts.limit || 1000;
-
-      return coll.find(lookup, {sort: {"timestamp": -1}, limit: opts.limit});
     }
   }
 

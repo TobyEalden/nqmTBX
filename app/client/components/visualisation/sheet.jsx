@@ -30,6 +30,8 @@ nqmTBX.vis.SheetView = React.createClass({
   },
   getInitialState: function() {
     return {
+      isSaving: false,
+      isUpdating: false,
       isDirty: false,
       gridReady: false,
       dirtyItems: {}
@@ -56,15 +58,19 @@ nqmTBX.vis.SheetView = React.createClass({
 
     // Register to be notified of gridstack changes.
     $(dom).on("change", function(e,items) {
-      if (items.length > 0) {
-        // Keep a cache of items that need saving.
-        var dirty = self.state.dirtyItems;
-        _.each(items, function(it) {
-          var visId = it.el.data().widgetId;
-          Session.set("nqm-vis-grid-update-" + visId, true);
-          dirty[visId] = it;
-        });
-        self.setState({isDirty: true, dirtyItems: dirty});
+      if (!self.state.isUpdating) {
+        if (items.length > 0) {
+          // Keep a cache of items that need saving.
+          var dirty = self.state.dirtyItems;
+          _.each(items, function(it) {
+            var visId = it.el.data().widgetId;
+            Session.set("nqm-vis-grid-update-" + visId, true);
+            dirty[visId] = it;
+          });
+          self.setState({isDirty: true, dirtyItems: dirty});
+        }        
+      } else {
+        console.log("ignoring grid change during update");
       }
     });
 
@@ -90,6 +96,7 @@ nqmTBX.vis.SheetView = React.createClass({
     });
   },
   save: function() {
+    this.setState({isSaving: true});
     _.each(this.state.dirtyItems, function(item,k) {
       var widgetId = item.el.data().widgetId;
       var current = widgets.findOne({_id: new Meteor.Collection.ObjectID(widgetId)});
@@ -100,20 +107,24 @@ nqmTBX.vis.SheetView = React.createClass({
       }
     }, this);
     this.setState({isDirty: false});
+    this.setState({isSaving: false});
   },
   updatePositions: function(props) {
-    if (this.state.isDirty) {
-      // TODO - fix, use auto-save or allow override.
-      console.log("ignored update from external source when sheet is dirty");
-    } else {
-      var dom = this.getDOMNode();
-      var grid = $(dom).data("gridstack");
+    this.setState({isUpdating: true}, function() {
+      if (false && this.state.isDirty) {
+        // TODO - fix, use auto-save or allow override.
+        console.log("ignored update from external source when sheet is dirty");
+      } else {
+        var dom = this.getDOMNode();
+        var grid = $(dom).data("gridstack");
 
-      _.each(props.visualisations, function(v) {
-        var nodeElement = $("#nqm-vis-" + v._id);
-        grid.update(nodeElement,v.position.x,v.position.y,v.position.w,v.position.h);
-      });
-    }
+        _.each(props.visualisations, function(v) {
+          var nodeElement = $("#nqm-vis-" + v._id);
+          grid.update(nodeElement,v.position.x,v.position.y,v.position.w,v.position.h);
+        });
+      }
+      this.setState({isUpdating: false});      
+    });
   },
   invalidateAll: function() {
     console.log("invalidate all");
@@ -142,9 +153,9 @@ nqmTBX.vis.SheetView = React.createClass({
     // TODO - review for sheets with pure React components.
     // No need to update if the data and grid are already up.
     if (this.state.gridReady) {
-      this.updatePositions(props);
+      //this.updatePositions(props);
       this.invalidateAll();
-      return false;
+      return true; //false;
     } else {
       return true;
     }

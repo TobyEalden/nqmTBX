@@ -59,15 +59,24 @@ var getTokenDetails = function(request) {
         throw new Error("bad referer");
       }
 
-      // Find a trusted zone.
-      var trusted = zoneConnections.findOne({ otherEmail: token.sub, owner: token.iss, status: "trusted", expires: { $gt: new Date() } });
-      if (!trusted) {
-        throw new Error("no trusted zone");
+      var user = Meteor.users.findOne({username: token.iss});
+      if (!user) {
+        throw new Error("bad issuer");
       }
 
-      userInfo.userId = trusted.otherEmail;
-      userInfo.token = token;
+      if (token.sub === user.email) {
+        // The token claimant is actually the resource owner
+        userInfo.userId = user.email;
+      } else {
+        // Find a trusted zone.
+        var trusted = zoneConnections.findOne({ otherEmail: token.sub, owner: token.iss, status: "trusted", expires: { $gt: new Date() } });
+        if (!trusted) {
+          throw new Error("no trusted zone");
+        }
+        userInfo.userId = trusted.otherEmail;
+      }
 
+      userInfo.token = token;
     } catch (e) {
       console.log("Failed to get api token - " + e.message);
     }
@@ -216,33 +225,33 @@ function authorised(request, resource, accessRequired) {
   return authorise;
 }
 
-// api.addRoute("datasets", {
-//   get: function() {
-//     var authInfo = getTokenDetails(this.request);
+api.addRoute("datasets", {
+  get: function() {
+    var authInfo = getTokenDetails(this.request);
 
-//     if (authInfo.userId) {
-//       var datasetList = [];
+    if (authInfo.userId) {
+      var datasetList = [];
 
-//       // For the trusted zone, find all public datasets.
-//       var publicDatasets = datasets.find({ owner: authInfo.token.iss, shareMode: "public"}).fetch();
-//       datasetList = _.union(datasetList,publicDatasets);
+      // For the trusted zone, find all public datasets.
+      var publicDatasets = datasets.find({ owner: authInfo.token.iss, shareMode: "public"}).fetch();
+      datasetList = _.union(datasetList,publicDatasets);
 
-//       // For the trusted zone, find all datasets for which there is a share token.
-//       var tokens = shareTokens.find({ userId: authInfo.userId, owner: authInfo.token.iss, status: "trusted", expires: { $gt: new Date() }, "resources.resource": "access", "resources.actions": "read" }).fetch();
-//       _.each(tokens, function(token) {
-//         var ds = datasets.findOne({id: token.scope, shareMode: "specific"});
-//         if (ds) {
-//           datasetList.push(ds);
-//         }
-//       }, this);
+      // For the trusted zone, find all datasets for which there is a share token.
+      var tokens = shareTokens.find({ userId: authInfo.userId, owner: authInfo.token.iss, status: "trusted", expires: { $gt: new Date() }, "resources.resource": "access", "resources.actions": "read" }).fetch();
+      _.each(tokens, function(token) {
+        var ds = datasets.findOne({id: token.scope, shareMode: "specific"});
+        if (ds) {
+          datasetList.push(ds);
+        }
+      }, this);
 
-//       return datasetList;
-//     } else {
-//       // Not authenticated => DENY and re-direct.
-//       return routeAuthenticate(request, resource);
-//     }
-//   }
-// });
+      return datasetList;
+    } else {
+      // Not authenticated => DENY and re-direct.
+      return routeAuthenticate(this.request);
+    }
+  }
+});
 
 api.addRoute("datasets/:id", {
   get: function() {

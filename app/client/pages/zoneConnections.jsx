@@ -25,7 +25,7 @@ nqmTBX.pages.ZoneConnections = React.createClass({
     return {
       ready: trustedSub.ready(),
       user: Meteor.user(),
-      trustedZones: zoneConnections.find({owner: Meteor.user().username}).fetch(),
+      trustedZones: zoneConnections.find({owner: Meteor.user().username, otherEmail: {$ne: Meteor.user().email} }).fetch(),
       trustingZones: zoneConnections.find({$or: [{other: Meteor.user().username},{otherEmail: Meteor.user().email }]}).fetch(),
     }
   },

@@ -5,6 +5,10 @@
 var jwt = Meteor.npmRequire("jwt-simple");
 var util = Meteor.npmRequire("util");
 
+var sendCommand = function(cmd, data) {
+  return HTTP.post(Meteor.settings.commandURL + cmd, { data: data });
+};
+
 var saveIOTHub = function(isNew, opts) {
   try {
     var result = HTTP.post(
@@ -128,6 +132,13 @@ var createUserAccount = function(name) {
         // Save the nqmId with the default meteor User document.
         // TODO - remove nqmId in favour of username.
         Meteor.users.update(user._id, { $set: { username: name, nqmId: name, email: nqmTBX.helpers.getUserEmail() } });
+
+        //// Add a self-referencing trusted zone.
+        //result.data = createZoneConnection({
+        //  otherEmail: nqmTBX.helpers.getUserEmail(),
+        //  expires: 525600000,
+        //  notify: false
+        //});
       }
     } else {
       if (!user) {
@@ -147,11 +158,13 @@ var createUserAccount = function(name) {
 var createZoneConnection = function(params) {
   check(params,{
     otherEmail: String,
-    expires: Match.Optional(Number)
+    expires: Match.Optional(Number),
+    notify: Match.Optional(Boolean)
   });
 
   try {
     params.expires = params.expires || 3600;
+    var notify = (typeof params.notify === "undefined") ? true : params.notify;
 
     var data = {
       owner: Meteor.user().username,
@@ -166,15 +179,13 @@ var createZoneConnection = function(params) {
     if (existing) {
       // There is already a valid zone connection.
       throw new Error("zone connection already exists");
-
-      // Might need to add self-referencing zone connection here for specific sharing.
     }
 
     // Send create command.
     var result = HTTP.post(Meteor.settings.commandURL + "/command/zoneConnection/create",{ data: data });
 
-    // Send a notification e-mail to the newly trusted zone (TODO - make optional)
-    if (result.data && result.data.ok) {
+    // Send a notification e-mail to the newly trusted zone
+    if (result.data && result.data.ok && notify) {
       // Send the target zone an email with a token for acknowledging/reciprocating the trust.
       var connectToken = {
         iss: result.data.result.id, // Issuer is the ID of the connection request.
@@ -365,54 +376,71 @@ var deleteShareToken = function(id) {
   }
 };
 
+/******************************************************************************
+* Create an API token based on a token received from authentication step.
+*
+* Incoming authenticateToken contains an issuer id which corresponds to the id
+* of the zone that issued the token.
+*
+* The returned API token grants permission to the currently logged in zone to
+* access resources owned by the issuer of the authentication token.
+*
+* The API token in itself does not permit access to any resources, a shareToken
+* must exist for a given resource in order to permit access.
+*
+* The issuing zone must trust the current zone in order for an API token to be 
+* granted.
+*
+******************************************************************************/
 var createApiToken = function(authenticateToken) {
   try {
-    var jt = jwt.decode(authenticateToken, Meteor.settings.APIKey);
-    if (jt.exp <= Date.now()) {
-      // Token has expired.
+    // Decode the incoming authentication token.
+    var authToken = jwt.decode(authenticateToken, Meteor.settings.APIKey);
+    if (!authToken.exp || authToken.exp <= Date.now()) {
+      // Authentication token has expired.
       throw new Error("auth token expired");
     }
 
-    // Get the email address of the currently logged in user.
+    // Get the email address of the currently logged in zone.
     var email = nqmTBX.helpers.getUserEmail();
 
-    // Make sure the currently logged in user is trusted by the token issuer.
-    var target = zoneConnections.findOne({ owner: jt.iss, otherEmail: email, status: "trusted", expires: { $gt: new Date() } });
-    if (target) {
-      //var result = HTTP.post(
-      //  Meteor.settings.commandURL + "/command/apiToken/create",
-      //  {
-      //    data: {
-      //      userId: target.id,
-      //
-      //      issued: Date.now(),
-      //      expires: Date.now() + 10*60*1000  // 10 mins?
-      //    }
-      //  }
-      //);
-      //console.log("result is %j",result.data);
-      //return result.data;
-      var apiToken = jwt.encode({
-        iss: jt.iss,
-        sub: email,
-        subId: nqmTBX.helpers.getUserId(),
-        exp: moment().add(Meteor.settings.apiTokenTimeout, "minutes").valueOf(),
-        ref: jt.ref
-      }, Meteor.settings.APIKey);
-      console.log("api token is %s",apiToken);
-      return { ok: true, token: apiToken };
-    } else {
-      // Not trusted user found.
-      if (jt.aud) {
-        // The token contains an aud member, which implies the resource is not
-        // private.
-        return { ok: true };
+    // Make sure the currently logged in zone is trusted by the token issuer.
+    var trustedZone = zoneConnections.findOne({ owner: authToken.iss, otherEmail: email, status: "trusted", expires: { $gt: new Date() } });
+    if (trustedZone || authToken.iss === nqmTBX.helpers.getUserId()) {
+      // Create the token data.
+      var apiToken = {
+        iss: authToken.iss,                   // Issuer is owner of the resource
+        sub: email,                           // Subject is the email of the claimant
+        subId: nqmTBX.helpers.getUserId(),    // Subject id is the id of the claimant
+        ref: authToken.ref,                   // Referer is the IP address of the claimaint.
+        jti: Random.id(),                     // ID of this token.
+        exp: moment().add(Meteor.settings.apiTokenTimeout, "minutes").valueOf(),        
+      };
+      // Save the token.
+      var result = sendCommand("/command/apiToken/create",apiToken);
+      console.log("result is %j",result.data);
+      if (result.data.ok) {
+        // Encode the API token.
+        var apiTokenEncoded = jwt.encode(apiToken, Meteor.settings.APIKey);
+        console.log("api token is %s",apiTokenEncoded);
+        return { ok: true, token: apiTokenEncoded };
+      } else {
+        // Failed to save the api token.
+        throw new Error("error saving API token");
       }
-      throw new Error(jt.iss + " does not trust " + email);
+    } else {
+      // No trusted zone found.
+      if (authToken.aud) {
+        // The token contains the id of the zone that is requesting access.
+        // This implies the resource is not private so don't throw an error.
+        // The caller can use this to determine if a 'request access' can be made.
+        return { ok: false };
+      }
+      throw new Error(authToken.iss + " does not trust " + email);
     }
   } catch (e) {
     console.log("createApiToken failed %s", e.message);
-    return { ok: false, error: e.message };
+    throw new Meteor.Error("createApiToken", e.message);
   }
 };
 
@@ -478,7 +506,7 @@ Meteor.methods({
     }
   },
   "/app/widget/updatePosition": function(widget) {
-    return widgets.update({_id: widget._id}, { $set: { position: widget.position } });
+    return widgets.update({_id: new Meteor.Collection.ObjectID(widget._id)}, { $set: { position: widget.position } });
   },
   "/app/widget/remove": function(widgetId) {
     return widgets.remove({_id: widgetId});
