@@ -61,13 +61,17 @@ nqmTBX.ZoneConnectionList = React.createClass({
     var styles = {
       usernameColumn: {
         width: "33%"
+      },
+      expiredRow: {
+        backgroundColor: mui.Styles.Colors.redA100
       }
     };
     var trustedBig = this.props.trustedZones.map(function (conn) {
       var expiry = (nqmTBX.helpers.neverExpire.valueOf() === conn.expires.valueOf()) ? "never" : moment(conn.expires).format("YYYY-MM-DD");
       var buttons = this._getRowButtons(conn);
+      var rowStyle = conn.status === "expired" ? styles.expiredRow : {};
       return (
-        <mui.TableRow key={conn.id} onClick={this.onInfoClick.bind(this,conn)}>
+        <mui.TableRow style={rowStyle} key={conn.id} onClick={this.onInfoClick.bind(this,conn)}>
           <mui.TableRowColumn style={styles.usernameColumn}>{conn[this.props.emailField]}</mui.TableRowColumn>
           <mui.TableRowColumn>{expiry}</mui.TableRowColumn>
           <mui.TableRowColumn>{conn.status}</mui.TableRowColumn>
@@ -78,8 +82,9 @@ nqmTBX.ZoneConnectionList = React.createClass({
 
     var trustedSmall = this.props.trustedZones.map(function (conn) {
       var buttons = this._getRowButtons(conn);
+      var rowStyle = conn.expires <= new Date() ? styles.expiredRow : {};
       return (
-        <mui.TableRow key={conn.id} onClick={this.onInfoClick.bind(this,conn)}>
+        <mui.TableRow style={rowStyle} key={conn.id} onClick={this.onInfoClick.bind(this,conn)}>
           <mui.TableRowColumn>{conn[this.props.emailField]}</mui.TableRowColumn>
           <mui.TableRowColumn>{buttons}</mui.TableRowColumn>
         </mui.TableRow>

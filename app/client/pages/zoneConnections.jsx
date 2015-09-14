@@ -67,7 +67,7 @@ nqmTBX.pages.ZoneConnections = React.createClass({
     //buttons.push(<mui.RaisedButton key={3} label="ok" />);
     var buttons = [];
     if (selectedConnection.owner !== this.data.user.username) {
-      if (selectedConnection.status !== "trusted") {
+      if (selectedConnection.status === "issued") {
         buttons.push({text: "accept", onTouchTap: this._acceptConnection.bind(this,selectedConnection) });
       }
       if (!zoneConnections.findOne({ owner: this.data.user.username, otherEmail: selectedConnection.ownerEmail })) {

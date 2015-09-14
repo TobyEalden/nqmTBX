@@ -58,7 +58,7 @@ EditDataset = React.createClass({
   save: function() {
     var valid = this.validateDataset();
     if (valid.errors.length > 0) {
-      console.log(valid.errors);
+      nqmTBX.ui.notification(valid.errors);
     } else {
       var cb = function(err, result) {
         if (err) {

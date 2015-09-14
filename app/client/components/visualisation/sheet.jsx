@@ -1,5 +1,5 @@
 
-nqmTBX.vis.Sheet = React.createClass({
+nqmTBX.Sheet = React.createClass({
   mixins: [ReactMeteorData],
   propTypes: {
   },

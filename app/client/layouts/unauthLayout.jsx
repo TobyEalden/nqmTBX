@@ -3,7 +3,7 @@ UnauthLayout = React.createClass({
   getMeteorData: function() {
     var data = {
       loggingIn: Meteor.loggingIn(),
-      loggedIn: (Meteor.user() && Meteor.user().nqmId ? true : false)
+      loggedIn: (Meteor.user() && Meteor.user().username ? true : false)
     };
     return data;
   },

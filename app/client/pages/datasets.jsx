@@ -10,18 +10,16 @@ DatasetsPage = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     var searchTerm = Session.get("nqm-search") || "";
+    var dsSub, account, resourceIds = [];
     var accountSub = Meteor.subscribe("account");
-    var dsSub, account, accountIds = [];
     if (accountSub.ready()) {
       account = accounts.findOne();
-      _.each(account.resources, function(v,k) {
-        accountIds.push(k);
-      });
-      dsSub = Meteor.subscribe("datasets", { id: {$in: accountIds}, $or: [ {name: {$regex: searchTerm, $options: "i"}}, {description: {$regex: searchTerm, $options: "i"} }, {tags: {$regex: searchTerm, $options: "i"}}]});
+      resourceIds = _.map(account.resources, function(v,k) { return k; });      
+      dsSub = Meteor.subscribe("datasets", { id: {$in: resourceIds}, $or: [ {name: {$regex: searchTerm, $options: "i"}}, {description: {$regex: searchTerm, $options: "i"} }, {tags: {$regex: searchTerm, $options: "i"}}]});
     }
     return {
       ready: accountSub.ready() && dsSub && dsSub.ready(),
-      datasets: datasets.find({ id: {$in: accountIds}, $or: [ {name: {$regex: searchTerm, $options: "i"}}, {description: {$regex: searchTerm, $options: "i"}}, {tags: {$regex: searchTerm, $options: "i"}}]}, {sort: {name: 1}}).fetch(),
+      datasets: datasets.find({ id: {$in: resourceIds}, $or: [ {name: {$regex: searchTerm, $options: "i"}}, {description: {$regex: searchTerm, $options: "i"}}, {tags: {$regex: searchTerm, $options: "i"}}]}, {sort: {name: 1}}).fetch(),
       user: Meteor.user()
     }
   },
@@ -48,7 +46,11 @@ DatasetsPage = React.createClass({
   },
   _onDeleteClick: function(dataset, e) {
     e.stopPropagation();
-    nqmTBX.ui.notification("deleting " + dataset.id);
+    Meteor.call("/app/dataset/delete",dataset.id,nqmTBX.helpers.methodCallback("deleteDataset"));
+  },
+  _onNotImplmented: function(dataset, e) {
+    e.stopPropagation();
+    nqmTBX.ui.notification("not implemented");
   },
   _onMoreClick: function(e) {
     e.stopPropagation();
@@ -79,9 +81,11 @@ DatasetsPage = React.createClass({
     if (this.state.hoveredDataset === dataset.id) {
       var iconMenu = (
         <mui.IconMenu openDirection="bottom-left" key={4} style={buttonStyle} iconButtonElement={<mui.IconButton key={5} tooltip="more" style={buttonStyle} iconStyle={iconStyle} iconClassName="material-icons" onClick={this._onMoreClick}>more_vert</mui.IconButton>}>
-          <mui.MenuItem key={1} primaryText="quick view" onClick={this._onViewClick.bind(this,dataset)} />
-          <mui.MenuItem key={0} primaryText="delete" onClick={this._onDeleteClick.bind(this,dataset)} />
-          <mui.MenuItem key={2} primaryText="settings" />
+          <mui.MenuItem key={0} primaryText="quick view" onClick={this._onViewClick.bind(this,dataset)} />
+          <mui.MenuItem key={1} primaryText="delete" onClick={this._onDeleteClick.bind(this,dataset)} />
+          <mui.MenuDivider key={2} />
+          <mui.MenuItem key={3} primaryText="export..."  onClick={this._onNotImplmented.bind(this,dataset)} />
+          <mui.MenuItem key={4} primaryText="derive..."  onClick={this._onNotImplmented.bind(this,dataset)} />        
         </mui.IconMenu>
       );
       buttons.push(iconMenu);
@@ -118,7 +122,10 @@ DatasetsPage = React.createClass({
     var toolbar = (
       <mui.Toolbar style={styles.toolbar}>
         <mui.ToolbarGroup>
+        </mui.ToolbarGroup>
+        <mui.ToolbarGroup>
           <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this._onAddDataset} >add</mui.FontIcon>
+          <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" >view_module</mui.FontIcon>
         </mui.ToolbarGroup>
       </mui.Toolbar>
     ) ;

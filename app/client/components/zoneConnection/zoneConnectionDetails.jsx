@@ -10,20 +10,24 @@ nqmTBX.ZoneConnectionDetails = React.createClass({
     connection: React.PropTypes.object
   },
   render: function() {
-    var trusted = this.props.connection.status === "trusted";
-    var owner = this.props.connection.owner === this.data.user.username;
     var description = [];
-    if (owner) {
-      description.push(<p>{"You are trusting zone '" + this.props.connection.otherEmail + "'."}</p>);
+    if (this.props.connection.status === "expired") {
+      description.push(<p>{"This connection has expired"}</p>);
     } else {
-      description.push(<p>{"Zone '" + this.props.connection.ownerEmail + "' trusts you."}</p>);
-    }
-    if (!trusted) {
-      // Not trusted.
+      var trusted = this.props.connection.status === "trusted";
+      var owner = this.props.connection.owner === this.data.user.username;
       if (owner) {
-        description.push(<p>{"Waiting for '" + this.props.connection.otherEmail + "' to accept the connection."}</p>);
+        description.push(<p>{"You are trusting zone '" + this.props.connection.otherEmail + "'."}</p>);
       } else {
-        description.push(<p>{"'" + this.props.connection.ownerEmail + "' is waiting for you to accept the connection."}</p>);
+        description.push(<p>{"Zone '" + this.props.connection.ownerEmail + "' trusts you."}</p>);
+      }
+      if (!trusted) {
+        // Not trusted.
+        if (owner) {
+          description.push(<p>{"Waiting for '" + this.props.connection.otherEmail + "' to accept the connection."}</p>);
+        } else {
+          description.push(<p>{"'" + this.props.connection.ownerEmail + "' is waiting for you to accept the connection."}</p>);
+        }
       }
     }
     return (

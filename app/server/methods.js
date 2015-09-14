@@ -23,34 +23,6 @@ var saveIOTHub = function(isNew, opts) {
   }
 };
 
-var saveIOTFeed = function(isNew, opts) {
-  try {
-    var result = HTTP.post(
-      Meteor.settings.commandURL + "/command/iot/feed/" + (isNew ? "create" : "update"),
-      { data: opts }
-    );
-    console.log("result is %j",result.data);
-    return result.data;
-  } catch (e) {
-    console.log("failed: %s", e.message);
-    return { ok: false, error: e.message };
-  }
-};
-
-var deleteFeed = function(hubId, id) {
-  try {
-    var result = HTTP.post(
-      Meteor.settings.commandURL + "/command/iot/feed/delete",
-      { data: { hubId: hubId, id: id } }
-    );
-    console.log("result is %j",result.data);
-    return result.data;
-  } catch (e) {
-    console.log("feed delete failed: %s", e.message);
-    return { ok: false, error: e.message };
-  }
-};
-
 var saveDataset = function(opts) {
   try {
     opts.owner = Meteor.user().nqmId;
@@ -101,14 +73,70 @@ var setDatasetShareMode = function(id, mode) {
 
 var deleteDataset = function(id) {
   try {
-    var result = HTTP.post(
-      Meteor.settings.commandURL + "/command/dataset/delete",
-      { data: { id: id } }
-    );
+    var result = HTTP.post(Meteor.settings.commandURL + "/command/dataset/delete", { data: { id: id } });
     console.log("result is %j",result.data);
     return result.data;
   } catch (e) {
     console.log("dataset delete failed: %s", e.message);
+    return { ok: false, error: e.message };
+  }
+};
+
+var saveVisualisation = function(opts) {
+  try {
+    opts.owner = Meteor.user().nqmId;
+    if (opts.id) {
+      // Validate that the current user owns the dataset
+      var target = visualisations.findOne({id: opts.id});
+      if (!target || target.owner !== opts.owner) {
+        throw new Error("permission denied");
+      }
+    } else {
+      // Default new visualisations to 'private'.
+      opts.shareMode = "private";
+    }
+    var result = HTTP.post(
+      Meteor.settings.commandURL + "/command/visualisation/" + (opts.id ? "update" : "create"),
+      { data: opts }
+    );
+    console.log("result is %j",result.data);
+    if (!result.data.ok) {
+      throw new Error(result.data.error || "call failed");
+    }
+    return result.data;
+  } catch (e) {
+    console.log("visualisation  save failed: %s", e.message);
+    throw new Meteor.Error("saveVisualisation",e.message);
+  }
+};
+
+var setVisualisationShareMode = function(id, mode) {
+  try {
+    var owner = Meteor.user().username;
+    // Validate that the current user owns the dataset
+    var target = visualisations.findOne({id: id});
+    if (!target || target.owner !== owner) {
+      throw new Error("permission denied");
+    }
+    var result = HTTP.post(
+      Meteor.settings.commandURL + "/command/visualisation/setShareMode",
+      { data: { id: id, shareMode: mode } }
+    );
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("visualisation setShareMode failed: %s", e.message);
+    throw new Meteor.Error("setVisualisationShareMode",e.message);
+  }
+};
+
+var deleteVisualisation = function(id) {
+  try {
+    var result = HTTP.post(Meteor.settings.commandURL + "/command/visualisation/delete", { data: { id: id } });
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("visualisation delete failed: %s", e.message);
     return { ok: false, error: e.message };
   }
 };
@@ -519,18 +547,6 @@ Meteor.methods({
     this.unblock();
     return saveIOTHub(false, opts);
   },
-  "/app/iotfeed/create": function(opts) {
-    this.unblock();
-    return saveIOTFeed(true, opts);
-  },
-  "/app/iotfeed/update": function(opts) {
-    this.unblock();
-    return saveIOTFeed(false, opts);
-  },
-  "/app/iotfeed/delete": function(opts) {
-    this.unblock();
-    return deleteFeed(opts.hubId, opts.id);
-  },
   "/app/dataset/create": function(opts) {
     this.unblock();
     return saveDataset(opts);
@@ -585,5 +601,21 @@ Meteor.methods({
   "/app/zoneConnection/delete": function(id) {
     this.unblock();
     return removeZoneConnection(id);
+  },
+  "/app/visualisation/create": function(opts) {
+    this.unblock();
+    return saveVisualisation(opts);
+  },
+  "/app/visualisation/update": function(opts) {
+    this.unblock();
+    return saveVisualisation(opts);
+  },
+  "/app/visualisation/delete": function(id) {
+    this.unblock();
+    return deleteVisualisation(id);
+  },
+  "/app/visualisation/setShareMode": function(id, mode) {
+    this.unblock();
+    return setVisualisationShareMode(id, mode);
   }
 });

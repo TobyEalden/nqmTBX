@@ -40,14 +40,14 @@ FlowRouter.route("/datasets", {
 FlowRouter.route("/dataset/create", {
   name: "datasetCreate",
   action: function(params) {
-    ReactLayout.render(ModalLayout, { content: function() { return <DatasetEditPage />; } });
+    ReactLayout.render(ModalLayout, { content: function() { return <nqmTBX.pages.DatasetEdit />; } });
   }
 });
 
 FlowRouter.route("/dataset/edit/:id", {
   name: "datasetEdit",
   action: function(params) {
-    ReactLayout.render(ModalLayout, { content: function() { return <DatasetEditPage datasetId={params.id} />; } });
+    ReactLayout.render(ModalLayout, { content: function() { return <nqmTBX.pages.DatasetEdit datasetId={params.id} />; } });
   }
 });
 
@@ -69,6 +69,27 @@ FlowRouter.route("/visualise", {
   name: "visualise",
   action: function () {
     ReactLayout.render(MainLayout, { content: function() { return <VisualisePage />; } });
+  }
+});
+
+FlowRouter.route("/visualise/create", {
+  name: "visualCreate",
+  action: function(params) {
+    ReactLayout.render(ModalLayout, { content: function() { return <nqmTBX.pages.VisualEdit />; } });
+  }
+});
+
+FlowRouter.route("/visualise/edit/:id", {
+  name: "visualEdit",
+  action: function(params) {
+    ReactLayout.render(ModalLayout, { content: function() { return <nqmTBX.pages.VisualEdit resourceId={params.id} />; } });
+  }
+});
+
+FlowRouter.route("/visualise/:id", {
+  name: "visualView",
+  action: function(params) {
+    ReactLayout.render(MainLayout, { content: function() { return <nqmTBX.pages.VisualView resourceId={params.id} />; } });
   }
 });
 

@@ -1,29 +1,28 @@
 
-nqmTBX.pages.DatasetEdit = React.createClass({
+nqmTBX.pages.VisualEdit = React.createClass({
   mixins: [ReactMeteorData],
   propTypes: {
-    datasetId: React.PropTypes.string
+    resourceId: React.PropTypes.string
   },
   getMeteorData: function() {
     var data = {
     };
-    if (this.props.datasetId) {
-      var dsSub = Meteor.subscribe("datasets", { id: this.props.datasetId });
+    if (this.props.resourceId) {
+      var dsSub = Meteor.subscribe("datasets", { id: this.props.resourceId });
       data.ready = dsSub.ready();
-      data.dataset = datasets.findOne({id: this.props.datasetId});
+      data.resource = datasets.findOne({id: this.props.resourceId});
     } else {
       data.ready = true;
-      data.dataset = {};
+      data.resource = {};
     }
-
     return data;
   },
   render: function() {
     if (!this.data.ready) {
       return <mui.CircularProgress mode="indeterminate" />
     } else {
-      if (this.data.dataset) {
-        return <EditDataset dataset={this.data.dataset} />
+      if (this.data.resource) {
+        return <nqmTBX.EditSheet resource={this.data.resource} />
       } else {
         // TODO - tart this up.
         return <div>not found</div>
