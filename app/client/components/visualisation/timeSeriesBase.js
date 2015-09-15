@@ -54,8 +54,9 @@ timeSeriesBase.startSubscriptions = function() {
       var sinceDate = new Date(Date.now() - 24*60*60*1000);
 
       var opts = {
+        limit: 10000,
         id: feed.id,
-        from: {$gt: sinceDate}
+        from: {timestamp: {$gt: sinceDate.getTime()}}
       };
       var feedSub = Meteor.subscribe("datasetData", opts);
 
@@ -95,8 +96,8 @@ timeSeriesBase.startSubscriptions = function() {
       });
 
       Tracker.autorun(function() {
-        if (Session.get("nqm-vis-grid-update-" + self.props.config._id) === true) {
-          Session.set("nqm-vis-grid-update-" + self.props.config._id,undefined);
+        if (Session.get("nqm-vis-grid-update-" + self.props.config.id) === true) {
+          Session.set("nqm-vis-grid-update-" + self.props.config.id,undefined);
           if (self._visualisation) {
             self._visualisation.checkSize();
           }

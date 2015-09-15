@@ -2,20 +2,21 @@
 nqmTBX.Sheet = React.createClass({
   mixins: [ReactMeteorData],
   propTypes: {
+    resourceId: React.PropTypes.string
   },
   getMeteorData: function() {
     // Load the visualisations for this sheet.
-    var visSub = Meteor.subscribe("widgets");
+    var visualisationSub = Meteor.subscribe("visualisations",{id: this.props.resourceId});
 
     return {
-      ready: visSub.ready(),
-      visualisations: widgets.find().fetch()
-    }
+      ready: visualisationSub.ready(),
+      visualisation: visualisations.findOne({id: this.props.resourceId})
+    };
   },
   render: function() {
     var content;
     if (this.data.ready) {
-      content = <nqmTBX.vis.SheetView visualisations={this.data.visualisations} />
+      content = <nqmTBX.vis.SheetView widgets={this.data.visualisation.widgets} />
     } else {
       content = <mui.CircularProgress mode="indeterminate" />
     }
@@ -26,7 +27,7 @@ nqmTBX.Sheet = React.createClass({
 
 nqmTBX.vis.SheetView = React.createClass({
   propTypes: {
-    visualisations: React.PropTypes.array.isRequired
+    widgets: React.PropTypes.array.isRequired
   },
   getInitialState: function() {
     return {
@@ -85,7 +86,7 @@ nqmTBX.vis.SheetView = React.createClass({
   },
   saveWidgetPosition: function(id, pos, cb) {
     console.log("saving widget position: " + id);
-    Meteor.call("/app/widget/updatePosition",{ _id: id, position: pos}, function(err) {
+    Meteor.call("/app/widget/updatePosition",{ id: id, position: pos}, function(err) {
       if (err) {
         nqmTBX.ui.notification("failed to save widget position: " + err.message);
         cb();
@@ -99,7 +100,7 @@ nqmTBX.vis.SheetView = React.createClass({
     this.setState({isSaving: true});
     _.each(this.state.dirtyItems, function(item,k) {
       var widgetId = item.el.data().widgetId;
-      var current = widgets.findOne({_id: new Meteor.Collection.ObjectID(widgetId)});
+      var current = widgets.findOne({id: widgetId});
       if (!current.position || current.position.x != item.x || current.position.y != item.y || current.position.w != item.width || current.position.h != item.height) {
         this.saveWidgetPosition(widgetId,{ x: item.x, y: item.y, w: item.width, h: item.height }, function() {
           nqmTBX.ui.notification("saved " + widgetId);
@@ -118,8 +119,8 @@ nqmTBX.vis.SheetView = React.createClass({
         var dom = this.getDOMNode();
         var grid = $(dom).data("gridstack");
 
-        _.each(props.visualisations, function(v) {
-          var nodeElement = $("#nqm-vis-" + v._id);
+        _.each(props.widgets, function(v) {
+          var nodeElement = $("#nqm-vis-" + v.id);
           grid.update(nodeElement,v.position.x,v.position.y,v.position.w,v.position.h);
         });
       }
@@ -128,8 +129,8 @@ nqmTBX.vis.SheetView = React.createClass({
   },
   invalidateAll: function() {
     console.log("invalidate all");
-    _.each(this.props.visualisations, function(v) {
-      Session.set("nqm-vis-grid-update-" + v._id, true);
+    _.each(this.props.widgets, function(v) {
+      Session.set("nqm-vis-grid-update-" + v.id, true);
     });
   },
   onWindowResized: function(ev, ui) {
@@ -155,7 +156,7 @@ nqmTBX.vis.SheetView = React.createClass({
     if (this.state.gridReady) {
       //this.updatePositions(props);
       this.invalidateAll();
-      return true; //false;
+      return false;
     } else {
       return true;
     }
@@ -170,14 +171,24 @@ nqmTBX.vis.SheetView = React.createClass({
     };
 
     var content;
-    var visualisations = this.props.visualisations.map(function(vis) {
-      return <nqmTBX.vis.Container key={vis._id} config={vis} />;
+    var widgets = this.props.widgets.map(function(vis) {
+      var config = {
+        id: vis.id,
+        type: vis.type,
+        title: vis.title,
+        position: vis.position,
+        feedId: vis.inputs[0].datasource,
+        series: vis.inputs[0].series,
+        datum: vis.inputs[0].datum,
+        collection: []
+      };
+      return <nqmTBX.vis.Container key={vis.id} config={config} />;
     },this);
 
     content = (
       <div className="grid-stack">
-        {visualisations}
-        <mui.FloatingActionButton style={styles.actionButton} onClick={this.save} tooltip="new dataset"><mui.FontIcon className="material-icons">add</mui.FontIcon></mui.FloatingActionButton>
+        {widgets}
+        {/*<mui.FloatingActionButton style={styles.actionButton} onClick={this.save} tooltip="new dataset"><mui.FontIcon className="material-icons">add</mui.FontIcon></mui.FloatingActionButton>*/}
       </div>
     );
 

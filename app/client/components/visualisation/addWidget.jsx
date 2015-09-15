@@ -1,0 +1,101 @@
+const {
+  IconMenu,
+  MenuItem
+} = mui;
+
+nqmTBX.AddWidget = React.createClass({
+  mixins: [ReactMeteorData],
+  propTypes: {
+    onAdd: React.PropTypes.func
+  },
+  getInitialState: function() {
+    return {
+      selectedResource: "",
+      selectedWidgetType: "",
+      selectedDatum: ""
+    }
+  },
+  getMeteorData: function() {
+    var widgetTypeSub = Meteor.subscribe("widgetTypes");
+    var resourceSub = Meteor.subscribe("datasets");
+
+    return {
+      ready: widgetTypeSub.ready() && resourceSub.ready(),
+      widgetTypes: widgetTypes.find().fetch(),
+      resources: datasets.find().fetch()
+    };
+  },
+  _onWidgetTypeSelected: function(e,value) {
+    this.setState({selectedWidgetType: value});
+  },
+  _onResourceSelected: function(e,value) {
+    this.setState({selectedResource: value});
+  },
+  _onDatumSelected: function(e,value) {
+    this.setState({selectedDatum: value});
+  },
+  _onCreate: function() {
+    if (this.props.onAdd) {
+      this.props.onAdd({
+        widgetType: this.state.selectedWidgetType,
+        resourceId: this.state.selectedResource,
+        datum: this.state.selectedDatum
+      });
+    }
+  },
+  render: function() {
+    var resourceButton = <mui.IconButton iconClassName="material-icons">description</mui.IconButton>;
+    var widgetTypeButton = <mui.IconButton iconClassName="material-icons">widgets</mui.IconButton>;
+    var datumButton = <mui.IconButton iconClassName="material-icons">list</mui.IconButton>;
+
+    if (!this.data.ready) {
+      return <mui.CircularProgress mode="indeterminate" />;
+    } else {
+      var resourceList = _.map(this.data.resources, function(resource) {
+        return <MenuItem value={resource.id} primaryText={resource.name} />;           
+      });
+      var widgetTypeList = _.map(this.data.widgetTypes, function(widgetType) {
+        return <MenuItem value={widgetType.name} primaryText={widgetType.caption} />;
+      });
+      var datumSelector;
+      if (this.state.selectedResource.length > 0) {
+        var resource = datasets.findOne({id: this.state.selectedResource});
+        var fieldList = _.map(resource.scheme, function(v,k) {
+          return <MenuItem value={k} primaryText={k} />;
+        });
+        datumSelector = (
+          <div>
+            <span>{this.state.selectedDatum}</span>
+            <IconMenu onChange={this._onDatumSelected} iconButtonElement={datumButton} maxHeight={272} openDirection="bottom-right">{fieldList}</IconMenu>
+          </div>
+        );
+      }
+      return (
+        <div>
+          <div>
+            <span>{this.state.selectedResource}</span>
+            <IconMenu onChange={this._onResourceSelected}
+              iconButtonElement={resourceButton}
+              maxHeight={272}
+              openDirection="bottom-right">
+              {resourceList}
+            </IconMenu>
+          </div>
+          <div>
+            <span>{this.state.selectedWidgetType}</span>
+            <IconMenu onChange={this._onWidgetTypeSelected}
+              iconButtonElement={widgetTypeButton}
+              maxHeight={272}
+              openDirection="bottom-right">
+              {widgetTypeList}
+            </IconMenu>
+          </div>
+          {datumSelector}
+          <div>
+            <mui.RaisedButton label="create" primary={true} onClick={this._onCreate} />
+          </div>
+        </div>
+      );
+    }
+  }
+})

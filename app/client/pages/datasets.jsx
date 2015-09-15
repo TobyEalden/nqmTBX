@@ -35,6 +35,29 @@ nqmTBX.pages.Datasets = React.createClass({
   _onAPIClick: function(e) {
     e.stopPropagation();    
   },
+  _getActiveContent: function(dataset) {
+    var styles = {
+      apiLink: {
+        padding: "4px 4px 4px 0px",
+        color: appPalette.nqmTBXListTextColor,
+        backgroundColor: appPalette.nqmTBXListBackground,
+      },
+      apiLinkIcon: {
+        color: appPalette.nqmTBXListIconColor,
+        paddingLeft: 5,
+        paddingRight: 5,
+        fontSize: "20px",
+        verticalAlign: "middle"
+      },
+    };
+    return (
+      <div className="Grid" style={styles.apiLink}>
+        <div className="Grid-cell">
+          <mui.FontIcon style={styles.apiLinkIcon} className="material-icons">link</mui.FontIcon> <a href={"/api/datasets/" + dataset.id} target="_blank" onClick={this._onAPIClick}>{"API Link"}</a>
+        </div>
+      </div>    
+    );
+  },
   render: function() {
     var styles = this._getStyles();
     var toolbar = (
@@ -47,7 +70,7 @@ nqmTBX.pages.Datasets = React.createClass({
         </mui.ToolbarGroup>
       </mui.Toolbar>
     ) ;
-    var content = <nqmTBX.ResourceList type="Dataset" resources={this.data.datasets} onEdit={this._onEditClick} onView={this._onViewClick} onDelete={this._onDeleteClick} />;
+    var content = <nqmTBX.ResourceList type="Dataset" resources={this.data.datasets} getActiveContent={this._getActiveContent} onEdit={this._onEditClick} onView={this._onViewClick} onDelete={this._onDeleteClick} />;
 
     return (
       <div>

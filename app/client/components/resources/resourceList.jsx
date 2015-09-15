@@ -6,7 +6,8 @@ nqmTBX.ResourceList = React.createClass({
     type: React.PropTypes.string.isRequired,
     onEdit: React.PropTypes.func,
     onView: React.PropTypes.func,
-    onDelete: React.PropTypes.func
+    onDelete: React.PropTypes.func,
+    getActiveContent: React.PropTypes.func
   },
   getMeteorData: function() {
     return {
@@ -123,6 +124,10 @@ nqmTBX.ResourceList = React.createClass({
         );
 
         if (this.state.activeResource === resource.id) {
+          var activeContent;
+          if (this.props.getActiveContent) {
+            activeContent = this.props.getActiveContent(resource);
+          }
           row = (
             <div>
               {keyDataRow}
@@ -132,13 +137,7 @@ nqmTBX.ResourceList = React.createClass({
                   <div style={styles.shareSummary}><nqmTBX.SharedWithSummary resource={resource} onClick={this._onShareClick.bind(this,resource)} /></div>
                 </div>
               </div>
-              <div className="Grid" style={styles.apiLink}>
-                {/*
-                <div className="Grid-cell">
-                  <mui.FontIcon style={styles.apiLinkIcon} className="material-icons">link</mui.FontIcon> <a href={"/api/datasets/" + resource.id} target="_blank" onClick={this._onAPIClick}>{"API Link"}</a>
-                </div>
-                */}
-              </div>
+              {activeContent}
             </div>
           );
         } else {
@@ -223,18 +222,6 @@ nqmTBX.ResourceList = React.createClass({
       },
       shareSummary: {
         paddingTop: 10
-      },
-      apiLink: {
-        padding: "4px 4px 4px 0px",
-        color: appPalette.nqmTBXListTextColor,
-        backgroundColor: appPalette.nqmTBXListBackground,
-      },
-      apiLinkIcon: {
-        color: appPalette.nqmTBXListIconColor,
-        paddingLeft: 5,
-        paddingRight: 5,
-        fontSize: "20px",
-        verticalAlign: "middle"
       },
       buttonStyle: {
         float: "right",

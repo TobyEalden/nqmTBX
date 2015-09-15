@@ -89,7 +89,14 @@ FlowRouter.route("/visualise/edit/:id", {
 FlowRouter.route("/visualise/:id", {
   name: "visualView",
   action: function(params) {
-    ReactLayout.render(MainLayout, { content: function() { return <nqmTBX.pages.VisualView resourceId={params.id} />; } });
+    ReactLayout.render(ModalLayout, { content: function() { return <nqmTBX.pages.VisualView resourceId={params.id} />; } });
+  }
+});
+
+FlowRouter.route("/visualise/:id/addWidget", {
+  name: "visualAddWidget",
+  action: function(params) {
+    ReactLayout.render(ModalLayout, { content: function() { return <nqmTBX.pages.VisualAddWidget resourceId={params.id} />; } });
   }
 });
 

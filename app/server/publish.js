@@ -66,6 +66,7 @@ Meteor.publish("hubs", function() {
 });
 
 Meteor.publish("datasets", function(opts) {
+  opts = opts || {};
 
   // DEBUG
   this.onStop(function() {
@@ -75,6 +76,10 @@ Meteor.publish("datasets", function(opts) {
   var user = Meteor.users.findOne(this.userId);
   if (user && user.username) {
     var account = accounts.findOne({id: user.username});
+
+    if (!opts.id) {
+      opts.id = {$in: _.map(account.resources, function(v,k) { return k; })};
+    }
 
     // Sanitize dataset ids.
     if (typeof opts.id === "object") {
@@ -127,11 +132,13 @@ Meteor.publish("datasetData", function(opts) {
         }
 
         // Todo - implement where and sort clauses.
-        var lookup = {};
+        var lookup = opts.from || {};
         var limit = opts.limit || 1000;
 
         var sort = {};
-        if (dataset.uniqueIndex && dataset.uniqueIndex.length > 0) {
+        if (opts.sort) {
+          sort = opts.sort;
+        } else if (dataset.uniqueIndex && dataset.uniqueIndex.length > 0) {
           sort[dataset.uniqueIndex[0].asc ? dataset.uniqueIndex[0].asc : dataset.uniqueIndex[0].desc] = 1;          
         }
 

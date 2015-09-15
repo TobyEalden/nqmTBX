@@ -47,12 +47,14 @@ nqmTBX.TitleBar = React.createClass({
       title: {
       },
       nquiring: {
-        fontWeight: "light",
+        fontWeight: "bolder",
         paddingRight: "0px",
+        fontSize: 30,
         color: ThemeManager.getCurrentTheme().palette.canvasColor
       },
       toolbox: {
-        fontWeight: "bolder",
+        fontWeight: 100,
+        fontSize: 30,
         color: ThemeManager.getCurrentTheme().palette.canvasColor
       },
       iconButton: {
@@ -98,8 +100,8 @@ nqmTBX.TitleBar = React.createClass({
             <mui.IconButton style={styles.iconButton} iconStyle={styles.fontIcon} disabled={!(this.props.onNavToggle)} onClick={this.navToggled}><mui.FontIcon className="material-icons">menu</mui.FontIcon></mui.IconButton>
           </mui.ToolbarGroup>
           <mui.ToolbarGroup key={1} float="left" style={styles.title}>
-            <mui.ToolbarTitle text="nquire" style={styles.nquiring} />
-            <mui.ToolbarTitle text="Toolbox" style={styles.toolbox} />
+            <mui.ToolbarTitle text="nquiring" style={styles.nquiring} />
+            <mui.ToolbarTitle text="toolbox" style={styles.toolbox} />
           </mui.ToolbarGroup>
         </div>
       );

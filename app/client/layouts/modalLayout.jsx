@@ -47,7 +47,6 @@ ModalLayout = React.createClass({
       contentCell: {
         position: "relative",
         overflowY: "auto",
-        padding: "20px",
       },
       content: {
         display: "flex",

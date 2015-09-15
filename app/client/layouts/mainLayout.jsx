@@ -74,7 +74,7 @@ MainLayout = React.createClass({
       content: {
         display: "flex",
         flexDirection: "column",
-        //backgroundColor: appPalette.primary2Color,
+        backgroundColor: mui.Styles.Colors.blueGrey700
       }
     };
 

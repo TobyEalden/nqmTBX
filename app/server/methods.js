@@ -75,12 +75,18 @@ var setDatasetShareMode = function(id, mode) {
 
 var deleteDataset = function(id) {
   try {
+    var owner = Meteor.user().username;
+    // Validate that the current user owns the dataset
+    var target = datasets.findOne({id: id});
+    if (!target || target.owner !== owner) {
+      throw new Error("permission denied");
+    }
     var result = HTTP.post(Meteor.settings.commandURL + "/command/dataset/delete", { data: { id: id } });
     console.log("result is %j",result.data);
     return result.data;
   } catch (e) {
     console.log("dataset delete failed: %s", e.message);
-    return { ok: false, error: e.message };
+    throw new Meteor.Error("deleteDataset",e.message);
   }
 };
 
@@ -134,12 +140,35 @@ var setVisualisationShareMode = function(id, mode) {
 
 var deleteVisualisation = function(id) {
   try {
+    var owner = Meteor.user().username;
+    // Validate that the current user owns the dataset
+    var target = visualisations.findOne({id: id});
+    if (!target || target.owner !== owner) {
+      throw new Error("permission denied");
+    }
     var result = HTTP.post(Meteor.settings.commandURL + "/command/visualisation/delete", { data: { id: id } });
     console.log("result is %j",result.data);
     return result.data;
   } catch (e) {
     console.log("visualisation delete failed: %s", e.message);
-    return { ok: false, error: e.message };
+    throw new Meteor.Error("deleteVisualisation",e.message);
+  }
+};
+
+var addVisualisationWidget = function(opts) {
+  try {
+    var owner = Meteor.user().username;
+    // Validate that the current user owns the dataset
+    var target = visualisations.findOne({id: opts.visId});
+    if (!target || target.owner !== owner) {
+      throw new Error("permission denied");
+    }
+    var result = HTTP.post(Meteor.settings.commandURL + "/command/visualisation/widget/create", { data: opts });
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("visualisation add widget failed: %s", e.message);
+    throw new Meteor.Error("addVisualisationWidget",e.message);
   }
 };
 
@@ -619,5 +648,9 @@ Meteor.methods({
   "/app/visualisation/setShareMode": function(id, mode) {
     this.unblock();
     return setVisualisationShareMode(id, mode);
+  },
+  "/app/visualisation/addWidget": function(opts) {
+    this.unblock();
+    return addVisualisationWidget(opts);
   }
 });

@@ -38,7 +38,7 @@ SeriesBase = (function() {
     var self = this;
 
     // Create SVG container.
-    this._svgElement = d3.select("#" + this._ctrl.props.config.type + "-" + this._ctrl.props.config._id);
+    this._svgElement = d3.select("#" + this._ctrl.props.config.type + "-" + this._ctrl.props.config.id);
 
     this._xValue = function (d) { return d[self._ctrl.props.config.series] };
     this._xMap = function (d) { return self._xScale(self._xValue(d)); };
@@ -57,12 +57,12 @@ SeriesBase = (function() {
 
     // x axis.
     this._dataGroup.append("g")
-      .attr("id", "nqm-vis-x-axis-" + this._ctrl.props.config._id)
+      .attr("id", "nqm-vis-x-axis-" + this._ctrl.props.config.id)
       .attr("class", "x axis");
 
     // y axis.
     this._dataGroup.append("g")
-      .attr("id", "nqm-vis-y-axis-" + this._ctrl.props.config._id)
+      .attr("id", "nqm-vis-y-axis-" + this._ctrl.props.config.id)
       .attr("class", "y axis")
       .append("text")
       .attr("transform", "rotate(-90)")
@@ -141,11 +141,11 @@ SeriesBase = (function() {
     }
 
     // Get parent card.
-    var card = d3.select("#nqm-vis-card-" + this._ctrl.props.config._id);
+    var card = d3.select("#nqm-vis-card-" + this._ctrl.props.config.id);
     // Get parent card content.
-    var cardContent = d3.select("#nqm-vis-content-" + this._ctrl.props.config._id);
+    var cardContent = d3.select("#nqm-vis-content-" + this._ctrl.props.config.id);
     // Get title.
-    var title = d3.select("#nqm-vis-title-" + this._ctrl.props.config._id);
+    var title = d3.select("#nqm-vis-title-" + this._ctrl.props.config.id);
 
     // Determine dimensions of parent node.
     var width = card.node().offsetWidth;
@@ -173,7 +173,7 @@ SeriesBase = (function() {
       this._yScale = d3.scale.linear().range([height, 0]);
       this._yAxis = d3.svg.axis().scale(this._yScale).orient("left");
 
-      d3.select("#nqm-vis-x-axis-" + this._ctrl.props.config._id)
+      d3.select("#nqm-vis-x-axis-" + this._ctrl.props.config.id)
         .attr("transform", "translate(" + 0 + "," + height + ")");
 
       throttledRender.call(this);

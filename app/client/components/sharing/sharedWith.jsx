@@ -41,7 +41,7 @@ nqmTBX.SharedWithSummary = React.createClass({
         if (this.props.resource.shareMode === "public") {
           shareSummary = "This resource is public and accessible to anybody who has the link.";
         } else if (this.props.resource.shareMode === "private") {
-          shareSummary = "This resource is private and not accessible by anybody except you.";
+          shareSummary = "This resource is private and not accessible to anybody except you.";
         } else {
           if (this.data.shares.length > 0) {
             shareSummary = "Shared with ";
