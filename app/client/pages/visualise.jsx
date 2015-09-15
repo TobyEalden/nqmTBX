@@ -52,12 +52,17 @@ VisualisePage = React.createClass({
     return (
       <div>
         {toolbar}
-        {content}
+        <div style={styles.resourcePanel}>
+          {content}
+        </div>
       </div>
     );
   },
   _getStyles: function() {
     return styles = {
+      resourcePanel: {
+        marginTop: 60,
+      },
       toolbar: {
         paddingLeft: "4px",
         position: "fixed",

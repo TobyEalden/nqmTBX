@@ -8,13 +8,14 @@ nqmTBX.pages.VisualEdit = React.createClass({
     var data = {
     };
     if (this.props.resourceId) {
-      var dsSub = Meteor.subscribe("datasets", { id: this.props.resourceId });
+      var dsSub = Meteor.subscribe("visualisations", { id: this.props.resourceId });
       data.ready = dsSub.ready();
-      data.resource = datasets.findOne({id: this.props.resourceId});
+      data.resource = visualisations.findOne({id: this.props.resourceId});
     } else {
       data.ready = true;
       data.resource = {};
     }
+
     return data;
   },
   render: function() {

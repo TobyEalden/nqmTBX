@@ -28,12 +28,14 @@ var saveDataset = function(opts) {
     opts.owner = Meteor.user().nqmId;
     if (opts.id) {
       // Validate that the current user owns the dataset
+      // TODO - handle shares with write permissions.
       var target = datasets.findOne({id: opts.id});
       if (!target || target.owner !== opts.owner) {
         throw new Error("permission denied");
       }
     } else {
       // Default new datasets to 'private'.
+      // TODO - review.
       opts.shareMode = "private";
     }
     var result = HTTP.post(

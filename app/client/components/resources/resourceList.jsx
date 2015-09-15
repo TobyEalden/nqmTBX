@@ -148,7 +148,7 @@ nqmTBX.ResourceList = React.createClass({
       }, this);
 
       content = (
-        <div className="" style={styles.resourcePanel}>
+        <div>
           <div className="Grid" style={styles.headerRow}>
             <div className="Grid-cell" style={{paddingLeft:30}}>name</div>
             <MediaQuery minWidth={900}>
@@ -161,6 +161,8 @@ nqmTBX.ResourceList = React.createClass({
           </mui.Paper>
         </div>
       );
+    } else if (this.props.resources) {
+      content = <div>none found</div>;
     } else {
       content = <mui.CircularProgress mode="indeterminate" />;
     }
@@ -169,17 +171,8 @@ nqmTBX.ResourceList = React.createClass({
   },
   _getStyles: function() {
     return styles = {
-      resourcePanel: {
-        marginTop: 60,
-      },
       resourceList: {
-        margin: 10,
-      },
-      toolbar: {
-        paddingLeft: "4px",
-        position: "fixed",
-        backgroundColor: appPalette.primary3Color,
-        zIndex: 1
+        margin: "0px 10px 10px 10px"
       },
       headerRow: {
         padding: "4px 10px 4px 10px"
