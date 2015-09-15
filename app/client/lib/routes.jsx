@@ -17,7 +17,7 @@ FlowRouter.route("/error/:statusCode", {
 
 FlowRouter.route("/", {
   action: function() {
-    ReactLayout.render(MainLayout, { content: function() { return <DatasetsPage />; } });
+    ReactLayout.render(MainLayout, { content: function() { return <nqmTBX.pages.Datasets />; } });
   }
 });
 
@@ -33,7 +33,7 @@ FlowRouter.route("/logout", {
 FlowRouter.route("/datasets", {
   name: "datasets",
   action: function() {
-   ReactLayout.render(MainLayout, { content: function() { return <DatasetsPage />; } });
+   ReactLayout.render(MainLayout, { content: function() { return <nqmTBX.pages.Datasets />; } });
   }
 });
 
@@ -51,10 +51,10 @@ FlowRouter.route("/dataset/edit/:id", {
   }
 });
 
-FlowRouter.route("/dataset/share/:id", {
-  name: "datasetShare",
+FlowRouter.route("/resource/share/:type/:id", {
+  name: "resourceShare",
   action: function(params) {
-    ReactLayout.render(ModalLayout, { content: function() { return <nqmTBX.pages.DatasetSharePage datasetId={params.id} /> } });
+    ReactLayout.render(ModalLayout, { content: function() { return <nqmTBX.pages.ResourceShare resourceId={params.id} type={params.type} /> } });
   }
 });
 

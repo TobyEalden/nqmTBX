@@ -100,76 +100,6 @@ Meteor.publish("datasets", function(opts) {
   this.ready();
 });
 
-Meteor.publish("datasetList", function(opts) {
-  var self = this;
-
-  var user = Meteor.users.findOne(this.userId);
-  if (user && user.username) {
-
-    var addAccountDatasets = function(acc) {
-      _.each(acc.resources, function(v,k) {
-        var dataset = datasets.findOne({id: k});
-        if (dataset) {
-          self.added("DatasetList",dataset._id,dataset);
-        } else {
-          console.log("failed to load dataset %s",k);
-        }
-      });
-    };
-
-    var changeAccountDatasets = function(newAcc, oldAcc) {
-      // Loop thru new account resources looking for ids not in oldAcc.
-      _.each(newAcc.resources, function(v,k) {
-        if (!oldAcc.resources.hasOwnProperty(k)) {
-          // This is a new resource.
-          var dataset = datasets.findOne({id: k});
-          if (dataset) {
-            self.added("DatasetList", dataset._id, dataset);
-          }
-        }
-      });
-      // Loop thru oldAcc
-      _.each(oldAcc.resources, function(v,k) {
-        if (!newAcc.resources.hasOwnProperty(k)) {
-          // This resource was deleted.
-          var dataset = datasets.findOne({id: k});
-          if (dataset) {
-            self.removed("DatasetList", dataset._id, dataset);
-          }
-        }
-      });
-    };
-
-    var accountCursor = accounts.find({id: user.username });
-    if (opts && opts.id) {
-      // Single dataset subscription.
-      var account = accountCursor.fetch();
-      if (account.length === 1 && account[0].resources.hasOwnProperty(opts.id)) {
-        return datasets.find({id: opts.id});
-      }
-    } else {
-      var liveQuery = accountCursor.observe({
-        added: function(acc) {
-          addAccountDatasets(acc);
-        },
-        changed: function(newAcc,oldAcc) {
-          console.log("account changed: %j",newAcc);
-          changeAccountDatasets(newAcc, oldAcc);
-        },
-        removed: function(acc) {
-          console.log("account removed!? - %s",acc.id);
-        }
-      });
-
-      this.onStop(function() {
-        liveQuery.stop();
-      })
-    }
-  }
-
-  this.ready();
-});
-
 Meteor.publish("datasetData", function(opts) {
   check(opts.id, String);
 
@@ -206,6 +136,41 @@ Meteor.publish("datasetData", function(opts) {
         }
 
         return coll.find(lookup, {sort: sort, limit: limit});
+      }
+    }
+  }
+
+  this.ready();
+});
+
+Meteor.publish("visualisations", function(opts) {
+
+  // DEBUG
+  this.onStop(function() {
+    console.log("*** stopping visualisations publication");
+  });
+
+  var user = Meteor.users.findOne(this.userId);
+  if (user && user.username) {
+    var account = accounts.findOne({id: user.username});
+
+    // Sanitize resource ids.
+    if (typeof opts.id === "object") {
+      var sanitized = [];
+      _.each(opts.id.$in, function(id) {
+        if (account.resources.hasOwnProperty(id)) {
+          sanitized.push(id);
+        } else {
+          console.log("visualisations pub - permisssion denied to access resource%s",id);
+        }
+      });
+      if (sanitized.length > 0) {
+        opts.id.$in = sanitized;
+        return visualisations.find(opts);
+      }
+    } else {
+      if (account.resources.hasOwnProperty(opts.id)) {
+        return visualisations.find(opts);
       }
     }
   }
