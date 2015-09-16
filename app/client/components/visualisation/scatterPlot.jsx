@@ -22,7 +22,7 @@ nqmTBX.vis.ScatterPlot = React.createClass({
     this._visualisation = new NQMScatterPlot(this);
     this._debugTiming = true;
   },
-  componentDidUnmount: function() {
+  componentWillUnmount: function() {
     timeSeriesBase.destroy.call(this);
   },
   shouldComponentUpdate: function() {

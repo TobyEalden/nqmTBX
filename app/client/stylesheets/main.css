@@ -1,14 +1,27 @@
 /*****************************************************************************/
 /* main: Style */
 /*****************************************************************************/
-body, html {
+html, body {
     margin: 0;
     height: 100%;
     font-size: 14px;
+    height: 100%;
+    font-family: Roboto;
 }
 
-html, body {
-    font-family: Roboto;
+#react-root {
+    height: 100%;
+}
+
+.nqm-full-page {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    position: relative;    
+}
+
+.nqm-below-header {
+    height: 100%;
 }
 
 h4 {
@@ -39,13 +52,6 @@ a:hover {
 ::-webkit-scrollbar {  width: 10px;  /* for vertical scrollbars */  height: 10px; /* for horizontal scrollbars */  }
 ::-webkit-scrollbar-track {  background: #bbb;  }
 ::-webkit-scrollbar-thumb { background: #999;  }
-
-.main {
-}
-
-#react-root {
-    height: 100%;
-}
 
 .nqm-grid-stack-item {
 
@@ -79,18 +85,18 @@ a:hover {
 .axis path,
 .axis line {
     fill: none;
-    stroke: #666;
+    stroke: #bbb;
     shape-rendering: crispEdges;
 }
 
 .x.axis text, .y.axis text {
-    fill: #666;
+    fill: #bbb;
     font-size: .8em;
 }
 
 .line {
     fill: none;
     stroke: orange;
-    stroke-width: 2;
+    stroke-width: 1;
 }
 

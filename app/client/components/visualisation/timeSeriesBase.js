@@ -78,9 +78,11 @@ timeSeriesBase.startSubscriptions = function() {
           // Listen for changes to the collection.
           self._liveQuery = cursor.observe({
             added: function(d) {
-              self.props.config.collection.push(d);
-              self.setState({gotData: true});
-              doVisualisationRender.call(self);
+              if (!isNaN(d[self.props.config.datum])) {
+                self.props.config.collection.push(d);
+                self.setState({gotData: true});
+                doVisualisationRender.call(self);                
+              }
             },
             removedAt: function(d,i) {
               self.props.config.collection.splice(i,1);

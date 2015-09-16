@@ -3,17 +3,17 @@ appPalette = {
   primary1Color: mui.Styles.Colors.blueGrey500,
   primary2Color: mui.Styles.Colors.grey400,
   primary3Color: mui.Styles.Colors.blueGrey300,
-  accent1Color: mui.Styles.Colors.blueGrey200,
-  accent2Color: mui.Styles.Colors.blueGrey100,
-  accent3Color: mui.Styles.Colors.orangeA400,
-  textColor: mui.Styles.Colors.grey900,
-  canvasColor: mui.Styles.Colors.grey100,
+  accent1Color: mui.Styles.Colors.orangeA400,
+  accent2Color: mui.Styles.Colors.blueGrey200,
+  accent3Color: mui.Styles.Colors.green,
+  textColor: mui.Styles.Colors.white,
+  canvasColor: mui.Styles.Colors.blueGrey300,
   borderColor: mui.Styles.Colors.grey300,
 
-  nqmTBXListBackground: mui.Styles.Colors.white,
-  nqmTBXListTextColor: mui.Styles.Colors.grey700,
-  nqmTBXListIconColor: mui.Styles.Colors.grey600
-//  disabledColor: mui.Styles.ColorManipulator.fade(mui.Styles.Colors.darkBlack, 0.3)
+  nqmTBXListBackground: mui.Styles.Colors.blueGrey600,
+  nqmTBXListTextColor: mui.Styles.Colors.grey300,
+  nqmTBXListIconColor: mui.Styles.Colors.white,
+  disabledColor: mui.Utils.ColorManipulator.fade(mui.Styles.Colors.darkBlack, 0.3)
 };
 
 componentThemes = {
@@ -25,7 +25,7 @@ componentThemes = {
   },
   raisedButton: {
     textColor: appPalette.primary3Color,
-    color: mui.Styles.Colors.blueGrey50,
+    color: mui.Styles.Colors.blueGrey200,
     primaryColor: mui.Styles.Colors.amber800,
     secondaryColor: mui.Styles.Colors.orange300
   },

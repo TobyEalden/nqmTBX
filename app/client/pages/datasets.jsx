@@ -1,6 +1,8 @@
 
 nqmTBX.pages.Datasets = React.createClass({
   mixins: [ReactMeteorData],
+  propTypes: {
+  },
   getMeteorData() {
     var searchTerm = Session.get("nqm-search") || "";
     var dsSub, account, resourceIds = [];
@@ -13,7 +15,8 @@ nqmTBX.pages.Datasets = React.createClass({
     return {
       ready: accountSub.ready() && dsSub && dsSub.ready(),
       datasets: datasets.find({ id: {$in: resourceIds}, $or: [ {name: {$regex: searchTerm, $options: "i"}}, {description: {$regex: searchTerm, $options: "i"}}, {tags: {$regex: searchTerm, $options: "i"}}]}, {sort: {name: 1}}).fetch(),
-      user: Meteor.user()
+      user: Meteor.user(),
+      marginLeft: Session.get("nqm-sidebar-open") ? "200px" : "0px"
     }
   },
   getInitialState: function() {
@@ -31,6 +34,9 @@ nqmTBX.pages.Datasets = React.createClass({
   },
   _onDeleteClick: function(dataset, e) {
     Meteor.call("/app/dataset/delete",dataset.id,nqmTBX.helpers.methodCallback("deleteDataset"));
+  },
+  _onDefaultClick: function(dataset, e) {
+    FlowRouter.go("datasetView", {id: dataset.id});
   },
   _onAPIClick: function(e) {
     e.stopPropagation();    
@@ -61,19 +67,19 @@ nqmTBX.pages.Datasets = React.createClass({
   render: function() {
     var styles = this._getStyles();
     var toolbar = (
-      <mui.Toolbar style={styles.toolbar}>
+      <mui.Toolbar className="nqm-sub-toolbar" style={styles.toolbar}>
         <mui.ToolbarGroup>
         </mui.ToolbarGroup>
         <mui.ToolbarGroup>
-          <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this._onAddDataset} >add</mui.FontIcon>
-          <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" >view_module</mui.FontIcon>
+          <mui.FontIcon color={appPalette.textColor} hoverColor={appPalette.accent2Color} className="material-icons" onClick={this._onAddDataset} >add</mui.FontIcon>
+          <mui.FontIcon color={appPalette.textColor} hoverColor={appPalette.accent2Color} className="material-icons" >view_module</mui.FontIcon>
         </mui.ToolbarGroup>
       </mui.Toolbar>
-    ) ;
-    var content = <nqmTBX.ResourceList type="Dataset" resources={this.data.datasets} getActiveContent={this._getActiveContent} onEdit={this._onEditClick} onView={this._onViewClick} onDelete={this._onDeleteClick} />;
+    );
+    var content = <nqmTBX.ResourceList type="Dataset" resources={this.data.datasets} getActiveContent={this._getActiveContent} onDefault={this._onDefaultClick} onEdit={this._onEditClick} onView={this._onViewClick} onDelete={this._onDeleteClick} />;
 
     return (
-      <div>
+      <div className="nqm-page-content">
         {toolbar}
         <div style={styles.resourcePanel}>
           {content}
@@ -84,13 +90,17 @@ nqmTBX.pages.Datasets = React.createClass({
   _getStyles: function() {
     return styles = {
       resourcePanel: {
-        marginTop: 60,
+        overflowY: "auto",
+        position: "absolute",
+        top: "112px",
+        right: "0px",
+        bottom: "0px",
+        left: this.data.marginLeft
       },
       toolbar: {
-        paddingLeft: "4px",
-        position: "fixed",
-        backgroundColor: appPalette.primary3Color,
-        zIndex: 1
+        marginLeft: this.data.marginLeft,
+        width: "auto",
+        paddingLeft: 0,
       },
     };
   }

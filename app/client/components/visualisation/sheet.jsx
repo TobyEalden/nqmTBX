@@ -13,10 +13,13 @@ nqmTBX.Sheet = React.createClass({
       visualisation: visualisations.findOne({id: this.props.resourceId})
     };
   },
+  save: function() {
+    return this.refs.view.save();
+  },
   render: function() {
     var content;
     if (this.data.ready) {
-      content = <nqmTBX.vis.SheetView widgets={this.data.visualisation.widgets} />
+      content = <nqmTBX.vis.SheetView ref="view" sheetId={this.props.resourceId} widgets={this.data.visualisation.widgets} />
     } else {
       content = <mui.CircularProgress mode="indeterminate" />
     }
@@ -27,6 +30,7 @@ nqmTBX.Sheet = React.createClass({
 
 nqmTBX.vis.SheetView = React.createClass({
   propTypes: {
+    sheetId: React.PropTypes.string.isRequired,
     widgets: React.PropTypes.array.isRequired
   },
   getInitialState: function() {
@@ -84,14 +88,15 @@ nqmTBX.vis.SheetView = React.createClass({
       this.setState({gridReady: true });
     }
   },
-  saveWidgetPosition: function(id, pos, cb) {
-    console.log("saving widget position: " + id);
-    Meteor.call("/app/widget/updatePosition",{ id: id, position: pos}, function(err) {
+  saveWidgetPosition: function(widget, pos, cb) {
+    cb = cb || (function(){});
+    console.log("saving widget position: " + widget.id);
+    Meteor.call("/app/visualisation/moveWidget",{ visId: this.props.sheetId, id: widget.id, position: pos}, function(err) {
       if (err) {
         nqmTBX.ui.notification("failed to save widget position: " + err.message);
         cb();
       } else {
-        console.log("saved widget position: " + id);
+        console.log("saved widget position: " + widget.id);
         cb();
       }
     });
@@ -100,11 +105,9 @@ nqmTBX.vis.SheetView = React.createClass({
     this.setState({isSaving: true});
     _.each(this.state.dirtyItems, function(item,k) {
       var widgetId = item.el.data().widgetId;
-      var current = widgets.findOne({id: widgetId});
+      var current = _.find(this.props.widgets, function(w) { return w.id === widgetId });
       if (!current.position || current.position.x != item.x || current.position.y != item.y || current.position.w != item.width || current.position.h != item.height) {
-        this.saveWidgetPosition(widgetId,{ x: item.x, y: item.y, w: item.width, h: item.height }, function() {
-          nqmTBX.ui.notification("saved " + widgetId);
-        });
+        this.saveWidgetPosition(current,{ x: item.x, y: item.y, w: item.width, h: item.height });
       }
     }, this);
     this.setState({isDirty: false});

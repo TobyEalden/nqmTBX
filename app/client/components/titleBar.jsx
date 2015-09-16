@@ -47,35 +47,36 @@ nqmTBX.TitleBar = React.createClass({
       title: {
       },
       nquiring: {
-        fontWeight: "bolder",
+        fontWeight: 100,
         paddingRight: "0px",
-        fontSize: 30,
-        color: ThemeManager.getCurrentTheme().palette.canvasColor
+        fontSize: 22,
+        paddingTop: 3,
+        color: ThemeManager.getCurrentTheme().palette.textColor
       },
       toolbox: {
-        fontWeight: 100,
+        fontWeight: "bolder",
         fontSize: 30,
-        color: ThemeManager.getCurrentTheme().palette.canvasColor
+        color: ThemeManager.getCurrentTheme().palette.textColor
       },
       iconButton: {
         marginTop: (toolbarHeight - iconButtonSize) / 2,
       },
       fontIcon: {
-        color: ThemeManager.getCurrentTheme().palette.canvasColor
+        color: ThemeManager.getCurrentTheme().palette.textColor
       },
       iconMenuButton: {
         verticalAlign: "middle",
       },
       toolbar: {
         fontFamily: ThemeManager.getCurrentTheme().contentFontFamily,
-        color: ThemeManager.getCurrentTheme().palette.canvasColor,
-        position: "fixed",
-        zIndex: 10,
+        color: ThemeManager.getCurrentTheme().palette.textColor,
         boxShadow: "0px 2px 2px rgba(0,0,0,0.2)",
-        paddingLeft: "4px"
+        paddingLeft: "4px",
+        position: "relative",
+        zIndex: 1
       },
       currentUser: {
-        color: ThemeManager.getCurrentTheme().palette.canvasColor,
+        color: ThemeManager.getCurrentTheme().palette.textColor,
       },
       rightToolGroup: {
         paddingTop: "16px"
@@ -111,7 +112,7 @@ nqmTBX.TitleBar = React.createClass({
       searchGroup = (
         <mui.ToolbarGroup key={2} float="left" style={styles.title}>
           <mui.FontIcon style={styles.fontIcon} className="material-icons">search</mui.FontIcon>
-          <mui.TextField inputStyle={styles.fontIcon} underlineFocusStyle={{borderColor:mui.Styles.Colors.pink500}} defaultValue={Session.get("nqm-search")} hintText="search" onChange={this.searchTextChanged} />
+          <mui.TextField inputStyle={styles.fontIcon} underlineFocusStyle={{borderColor:appPalette.accent1Color}} defaultValue={Session.get("nqm-search")} hintText="search" onChange={this.searchTextChanged} />
         </mui.ToolbarGroup>
       );
     }

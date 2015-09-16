@@ -27,6 +27,7 @@ nqmTBX.pages.ZoneConnections = React.createClass({
       user: Meteor.user(),
       trustedZones: zoneConnections.find({owner: Meteor.user().username, otherEmail: {$ne: Meteor.user().email} }).fetch(),
       trustingZones: zoneConnections.find({$or: [{other: Meteor.user().username},{otherEmail: Meteor.user().email }]}).fetch(),
+      marginLeft: Session.get("nqm-sidebar-open") ? "200px" : "0px"
     }
   },
   _onCreateConnection: function() {
@@ -97,16 +98,33 @@ nqmTBX.pages.ZoneConnections = React.createClass({
   },
   render: function() {
     var styles = {
-      toolbar: {
-        paddingLeft: "4px",
-        backgroundColor: appPalette.primary3Color
-      },
       iconButton: {
         color: "white",
         hoverColor: "white"
       },
       tabs: {
-        backgroundColor: appPalette.primary3Color        
+        position: "absolute",
+        left: this.data.marginLeft,
+        right: 0,
+        top: 56,
+        bottom: 0        
+      },
+      tabContent: {
+        overflowY: "auto",
+        height: "300px"
+      },
+      tab: {
+        backgroundColor: appPalette.primary3Color,
+        position: "static",
+        // position: "absolute",
+        // top: "0px",
+        // right: "0px",
+        // bottom: "0px",
+        // left: 0
+      },
+      toolbar: {
+        width: "auto",
+        paddingLeft: "4px"
       }
     };
 
@@ -130,21 +148,25 @@ nqmTBX.pages.ZoneConnections = React.createClass({
       var toolbar = (
         <mui.Toolbar style={styles.toolbar}>
           <mui.ToolbarGroup>
-            <mui.FontIcon color={appPalette.canvasColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this._onAddUser}>add</mui.FontIcon>
+            <mui.FontIcon color={appPalette.textColor} hoverColor={appPalette.accent1Color} className="material-icons" onClick={this._onAddUser}>add</mui.FontIcon>
           </mui.ToolbarGroup>
         </mui.Toolbar>
       ) ;
 
       return (
-        <div>
-          <mui.Tabs onChange={this._onTabChange}>
-            <mui.Tab value="trustedByMe" label="zones you trust" style={styles.tabs}>
+        <div className="nqm-page-content">
+          <mui.Tabs style={styles.tabs} onChange={this._onTabChange}>
+            <mui.Tab value="trustedByMe" label="zones you trust" style={styles.tab}>
               {toolbar}
-              {trustedByMe}
+              <div className="nqm-tab-content" style={styles.tabContent}>
+                {trustedByMe}
+              </div>
             </mui.Tab>
-            <mui.Tab value="trustingMe" label="zones that trust you" style={styles.tabs}>
+            <mui.Tab value="trustingMe" label="zones that trust you" style={styles.tab}>
               {toolbar}
-              {trustingMe}
+              <div className="nqm-tab-content-2" style={styles.tabContent}>
+                {trustingMe}
+              </div>              
             </mui.Tab>
           </mui.Tabs>
           {createConnectionDialog}

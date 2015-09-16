@@ -6,7 +6,7 @@ nqmTBX.DatasetBasicView = React.createClass({
   },
   getMeteorData: function() {
     var dsDataSub, datasetData, columns = [];
-    dsDataSub = nqmTBX.subscribeDatasetData(this.props.dataset);
+    dsDataSub = nqmTBX.subscribeDatasetData(this.props.dataset,{id: this.props.dataset.id});
     //if (this.props.dataset) {
     //  dsDataSub = Meteor.subscribe("datasetData", { id: this.props.dataset.id });
     //}

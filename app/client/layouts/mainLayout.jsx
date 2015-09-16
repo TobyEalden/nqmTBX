@@ -13,6 +13,9 @@ MainLayout = React.createClass({
     return data;
   },
   getInitialState: function() {
+    if (Session.get("nqm-sidebar-open") !== false) {
+      Session.set("nqm-sidebar-open",true);      
+    }
     return { sidebarOpen: true }
   },
   getChildContext: function() {
@@ -21,24 +24,21 @@ MainLayout = React.createClass({
     };
   },
   toggleNav: function() {
+    Session.set("nqm-sidebar-open",!this.state.sidebarOpen);
     this.setState({ sidebarOpen: !this.state.sidebarOpen });
   },
   getContent: function(styles) {
     var sideBar;
     if (this.state.sidebarOpen) {
-      sideBar = <div className="Grid-cell" style={styles.sideBar}><nqmTBX.SideBarMenu /></div>
+      sideBar = <nqmTBX.SideBarMenu />;
     }
 
     return (
-      <div style={styles.page}>
+      <div style={{height:"100%"}}>
         <nqmTBX.TitleBar onNavToggle={this.toggleNav} showSearch={this.data.loggedIn} showUserMenu={this.data.loggedIn} />
-        <div className="Grid" style={styles.grid}>
+        <div className="nqm-below-header">
           { sideBar }
-          <div className="Grid-cell" style={styles.contentCell}>
-            <div style={styles.content}>
-              { this.props.content() }
-            </div>
-          </div>
+          { this.props.content() }
         </div>
       </div>
     );
@@ -48,32 +48,7 @@ MainLayout = React.createClass({
     var toolbarHeight = muiTheme.component.toolbar.height;
 
     var styles = {
-      page: {
-        height: "100%",
-        display: "flex",
-        flexDirection: "row",
-        //backgroundColor: appPalette.primary2Color,
-        alignContent: "stretch"
-      },
-      grid: {
-        paddingTop: toolbarHeight,
-        width: "100%"
-      },
-      sideBar: {
-        width: "220px",
-        flex: "none",
-        position: "relative",
-        transition: "all 2s linear",
-        borderRight: "1px solid #eee"
-      },
-      contentCell: {
-        position: "relative",
-        overflowY: "auto",
-        padding: 0,
-      },
-      content: {
-        display: "flex",
-        flexDirection: "column",
+      body: {
         backgroundColor: mui.Styles.Colors.blueGrey700
       }
     };
@@ -92,10 +67,10 @@ MainLayout = React.createClass({
       );
     }
     return (
-      <mui.AppCanvas>
+      <div className="nqm-full-page" style={styles.body}>
         {content}
         <nqmTBX.Notification />
-      </mui.AppCanvas>
+      </div>
     );
   }
 });

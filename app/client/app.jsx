@@ -8,7 +8,7 @@ Meteor.startup(function() {
   injectTapEventPlugin();
 });
 
-nqmTBX.subscribeDatasetData = function(dataset) {
+nqmTBX.subscribeDatasetData = function(dataset, opts) {
   var dsDataSub;
 
   if (dataset) {
@@ -16,7 +16,7 @@ nqmTBX.subscribeDatasetData = function(dataset) {
     if (!coll) {
       coll = new Mongo.Collection(dataset.store);
     }
-    dsDataSub = Meteor.subscribe("datasetData", {id: dataset.id});
+    dsDataSub = Meteor.subscribe("datasetData", opts);
   }
 
   return dsDataSub;

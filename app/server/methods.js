@@ -172,6 +172,23 @@ var addVisualisationWidget = function(opts) {
   }
 };
 
+var moveVisualisationWidget = function(opts) {
+  try {
+    var owner = Meteor.user().username;
+    // Validate that the current user owns the dataset
+    var target = visualisations.findOne({id: opts.visId});
+    if (!target || target.owner !== owner) {
+      throw new Error("permission denied");
+    }
+    var result = HTTP.post(Meteor.settings.commandURL + "/command/visualisation/widget/move", { data: opts });
+    console.log("result is %j",result.data);
+    return result.data;
+  } catch (e) {
+    console.log("visualisation move widget failed: %s", e.message);
+    throw new Meteor.Error("moveVisualisationWidget",e.message);
+  }
+};
+
 var createUserAccount = function(name) {
   try {
     var result;
@@ -652,5 +669,9 @@ Meteor.methods({
   "/app/visualisation/addWidget": function(opts) {
     this.unblock();
     return addVisualisationWidget(opts);
+  },
+  "/app/visualisation/moveWidget": function(opts) {
+    this.unblock();
+    return moveVisualisationWidget(opts);
   }
 });

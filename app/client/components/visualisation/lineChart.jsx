@@ -22,7 +22,7 @@ nqmTBX.vis.LineChart = React.createClass({
     this._visualisation = new NQMLineChart(this);
     this._debugTiming = true;
   },
-  componentDidUnmount: function() {
+  componentWillUnmount: function() {
     timeSeriesBase.destroy.call(this);
   },
   shouldComponentUpdate: function() {

@@ -14,7 +14,12 @@ nqmTBX.pages.DatasetViewPage = React.createClass({
   render: function() {
     var styles = {
       root: {
-        paddingTop: 5
+        overflowY: "auto",
+        position: "absolute",
+        top: 56,
+        right: 0,
+        bottom: 0,
+        padding: 10
       }
     };
     if (this.data.ready) {

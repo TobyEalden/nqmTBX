@@ -72,18 +72,18 @@ nqmTBX.auth.Authenticate = React.createClass({
   },
   render: function() {
     var content = (
-      <div>
-        <mui.CardText style={{textAlign: "center"}}>
+      <mui.Paper>
+        <mui.CardText style={{textAlign: "center"}} zDepth={2}>
           w h o &nbsp; a r e &nbsp; y o u ?
         </mui.CardText>
         <mui.CardActions style={{textAlign: "center"}}>
           <mui.RaisedButton label="Login with Google" primary={true} onClick={this.doGoogleLogin} /><br /><br />
-          <mui.RaisedButton label="Login with LinkedIn" disabled={true} secondary={true} onClick={this.doLinkedInLogin} /><br /><br />
-          <mui.RaisedButton label="Login with Facebook" disabled={true} secondary={true} onClick={this.doFacebookLogin} /><br /><br />
-          <mui.RaisedButton label="Login with Twitter" disabled={true} secondary={true} onClick={this.doTwitterLogin} /><br /><br />
+          <mui.RaisedButton label="Login with LinkedIn" labelStyle={{color:"#444"}} disabled={true} secondary={true} onClick={this.doLinkedInLogin} /><br /><br />
+          <mui.RaisedButton label="Login with Facebook" labelStyle={{color:"#444"}} disabled={true} secondary={true} onClick={this.doFacebookLogin} /><br /><br />
+          <mui.RaisedButton label="Login with Twitter"  labelStyle={{color:"#444"}} disabled={true} secondary={true} onClick={this.doTwitterLogin} /><br /><br />
           {/*<RaisedButton label="NQM Login" secondary={true} onClick={this.doNQMLogin} />*/}
         </mui.CardActions>
-      </div>
+      </mui.Paper>
     );
 
     return content;

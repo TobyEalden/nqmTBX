@@ -7,6 +7,7 @@ nqmTBX.ResourceList = React.createClass({
     onEdit: React.PropTypes.func,
     onView: React.PropTypes.func,
     onDelete: React.PropTypes.func,
+    onDefault: React.PropTypes.func,
     getActiveContent: React.PropTypes.func
   },
   getMeteorData: function() {
@@ -16,7 +17,7 @@ nqmTBX.ResourceList = React.createClass({
   },
   getInitialState: function() {
     return {
-      activeResource: null,
+      activeResource: Session.get("nqm-active-resource"),
       hoveredResource: null
     }
   },
@@ -100,6 +101,13 @@ nqmTBX.ResourceList = React.createClass({
     }
     return <mui.FontIcon style={styles.avatar} className="material-icons">{avIcon}</mui.FontIcon>;
   },
+  _onGoToResource: function(resource, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (this.props.onDefault) {
+      this.props.onDefault(resource, e);
+    }
+  },
   render: function() {
     var styles = this._getStyles();
     var content;
@@ -113,7 +121,7 @@ nqmTBX.ResourceList = React.createClass({
           <div key={resource.id} className="Grid" style={styles.row} key={resource.id} onMouseOver={this._onRowHover.bind(this,resource)} onClick={this._onRowSelection.bind(this,resource)}>
             <div className="Grid-cell" style={styles.nameColumn}>
               <div style={this.state.activeResource === resource.id ? styles.nameColumnInnerActive : styles.nameColumnInner}>
-                {avatar} {resource.name}
+                {avatar} <a style={styles.defaultButton} href="#" onClick={this._onGoToResource.bind(this,resource)}>{resource.name}</a>
               </div>
             </div>
             <MediaQuery minWidth={900}>
@@ -148,6 +156,7 @@ nqmTBX.ResourceList = React.createClass({
 
       content = (
         <div>
+        {/* this is the header row
           <div className="Grid" style={styles.headerRow}>
             <div className="Grid-cell" style={{paddingLeft:30}}>name</div>
             <MediaQuery minWidth={900}>
@@ -155,15 +164,16 @@ nqmTBX.ResourceList = React.createClass({
             </MediaQuery>
             <div className="Grid-cell" style={styles.actionColumn}>actions</div>
           </div>
+        */}
           <mui.Paper style={styles.resourceList}>
             {resourceList}
           </mui.Paper>
         </div>
       );
     } else if (this.props.resources) {
-      content = <div>none found</div>;
+      content = <div style={styles.centredPanel}><h4>none found</h4></div>;
     } else {
-      content = <mui.CircularProgress mode="indeterminate" />;
+      content = <div style={styles.centredPanel}><mui.CircularProgress mode="indeterminate" /></div>;
     }
 
     return content;
@@ -171,7 +181,12 @@ nqmTBX.ResourceList = React.createClass({
   _getStyles: function() {
     return styles = {
       resourceList: {
-        margin: "0px 10px 10px 10px"
+        margin: 10,
+      },
+      centredPanel: {
+        color: appPalette.textColor,
+        margin: 50,
+        textAlign: "center"
       },
       headerRow: {
         padding: "4px 10px 4px 10px"
@@ -182,28 +197,38 @@ nqmTBX.ResourceList = React.createClass({
         verticalAlign: "middle",
         borderWidth: 0,
         borderTopWidth: 1,
-        borderColor: appPalette.borderColor,
+        borderColor: mui.Utils.ColorManipulator.lighten(appPalette.nqmTBXListBackground, 0.7),
         borderStyle: "solid",
-        padding: "4px 4px 4px 0px",
+        padding: "0px 4px 0px 0px",
         color: appPalette.nqmTBXListTextColor,
         backgroundColor: appPalette.nqmTBXListBackground,
       },
       description: {
-        padding: "4px 4px 8px 34px",
+        padding: "0px 4px 8px 34px",
         color: appPalette.nqmTBXListTextColor,
-        backgroundColor: appPalette.nqmTBXListBackground
+        backgroundColor: appPalette.nqmTBXListBackground,
+        borderWidth: 0,
+        borderLeftColor: appPalette.accent1Color,
+        borderLeftWidth: 2,
+        borderStyle: "solid",
       },
       nameColumnInner: {
         borderWidth: 0,
         borderLeftColor: "transparent",
         borderLeftWidth: 2,
         borderStyle: "solid",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
       nameColumnInnerActive: {
         borderWidth: 0,
-        borderLeftColor: appPalette.accent3Color,
+        borderLeftColor: appPalette.accent1Color,
         borderLeftWidth: 2,
         borderStyle: "solid",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
       nameColumn: {
         width: "50%!important",
@@ -215,7 +240,7 @@ nqmTBX.ResourceList = React.createClass({
       },
       avatar: {
         verticalAlign: "middle",
-        color: appPalette.accent1Color,
+        color: appPalette.accent2Color,
         paddingLeft: 5,
         paddingRight: 5,
         fontSize: "20px"
@@ -228,6 +253,8 @@ nqmTBX.ResourceList = React.createClass({
       },
       iconStyle: {
         color: appPalette.nqmTBXListIconColor
+      },
+      defaultButton: {
       }
     }
   }

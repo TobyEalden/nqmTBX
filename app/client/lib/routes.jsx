@@ -68,7 +68,7 @@ FlowRouter.route("/dataset/view/:id", {
 FlowRouter.route("/visualise", {
   name: "visualise",
   action: function () {
-    ReactLayout.render(MainLayout, { content: function() { return <VisualisePage />; } });
+    ReactLayout.render(MainLayout, { content: function() { return <nqmTBX.pages.Visualise />; } });
   }
 });
 

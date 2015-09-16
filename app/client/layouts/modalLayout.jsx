@@ -23,63 +23,36 @@ ModalLayout = React.createClass({
   logout: function() {
     nqmTBX.helpers.logout();
   },
-  getContent: function() {
-    var muiTheme = ThemeManager.getCurrentTheme();
-    var toolbarHeight = muiTheme.component.toolbar.height;
-
-    var styles = {
-      page: {
-        height: "100%",
-        display: "flex",
-        flexDirection: "row",
-        //backgroundColor: appPalette.primary2Color,
-        alignContent: "stretch"
-      },
-      grid: {
-        paddingTop: toolbarHeight,
-        width: "100%"
-      },
-      toolbar: {
-        position: "fixed",
-        zIndex: 10,
-        boxShadow: "0px 2px 2px rgba(0,0,0,0.2)"
-      },
-      contentCell: {
-        position: "relative",
-        overflowY: "auto",
-      },
-      content: {
-        display: "flex",
-        flexDirection: "column",
-        //backgroundColor: appPalette.primary2Color,
-      }
-    };
-
-    return <div style={styles.page}>
-      <nqmTBX.TitleBar showBack={true} showSearch={false} showUserMenu={this.data.loggedIn} />
-      <div className="Grid" style={styles.grid}>
-        <div className="Grid-cell" style={styles.contentCell}>
-          <div style={styles.content}>
-            { this.props.content() }
-          </div>
+  getContent: function(styles) {
+    return (
+      <div style={{height:"100%"}}>
+        <nqmTBX.TitleBar showBack={true} showSearch={false} showUserMenu={this.data.loggedIn} />
+        <div className="nqm-below-header">
+          { this.props.content() }
         </div>
       </div>
-    </div>
+    );
   },
   render: function() {
+    var styles = {
+      body: {
+        backgroundColor: mui.Styles.Colors.blueGrey700
+      },
+    };
+
     var content;
     if (this.data.loggingIn) {
       content = <mui.CircularProgress mode="indeterminate" />;
     } else if (this.data.loggedIn) {
-      content = this.getContent();
+      content = this.getContent(styles);
     } else {
       content = <nqmTBX.auth.Login />;
     }
     return (
-      <mui.AppCanvas>
+      <div className="nqm-full-page" style={styles.body}>
         {content}
         <nqmTBX.Notification />
-      </mui.AppCanvas>
+      </div>
     );
   }
 });

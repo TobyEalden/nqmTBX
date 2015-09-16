@@ -48,13 +48,13 @@ nqmTBX.ZoneConnectionList = React.createClass({
   componentWillReceiveProps: function() {
     this.clearSelection();
   },
-  _getRowButtons: function(conn) {
+  _getRowButtons: function(styles,conn) {
     var buttons = [];
     if (conn.status !== "trusted" && conn.owner !== this.data.user.username) {
-      buttons.push(<mui.IconButton key={0} iconClassName="material-icons" onClick={this.onAcceptClick.bind(this,conn)}>done</mui.IconButton>);
+      buttons.push(<mui.IconButton iconStyle={styles.buttonStyle} key={0} iconClassName="material-icons" onClick={this.onAcceptClick.bind(this,conn)}>done</mui.IconButton>);
     }
-    buttons.push(<mui.IconButton key={1} iconClassName="material-icons" onClick={this.onInfoClick.bind(this,conn)}>info_outline</mui.IconButton>);
-    buttons.push(<mui.IconButton key={2} iconClassName="material-icons" onClick={this.onRemoveClick.bind(this,conn)}>clear</mui.IconButton>);
+    buttons.push(<mui.IconButton iconStyle={styles.buttonStyle} key={1} iconClassName="material-icons" onClick={this.onInfoClick.bind(this,conn)}>info_outline</mui.IconButton>);
+    buttons.push(<mui.IconButton iconStyle={styles.buttonStyle} key={2} iconClassName="material-icons" onClick={this.onRemoveClick.bind(this,conn)}>clear</mui.IconButton>);
     return buttons;
   },
   render: function() {
@@ -64,11 +64,14 @@ nqmTBX.ZoneConnectionList = React.createClass({
       },
       expiredRow: {
         backgroundColor: mui.Styles.Colors.redA100
+      },
+       buttonStyle: { 
+        color: "#222" 
       }
     };
     var trustedBig = this.props.trustedZones.map(function (conn) {
       var expiry = (nqmTBX.helpers.neverExpire.valueOf() === conn.expires.valueOf()) ? "never" : moment(conn.expires).format("YYYY-MM-DD");
-      var buttons = this._getRowButtons(conn);
+      var buttons = this._getRowButtons(styles,conn);
       var rowStyle = conn.status === "expired" ? styles.expiredRow : {};
       return (
         <mui.TableRow style={rowStyle} key={conn.id} onClick={this.onInfoClick.bind(this,conn)}>
@@ -81,7 +84,7 @@ nqmTBX.ZoneConnectionList = React.createClass({
     }, this);
 
     var trustedSmall = this.props.trustedZones.map(function (conn) {
-      var buttons = this._getRowButtons(conn);
+      var buttons = this._getRowButtons(styles,conn);
       var rowStyle = conn.expires <= new Date() ? styles.expiredRow : {};
       return (
         <mui.TableRow style={rowStyle} key={conn.id} onClick={this.onInfoClick.bind(this,conn)}>
@@ -96,7 +99,7 @@ nqmTBX.ZoneConnectionList = React.createClass({
     var content = (
       <div>
         <MediaQuery minWidth={900}>
-          <mui.Table ref="table" selectable={true} fixedHeader={true} height="400px" onRowSelection={this.onSelection}>
+          <mui.Table className="nqm-zone-connection-table" ref="table" selectable={true} fixedHeader={true}  onRowSelection={this.onSelection}>
             <mui.TableHeader displaySelectAll={false} adjustForCheckbox={false}>
               <mui.TableRow>
                 <mui.TableHeaderColumn style={styles.usernameColumn}>e-mail</mui.TableHeaderColumn>
