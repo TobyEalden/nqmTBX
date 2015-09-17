@@ -44,23 +44,21 @@ nqmTBX.pages.Datasets = React.createClass({
   _getActiveContent: function(dataset) {
     var styles = {
       apiLink: {
-        padding: "4px 4px 4px 0px",
+        padding: "10px 4px 4px 0px",
         color: appPalette.nqmTBXListTextColor,
         backgroundColor: appPalette.nqmTBXListBackground,
       },
       apiLinkIcon: {
         color: appPalette.nqmTBXListIconColor,
-        paddingLeft: 5,
+        paddingLeft: 0,
         paddingRight: 5,
         fontSize: "20px",
         verticalAlign: "middle"
       },
     };
     return (
-      <div className="Grid" style={styles.apiLink}>
-        <div className="Grid-cell">
+      <div style={styles.apiLink}>
           <mui.FontIcon style={styles.apiLinkIcon} className="material-icons">link</mui.FontIcon> <a href={"/api/datasets/" + dataset.id} target="_blank" onClick={this._onAPIClick}>{"API Link"}</a>
-        </div>
       </div>    
     );
   },
@@ -68,8 +66,6 @@ nqmTBX.pages.Datasets = React.createClass({
     var styles = this._getStyles();
     var toolbar = (
       <mui.Toolbar className="nqm-sub-toolbar" style={styles.toolbar}>
-        <mui.ToolbarGroup>
-        </mui.ToolbarGroup>
         <mui.ToolbarGroup>
           <mui.FontIcon color={appPalette.textColor} hoverColor={appPalette.accent2Color} className="material-icons" onClick={this._onAddDataset} >add</mui.FontIcon>
           <mui.FontIcon color={appPalette.textColor} hoverColor={appPalette.accent2Color} className="material-icons" >view_module</mui.FontIcon>

@@ -50,7 +50,7 @@ nqmTBX.TitleBar = React.createClass({
         fontWeight: 100,
         paddingRight: "0px",
         fontSize: 22,
-        paddingTop: 3,
+        paddingTop: 2,
         color: ThemeManager.getCurrentTheme().palette.textColor
       },
       toolbox: {

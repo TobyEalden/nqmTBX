@@ -33,7 +33,7 @@ componentThemes = {
     hintColor: mui.Styles.Colors.grey500
   },
   listItem: {
-    nestedLevelDepth: 12
+    nestedLevelDepth: 6
   }
 };
 

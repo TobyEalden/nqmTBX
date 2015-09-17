@@ -49,33 +49,40 @@ nqmTBX.SideBarMenu = React.createClass({
     };
 
     var sideBarList = [
-      { 
-        text: "resources", 
-        icon: "local_library", 
-        initiallyOpen: true,
+      {
+        text: "datasets",
+        route: "datasets",
+        icon: "data_usage",
+        initiallyOpen: false,
         children: [
           {
-            text: "datasets",
-            route: "datasets",
-            icon: "data_usage",
+            text: "iot",
+            icon: "folder"
           },
           {
-            text: "iot feeds",
-            route: "iot",
-            icon: "input",
+            text: "obesity",
+            icon: "folder"
           },
           {
-            text: "visualisations",
-            route: "visualise",
-            icon: "widgets",
+            text: "smart cities",
+            icon: "location_city"
           },
           {
-            text: "processes",
-            route: "processes",
-            icon: "developer_board",
-          }
+            text: "youth homelessness",
+            icon: "folder"
+          },
         ]
       },
+      {
+        text: "visualisations",
+        route: "visualise",
+        icon: "widgets",
+      },
+      {
+        text: "processes",
+        route: "processes",
+        icon: "developer_board",
+      },          
       {
         text: "connections",
         route: "connections",

@@ -68,17 +68,20 @@ nqmTBX.ResourceList = React.createClass({
       var iconMenu = (
         <mui.IconMenu openDirection="bottom-left" key={4} style={styles.buttonStyle} iconButtonElement={<mui.IconButton key={5} tooltip="more" style={styles.buttonStyle} iconStyle={styles.iconStyle} iconClassName="material-icons" onClick={this._onMoreClick}>more_vert</mui.IconButton>}>
           <mui.MenuItem key={0} primaryText="quick view" onClick={this._onViewClick.bind(this,resource)} />
-          <mui.MenuItem key={1} primaryText="delete" onClick={this._onDeleteClick.bind(this,resource)} />
-          <mui.MenuDivider key={2} />
-          <mui.MenuItem key={3} primaryText="export..."  onClick={this._onNotImplmented.bind(this,resource)} />
-          <mui.MenuItem key={4} primaryText="derive..."  onClick={this._onNotImplmented.bind(this,resource)} />
+          <mui.MenuItem key={1} primaryText="share..." onClick={this._onShareClick.bind(this,resource)} />
+          <mui.MenuItem key={3} primaryText="move..." onClick={this._onNotImplmented.bind(this,resource)} />
+          <mui.MenuItem key={4} primaryText="delete..." onClick={this._onDeleteClick.bind(this,resource)} />
+          <mui.MenuDivider key={5} />
+          <mui.MenuItem key={6} primaryText="export..."  onClick={this._onNotImplmented.bind(this,resource)} />
+          <mui.MenuItem key={7} primaryText="derive..."  onClick={this._onNotImplmented.bind(this,resource)} />
         </mui.IconMenu>
       );
       buttons.push(iconMenu);
       buttons.push(<mui.IconButton key={2} tooltip="edit" style={styles.buttonStyle} iconStyle={styles.iconStyle} iconClassName="material-icons" onClick={this._onEditClick.bind(this,resource)}>edit</mui.IconButton>);
-      if (resource.owner === this.data.user.username) {
-        buttons.push(<mui.IconButton key={0} tooltip="share" style={styles.buttonStyle} iconStyle={styles.iconStyle} iconClassName="material-icons" onClick={this._onShareClick.bind(this,resource)}>share</mui.IconButton>);
-      }
+      buttons.push(<mui.IconButton key={1} tooltip="view" style={styles.buttonStyle} iconStyle={styles.iconStyle} iconClassName="material-icons" onClick={this._onViewClick.bind(this,resource)}>pageview</mui.IconButton>);
+      // if (resource.owner === this.data.user.username) {
+      //   buttons.push(<mui.IconButton key={0} tooltip="share" style={styles.buttonStyle} iconStyle={styles.iconStyle} iconClassName="material-icons" onClick={this._onShareClick.bind(this,resource)}>share</mui.IconButton>);
+      // }
     }
     return buttons;
   },
@@ -121,7 +124,7 @@ nqmTBX.ResourceList = React.createClass({
           <div key={resource.id} className="Grid" style={styles.row} key={resource.id} onMouseOver={this._onRowHover.bind(this,resource)} onClick={this._onRowSelection.bind(this,resource)}>
             <div className="Grid-cell" style={styles.nameColumn}>
               <div style={this.state.activeResource === resource.id ? styles.nameColumnInnerActive : styles.nameColumnInner}>
-                {avatar} <a style={styles.defaultButton} href="#" onClick={this._onGoToResource.bind(this,resource)}>{resource.name}</a>
+                {avatar} {resource.name} {/*<a style={styles.defaultButton} href="#" onClick={this._onGoToResource.bind(this,resource)}>{resource.name}</a>*/}
               </div>
             </div>
             <MediaQuery minWidth={900}>
@@ -142,10 +145,12 @@ nqmTBX.ResourceList = React.createClass({
               <div key={resource.id+"-active"} className="Grid" style={styles.description} onMouseOver={this._onRowHover.bind(this,resource)} onClick={this._onRowSelection.bind(this,resource)}>
                 <div className="Grid-cell">
                   {resource.description}
-                  <div style={styles.shareSummary}><nqmTBX.SharedWithSummary resource={resource} onClick={this._onShareClick.bind(this,resource)} /></div>
+                  <div style={styles.shareSummary}>
+                    <nqmTBX.SharedWithSummary resource={resource} onClick={this._onShareClick.bind(this,resource)} />
+                  </div>
+                  {activeContent}
                 </div>
               </div>
-              {activeContent}
             </div>
           );
         } else {

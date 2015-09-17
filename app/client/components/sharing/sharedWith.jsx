@@ -31,6 +31,13 @@ nqmTBX.SharedWithSummary = React.createClass({
         paddingTop: "5px",
         pointer: "hand"
       },
+      shareIcon: {
+        color: appPalette.nqmTBXListIconColor,
+        paddingLeft: 0,
+        paddingRight: 5,
+        fontSize: "20px",
+        verticalAlign: "middle"
+      }
     };
     var content;
     if (this.data.ready) {
@@ -61,7 +68,7 @@ nqmTBX.SharedWithSummary = React.createClass({
     } else {
       content = <span>loading...</span>;
     }
-    return <div style={styles.root} onClick={this.onClick}>{content}</div>;
+    return <div style={styles.root} onClick={this.onClick}><mui.FontIcon style={styles.shareIcon} className="material-icons">share</mui.FontIcon> {content}</div>;
   }
 });
 

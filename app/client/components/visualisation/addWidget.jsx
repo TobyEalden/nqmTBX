@@ -11,8 +11,10 @@ nqmTBX.AddWidget = React.createClass({
   getInitialState: function() {
     return {
       selectedResource: "",
+      resourceName: "",
       selectedWidgetType: "",
-      selectedDatum: ""
+      widgetTypeName: "",
+      selectedDatum: ""      
     }
   },
   getMeteorData: function() {
@@ -26,10 +28,12 @@ nqmTBX.AddWidget = React.createClass({
     };
   },
   _onWidgetTypeSelected: function(e,value) {
-    this.setState({selectedWidgetType: value});
+    var name = _.find(this.data.widgetTypes, function(w) { return w.name === value}).caption;
+    this.setState({selectedWidgetType: value, widgetTypeName: name});
   },
   _onResourceSelected: function(e,value) {
-    this.setState({selectedResource: value});
+    var name = _.find(this.data.resources, function(w) { return w.id === value}).name;
+    this.setState({selectedResource: value, resourceName: name});
   },
   _onDatumSelected: function(e,value) {
     this.setState({selectedDatum: value});
@@ -38,7 +42,7 @@ nqmTBX.AddWidget = React.createClass({
     if (this.props.onAdd) {
       this.props.onAdd({
         widgetType: this.state.selectedWidgetType,
-        resourceId: this.state.selectedResource,
+        resourceId: this.state.selectedResource,        
         datum: this.state.selectedDatum
       });
     }
@@ -65,7 +69,7 @@ nqmTBX.AddWidget = React.createClass({
         });
         datumSelector = (
           <div>
-            <span>{this.state.selectedDatum}</span>
+            <mui.TextField floatingLabelText="datum" value={this.state.selectedDatum} />            
             <IconMenu onChange={this._onDatumSelected} iconButtonElement={datumButton} maxHeight={272} openDirection="bottom-right">{fieldList}</IconMenu>
           </div>
         );
@@ -73,7 +77,7 @@ nqmTBX.AddWidget = React.createClass({
       return (
         <div>
           <div>
-            <span>{this.state.selectedResource}</span>
+            <mui.TextField floatingLabelText="resource" value={this.state.resourceName} />            
             <IconMenu onChange={this._onResourceSelected}
               iconButtonElement={resourceButton}
               maxHeight={272}
@@ -82,7 +86,7 @@ nqmTBX.AddWidget = React.createClass({
             </IconMenu>
           </div>
           <div>
-            <span>{this.state.selectedWidgetType}</span>
+            <mui.TextField floatingLabelText="visualisation" value={this.state.widgetTypeName} />            
             <IconMenu onChange={this._onWidgetTypeSelected}
               iconButtonElement={widgetTypeButton}
               maxHeight={272}

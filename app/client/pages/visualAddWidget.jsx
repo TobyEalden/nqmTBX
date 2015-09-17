@@ -20,8 +20,13 @@ nqmTBX.pages.VisualAddWidget = React.createClass({
     Meteor.call("/app/visualisation/addWidget",opts,nqmTBX.helpers.methodCallback("addWidget"));
   },
   render: function() {
+    var styles = {
+      root: {
+        margin: 10
+      }
+    };
     return (
-      <div>
+      <div style={styles.root}>
         <nqmTBX.AddWidget onAdd={this._onAddWidget} />
       </div>
       );
