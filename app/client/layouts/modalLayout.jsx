@@ -36,7 +36,7 @@ ModalLayout = React.createClass({
   render: function() {
     var styles = {
       body: {
-        backgroundColor: mui.Styles.Colors.blueGrey700
+        backgroundColor:  appPalette.accent3Color
       },
     };
 

@@ -1,18 +1,18 @@
 
 appPalette = {
-  primary1Color: mui.Styles.Colors.blueGrey500,
-  primary2Color: mui.Styles.Colors.grey400,
+  primary1Color: mui.Styles.Colors.blueGrey500,    // Toolbars and title bar.
+  primary2Color: mui.Styles.Colors.blueGrey400,
   primary3Color: mui.Styles.Colors.blueGrey300,
-  accent1Color: mui.Styles.Colors.orangeA400,
+  accent1Color: mui.Styles.Colors.blueGreyA400,
   accent2Color: mui.Styles.Colors.blueGrey200,
-  accent3Color: mui.Styles.Colors.green,
+  accent3Color: mui.Styles.Colors.blueGrey50,      // Main page background.
   textColor: mui.Styles.Colors.white,
   canvasColor: mui.Styles.Colors.blueGrey300,
-  borderColor: mui.Styles.Colors.grey300,
+  borderColor: mui.Styles.Colors.blueGrey300,
 
-  nqmTBXListBackground: mui.Styles.Colors.blueGrey600,
-  nqmTBXListTextColor: mui.Styles.Colors.grey300,
-  nqmTBXListIconColor: mui.Styles.Colors.white,
+  nqmTBXListBackground: mui.Styles.Colors.blueGrey100,
+  nqmTBXListTextColor: mui.Styles.Colors.blueGrey900,
+  nqmTBXListIconColor: mui.Styles.Colors.grey700,
   disabledColor: mui.Utils.ColorManipulator.fade(mui.Styles.Colors.darkBlack, 0.3)
 };
 
@@ -26,11 +26,11 @@ componentThemes = {
   raisedButton: {
     textColor: appPalette.primary3Color,
     color: mui.Styles.Colors.blueGrey200,
-    primaryColor: mui.Styles.Colors.amber800,
-    secondaryColor: mui.Styles.Colors.orange300
+    primaryColor: mui.Styles.Colors.amber800,     // Amber
+    secondaryColor: mui.Styles.Colors.blueGrey300   // Orange
   },
   textField: {
-    hintColor: mui.Styles.Colors.grey500
+    hintColor: mui.Styles.Colors.blueGrey500
   },
   listItem: {
     nestedLevelDepth: 6
@@ -48,19 +48,19 @@ ThemeManager.setComponentThemes(componentThemes);
 Horrible purple scheme
 
 appPalette = {
-  primary1Color: mui.Styles.Colors.deepPurple800,
-  primary2Color: mui.Styles.Colors.grey400,
-  primary3Color: mui.Styles.Colors.deepPurple200,
-  accent1Color: mui.Styles.Colors.deepPurple400,
-  accent2Color: mui.Styles.Colors.deepPurple100,
-  accent3Color: mui.Styles.Colors.orangeA400,
-  textColor: mui.Styles.Colors.grey900,
-  canvasColor: mui.Styles.Colors.grey100,
-  borderColor: mui.Styles.Colors.grey300,
+  primary1Color: mui.Styles.Colors.blueGrey800,
+  primary2Color: mui.Styles.Colors.blueGrey400,
+  primary3Color: mui.Styles.Colors.blueGrey200,
+  accent1Color: mui.Styles.Colors.blueGrey400,
+  accent2Color: mui.Styles.Colors.blueGrey100,
+  accent3Color: mui.Styles.Colors.blueGreyA400,
+  textColor: mui.Styles.Colors.blueGrey900,
+  canvasColor: mui.Styles.Colors.blueGrey100,
+  borderColor: mui.Styles.Colors.blueGrey300,
 
   nqmTBXListBackground: mui.Styles.Colors.white,
-  nqmTBXListTextColor: mui.Styles.Colors.grey700,
-  nqmTBXListIconColor: mui.Styles.Colors.grey600
+  nqmTBXListTextColor: mui.Styles.Colors.blueGrey700,
+  nqmTBXListIconColor: mui.Styles.Colors.blueGrey600
 //  disabledColor: mui.Styles.ColorManipulator.fade(mui.Styles.Colors.darkBlack, 0.3)
 };
 
@@ -72,13 +72,13 @@ componentThemes = {
     backgroundColor: appPalette.canvasColor
   },
   raisedButton: {
-    textColor: mui.Styles.Colors.grey100,
-    color: mui.Styles.Colors.deepPurpleA100,
+    textColor: mui.Styles.Colors.blueGrey100,
+    color: mui.Styles.Colors.blueGreyA100,
     primaryColor: mui.Styles.Colors.purpleA700,
     secondaryColor: mui.Styles.Colors.purpleA100
   },
   textField: {
-    hintColor: mui.Styles.Colors.grey500
+    hintColor: mui.Styles.Colors.blueGrey500
   },
   listItem: {
     nestedLevelDepth: 12

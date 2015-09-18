@@ -17898,7 +17898,7 @@ var ListItem = React.createClass({
         display: 'block',
         position: 'absolute',
         top: twoLine ? 12 : singleAvatar ? 4 : 0,
-        padding: 12
+        padding: "12px 2px 12px 2px"
       },
 
       leftIcon: {

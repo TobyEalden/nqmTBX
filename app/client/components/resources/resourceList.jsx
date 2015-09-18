@@ -202,7 +202,7 @@ nqmTBX.ResourceList = React.createClass({
         verticalAlign: "middle",
         borderWidth: 0,
         borderTopWidth: 1,
-        borderColor: mui.Utils.ColorManipulator.lighten(appPalette.nqmTBXListBackground, 0.7),
+        borderColor: mui.Utils.ColorManipulator.darken(appPalette.nqmTBXListBackground, 0.05),
         borderStyle: "solid",
         padding: "0px 4px 0px 0px",
         color: appPalette.nqmTBXListTextColor,
